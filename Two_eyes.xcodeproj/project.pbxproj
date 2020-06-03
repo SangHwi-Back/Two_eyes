@@ -1,0 +1,502 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05916AE8133BB714ED1FD526 /* Pods_Two_eyes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */; };
+		1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC887246CD026008C0647 /* AppDelegate.swift */; };
+		1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC889246CD026008C0647 /* SceneDelegate.swift */; };
+		1B1FC892246CD026008C0647 /* Two_eyes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */; };
+		1B1FC894246CD027008C0647 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC893246CD027008C0647 /* Assets.xcassets */; };
+		1B1FC897246CD027008C0647 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC895246CD027008C0647 /* LaunchScreen.storyboard */; };
+		1B1FC89F246CD15F008C0647 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC89E246CD15F008C0647 /* GoogleService-Info.plist */; };
+		1B1FC8A2246CD32D008C0647 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A0246CD32D008C0647 /* Main.storyboard */; };
+		1B1FC8AE246CD35B008C0647 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A4246CD35B008C0647 /* ViewController.swift */; };
+		1B1FC8AF246CD35B008C0647 /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A5246CD35B008C0647 /* SettingsTableViewController.swift */; };
+		1B1FC8B0246CD35B008C0647 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A6246CD35B008C0647 /* SignUpViewController.swift */; };
+		1B1FC8B1246CD35B008C0647 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A7246CD35B008C0647 /* FilterViewController.swift */; };
+		1B1FC8B2246CD35B008C0647 /* ConfirmSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A8246CD35B008C0647 /* ConfirmSignUpViewController.swift */; };
+		1B1FC8B3246CD35B008C0647 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8A9246CD35B008C0647 /* SignInViewController.swift */; };
+		1B1FC8B4246CD35B008C0647 /* BroadCastingTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8AA246CD35B008C0647 /* BroadCastingTabBarController.swift */; };
+		1B1FC8B5246CD35B008C0647 /* SearchAndLoadDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8AB246CD35B008C0647 /* SearchAndLoadDetailViewController.swift */; };
+		1B1FC8B6246CD35B008C0647 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8AC246CD35B008C0647 /* CameraViewController.swift */; };
+		1B1FC8B7246CD35B008C0647 /* SearchAndLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8AD246CD35B008C0647 /* SearchAndLoadViewController.swift */; };
+		1B1FC8BF246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BB246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift */; };
+		1B1FC8C0246CD387008C0647 /* SearchImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BC246CD387008C0647 /* SearchImage.swift */; };
+		1B1FC8C1246CD387008C0647 /* BasicFilterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BD246CD387008C0647 /* BasicFilterTemplate.swift */; };
+		1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BE246CD387008C0647 /* SearchSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1725C44C0ABCA6191D4F43A7 /* Pods-Two_eyes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Two_eyes.release.xcconfig"; path = "Target Support Files/Pods-Two_eyes/Pods-Two_eyes.release.xcconfig"; sourceTree = "<group>"; };
+		1B1FC884246CD026008C0647 /* Two_eyes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Two_eyes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B1FC887246CD026008C0647 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1B1FC889246CD026008C0647 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		1B1FC891246CD026008C0647 /* Two_eyes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Two_eyes.xcdatamodel; sourceTree = "<group>"; };
+		1B1FC893246CD027008C0647 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1B1FC896246CD027008C0647 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		1B1FC898246CD027008C0647 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1B1FC89E246CD15F008C0647 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1B1FC8A1246CD32D008C0647 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../Two_eyes_backup/Two_eyes/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1B1FC8A4246CD35B008C0647 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		1B1FC8A5246CD35B008C0647 /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
+		1B1FC8A6246CD35B008C0647 /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
+		1B1FC8A7246CD35B008C0647 /* FilterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
+		1B1FC8A8246CD35B008C0647 /* ConfirmSignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmSignUpViewController.swift; sourceTree = "<group>"; };
+		1B1FC8A9246CD35B008C0647 /* SignInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
+		1B1FC8AA246CD35B008C0647 /* BroadCastingTabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BroadCastingTabBarController.swift; sourceTree = "<group>"; };
+		1B1FC8AB246CD35B008C0647 /* SearchAndLoadDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchAndLoadDetailViewController.swift; sourceTree = "<group>"; };
+		1B1FC8AC246CD35B008C0647 /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		1B1FC8AD246CD35B008C0647 /* SearchAndLoadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchAndLoadViewController.swift; sourceTree = "<group>"; };
+		1B1FC8BB246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchAndLoadCollectionViewCell.swift; sourceTree = "<group>"; };
+		1B1FC8BC246CD387008C0647 /* SearchImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchImage.swift; sourceTree = "<group>"; };
+		1B1FC8BD246CD387008C0647 /* BasicFilterTemplate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFilterTemplate.swift; sourceTree = "<group>"; };
+		1B1FC8BE246CD387008C0647 /* SearchSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchSettings.swift; sourceTree = "<group>"; };
+		1D0085B0312BA077C9E1231F /* Pods-Two_eyes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Two_eyes.debug.xcconfig"; path = "Target Support Files/Pods-Two_eyes/Pods-Two_eyes.debug.xcconfig"; sourceTree = "<group>"; };
+		4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Two_eyes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1B1FC881246CD026008C0647 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05916AE8133BB714ED1FD526 /* Pods_Two_eyes.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1B1FC87B246CD026008C0647 = {
+			isa = PBXGroup;
+			children = (
+				1B1FC886246CD026008C0647 /* Two_eyes */,
+				1B1FC885246CD026008C0647 /* Products */,
+				B93CEA8ECE834821170B3B86 /* Pods */,
+				7AD395CA86BD3E84978F6FB0 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		1B1FC885246CD026008C0647 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1B1FC884246CD026008C0647 /* Two_eyes.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1B1FC886246CD026008C0647 /* Two_eyes */ = {
+			isa = PBXGroup;
+			children = (
+				1B1FC887246CD026008C0647 /* AppDelegate.swift */,
+				1B1FC889246CD026008C0647 /* SceneDelegate.swift */,
+				1B1FC8BA246CD378008C0647 /* Model */,
+				1B1FC8A3246CD344008C0647 /* Controller */,
+				1B1FC8A0246CD32D008C0647 /* Main.storyboard */,
+				1B1FC893246CD027008C0647 /* Assets.xcassets */,
+				1B1FC895246CD027008C0647 /* LaunchScreen.storyboard */,
+				1B1FC898246CD027008C0647 /* Info.plist */,
+				1B1FC89E246CD15F008C0647 /* GoogleService-Info.plist */,
+				1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */,
+			);
+			path = Two_eyes;
+			sourceTree = "<group>";
+		};
+		1B1FC8A3246CD344008C0647 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				1B1FC8AA246CD35B008C0647 /* BroadCastingTabBarController.swift */,
+				1B1FC8AC246CD35B008C0647 /* CameraViewController.swift */,
+				1B1FC8A8246CD35B008C0647 /* ConfirmSignUpViewController.swift */,
+				1B1FC8A7246CD35B008C0647 /* FilterViewController.swift */,
+				1B1FC8AB246CD35B008C0647 /* SearchAndLoadDetailViewController.swift */,
+				1B1FC8AD246CD35B008C0647 /* SearchAndLoadViewController.swift */,
+				1B1FC8A5246CD35B008C0647 /* SettingsTableViewController.swift */,
+				1B1FC8A9246CD35B008C0647 /* SignInViewController.swift */,
+				1B1FC8A6246CD35B008C0647 /* SignUpViewController.swift */,
+				1B1FC8A4246CD35B008C0647 /* ViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		1B1FC8BA246CD378008C0647 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1B1FC8BD246CD387008C0647 /* BasicFilterTemplate.swift */,
+				1B1FC8BB246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift */,
+				1B1FC8BC246CD387008C0647 /* SearchImage.swift */,
+				1B1FC8BE246CD387008C0647 /* SearchSettings.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		7AD395CA86BD3E84978F6FB0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B93CEA8ECE834821170B3B86 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1D0085B0312BA077C9E1231F /* Pods-Two_eyes.debug.xcconfig */,
+				1725C44C0ABCA6191D4F43A7 /* Pods-Two_eyes.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1B1FC883246CD026008C0647 /* Two_eyes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B1FC89B246CD027008C0647 /* Build configuration list for PBXNativeTarget "Two_eyes" */;
+			buildPhases = (
+				7CA10297CB7403C5447F4E19 /* [CP] Check Pods Manifest.lock */,
+				1B1FC880246CD026008C0647 /* Sources */,
+				1B1FC881246CD026008C0647 /* Frameworks */,
+				1B1FC882246CD026008C0647 /* Resources */,
+				8C1D186DD46F76BAC25C9B1D /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Two_eyes;
+			productName = Two_eyes;
+			productReference = 1B1FC884246CD026008C0647 /* Two_eyes.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1B1FC87C246CD026008C0647 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1140;
+				LastUpgradeCheck = 1140;
+				ORGANIZATIONNAME = "Sanghwi Back";
+				TargetAttributes = {
+					1B1FC883246CD026008C0647 = {
+						CreatedOnToolsVersion = 11.4.1;
+					};
+				};
+			};
+			buildConfigurationList = 1B1FC87F246CD026008C0647 /* Build configuration list for PBXProject "Two_eyes" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1B1FC87B246CD026008C0647;
+			productRefGroup = 1B1FC885246CD026008C0647 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1B1FC883246CD026008C0647 /* Two_eyes */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1B1FC882246CD026008C0647 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B1FC897246CD027008C0647 /* LaunchScreen.storyboard in Resources */,
+				1B1FC8A2246CD32D008C0647 /* Main.storyboard in Resources */,
+				1B1FC89F246CD15F008C0647 /* GoogleService-Info.plist in Resources */,
+				1B1FC894246CD027008C0647 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7CA10297CB7403C5447F4E19 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Two_eyes-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8C1D186DD46F76BAC25C9B1D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Two_eyes/Pods-Two_eyes-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Two_eyes/Pods-Two_eyes-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Two_eyes/Pods-Two_eyes-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1B1FC880246CD026008C0647 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B1FC8BF246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift in Sources */,
+				1B1FC8B5246CD35B008C0647 /* SearchAndLoadDetailViewController.swift in Sources */,
+				1B1FC8C0246CD387008C0647 /* SearchImage.swift in Sources */,
+				1B1FC8B1246CD35B008C0647 /* FilterViewController.swift in Sources */,
+				1B1FC8B7246CD35B008C0647 /* SearchAndLoadViewController.swift in Sources */,
+				1B1FC8B0246CD35B008C0647 /* SignUpViewController.swift in Sources */,
+				1B1FC892246CD026008C0647 /* Two_eyes.xcdatamodeld in Sources */,
+				1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */,
+				1B1FC8AF246CD35B008C0647 /* SettingsTableViewController.swift in Sources */,
+				1B1FC8C1246CD387008C0647 /* BasicFilterTemplate.swift in Sources */,
+				1B1FC8B6246CD35B008C0647 /* CameraViewController.swift in Sources */,
+				1B1FC8B4246CD35B008C0647 /* BroadCastingTabBarController.swift in Sources */,
+				1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */,
+				1B1FC8B3246CD35B008C0647 /* SignInViewController.swift in Sources */,
+				1B1FC8B2246CD35B008C0647 /* ConfirmSignUpViewController.swift in Sources */,
+				1B1FC8AE246CD35B008C0647 /* ViewController.swift in Sources */,
+				1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		1B1FC895246CD027008C0647 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1B1FC896246CD027008C0647 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		1B1FC8A0246CD32D008C0647 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1B1FC8A1246CD32D008C0647 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1B1FC899246CD027008C0647 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1B1FC89A246CD027008C0647 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1B1FC89C246CD027008C0647 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D0085B0312BA077C9E1231F /* Pods-Two_eyes.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L3ZPWB4HNK;
+				INFOPLIST_FILE = Two_eyes/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sanghwi.Two-eyes";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1B1FC89D246CD027008C0647 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1725C44C0ABCA6191D4F43A7 /* Pods-Two_eyes.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L3ZPWB4HNK;
+				INFOPLIST_FILE = Two_eyes/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sanghwi.Two-eyes";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B1FC87F246CD026008C0647 /* Build configuration list for PBXProject "Two_eyes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B1FC899246CD027008C0647 /* Debug */,
+				1B1FC89A246CD027008C0647 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1B1FC89B246CD027008C0647 /* Build configuration list for PBXNativeTarget "Two_eyes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B1FC89C246CD027008C0647 /* Debug */,
+				1B1FC89D246CD027008C0647 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				1B1FC891246CD026008C0647 /* Two_eyes.xcdatamodel */,
+			);
+			currentVersion = 1B1FC891246CD026008C0647 /* Two_eyes.xcdatamodel */;
+			path = Two_eyes.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 1B1FC87C246CD026008C0647 /* Project object */;
+}
