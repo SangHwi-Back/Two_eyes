@@ -48,16 +48,16 @@ class FilterViewController: UIViewController {
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
     var initialImage: UIImage?
-    var changedX: CGFloat?
-    var changedY: CGFloat?
-    var panRecognizedView: UIImageView?
-    var translation: CGPoint?
     
-    //MARK: - viewDidLoad 시작
+    //MARK: - Methods executed in view life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         self.filterItemsCollectionView.backgroundColor = UIColor.flatSand()
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
+        self.view.backgroundColor = UIColor(
+            gradientStyle: UIGradientStyle.topToBottom,
+            withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
+            andColors: [UIColor.flatSand(), UIColor.flatSandDark()]
+        )
         
         navigationController?.navigationBar.isHidden = false
         
@@ -71,17 +71,8 @@ class FilterViewController: UIViewController {
         filterItemsCollectionView.collectionViewLayout = layout
         
         basicFilter.delegate = self
-        
         imageVariableScrollView.delegate = self
         
-        filteredImageView.isUserInteractionEnabled = true
-        capturedImageView.isUserInteractionEnabled = true
-        navigationItem.hidesBackButton = false
-        
-        self.capturedImagePanGestureRecognizer.maximumNumberOfTouches = 1
-        self.filterImagePanGestureRecognizer.maximumNumberOfTouches = 1
-        
-        filteredImageView.layer.zPosition = 1
         registerPhoto()
         registerAdjust()
         // Do any additional setup after loading the view.
@@ -89,85 +80,85 @@ class FilterViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        // Gesture source Start
+        filteredImageView.isUserInteractionEnabled = true
+        capturedImageView.isUserInteractionEnabled = true
+        
+        self.capturedImagePanGestureRecognizer.maximumNumberOfTouches = 1
+        self.filterImagePanGestureRecognizer.maximumNumberOfTouches = 1
+        
+        filteredImageView.layer.zPosition = 0
+        capturedImageView.layer.zPosition = 1
+        canvasView.layer.zPosition = 2
+        // Gesture source End
+        
         basicFilter.wouldDelegateExecute = true
         basicFilter.filterName = filters[0]
-        basicFilter.filteredImage = filteredImageView.image
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    deinit {
+        navigationController?.navigationBar.isHidden = true
+    }
+    
+    @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
+        filteredImageView.actionPinchGesture(recognize: sender, in: canvasView)
+    }
+    
+    @IBAction func capturedImagePinchAction(_ sender: UIPinchGestureRecognizer) {
+        capturedImageView.actionPinchGesture(recognize: sender, in: canvasView)
+    }
+    
+    
+    @IBAction func filteredImagePanAction(_ sender: UIPanGestureRecognizer) {
+        filteredImageView.actionPanGesture(recognize: sender, in: canvasView)
+    }
+    
+    @IBAction func capturedImagePanAction(_ sender: UIPanGestureRecognizer) {
+        capturedImageView.actionPanGesture(recognize: sender, in: canvasView)
+    }
+}
+
+//MARK: - Filtering methods
+extension FilterViewController {    
     func registerPhoto() {
+        basicFilter.filterName = filters[0]
+        
+        if initialImage != nil {
+            capturedImageView.image = initialImage
+            filteredImageView.image = initialImage
+        }
+        
         if let imageManager = imageManager, let currentAsset = currentAsset {
-            imageManager.requestImage(for: currentAsset, targetSize: capturedImageView.frame.size, contentMode: .aspectFill, options: nil) { (image, _) in
+            imageManager.requestImage(for: currentAsset, targetSize: capturedImageView.frame.size, contentMode: .aspectFit, options: nil) { (image, _) in
                 self.initialImage = image
                 self.capturedImageView.image = image
                 self.filteredImageView.image = image
             }
         }
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.backItem?.title = "Back"
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
-    }
-    
-    deinit {
-        navigationController?.navigationBar.isHidden = true
-    }
 
     @IBAction func saveThePicture(_ sender: UIButton) {
-        DispatchQueue.main.async {
-            PHPhotoLibrary.shared().performChanges({
-                if let image = self.capturedImageView.image {
-                    let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                    
-                    guard let addAssetRequest = PHAssetCollectionChangeRequest(for: PHAssetCollection()) else {
-                        return
-                    }
-                    addAssetRequest.addAssets([request.placeholderForCreatedAsset!] as NSArray)
-                }
-            }, completionHandler: nil )
+        UIGraphicsBeginImageContextWithOptions(self.canvasView.frame.size, false, 0.0)
+        self.canvasView.layer.render(in: UIGraphicsGetCurrentContext()!)
+        
+        if let image = UIGraphicsGetImageFromCurrentImageContext() {
+            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         }
+        
+        UIGraphicsEndImageContext()
         self.navigationController?.popViewController(animated: true)
     }
     
-    @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        if filterImagePinchGestureRecognizer.scale * filteredImageView.frame.width <= canvasView.frame.width {
-            filteredImageView.transform = filteredImageView.transform.scaledBy(x: filterImagePinchGestureRecognizer.scale, y: filterImagePinchGestureRecognizer.scale)
-        }
-        
-        filterImagePinchGestureRecognizer.scale = 1.0
-    }
-    
-    @IBAction func capturedImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        if capturedImagePinchGestureRecognizer.scale * capturedImageView.frame.width <= canvasView.frame.width {
-            capturedImageView.transform = capturedImageView.transform.scaledBy(x: capturedImagePinchGestureRecognizer.scale, y: capturedImagePinchGestureRecognizer.scale)
-        }
-        
-        capturedImagePinchGestureRecognizer.scale = 1.0
-    }
-    
-    
-    @IBAction func filteredImagePanAction(_ sender: UIPanGestureRecognizer) {
-        translation = filterImagePanGestureRecognizer.translation(in: filteredImageView)
-        //getChangedX, getChanged implemented in extension UIImageView
-        filteredImageView!.center = CGPoint(
-            x: filteredImageView.getChangedX(from: filteredImageView, as: translation!, canvas: canvasView),
-            y: filteredImageView.getChangedY(from: filteredImageView, as: translation!, canvas: canvasView))
-        filterImagePanGestureRecognizer.setTranslation(CGPoint.zero, in: filteredImageView)
-    }
-    
-    @IBAction func capturedImagePanAction(_ sender: UIPanGestureRecognizer) {
-        translation = capturedImagePanGestureRecognizer.translation(in: capturedImageView)
-        capturedImageView!.center = CGPoint(
-            x: capturedImageView.getChangedX(from: capturedImageView, as: translation!, canvas: canvasView),
-            y: capturedImageView.getChangedY(from: capturedImageView, as: translation!, canvas: canvasView))
-        capturedImagePanGestureRecognizer.setTranslation(CGPoint.zero, in: capturedImageView)
-    }
-    
     func registerAdjust() {
+        let subViews = (imageVariableRootStack.arrangedSubviews.last as! UIStackView).arrangedSubviews
+        
         for i in 0 ..< adjustKey.count {
-            for subView in (imageVariableRootStack.arrangedSubviews.last as! UIStackView).arrangedSubviews {
+            for subView in subViews {
                 if subView is UITextField {
                     (subView as! UITextField).text = adjustKey[i]
                     (subView as! UITextField).allowsEditingTextAttributes = false
@@ -178,9 +169,9 @@ class FilterViewController: UIViewController {
                     (subView as! UISlider).addTarget(self, action: #selector(adjustValue), for: .valueChanged)
                 }
             }
-            if let copyView = imageVariableChildrenStack.copy() as? UIStackView {
-                imageVariableRootStack.addArrangedSubview(copyView)
-            }
+            
+            imageVariableRootStack
+                .addArrangedSubview(imageVariableChildrenStack.copy() as! UIStackView)
         }
     }
     
@@ -189,7 +180,8 @@ class FilterViewController: UIViewController {
         basicFilter.adjustValue = sender.value
         
         DispatchQueue.main.async {
-            self.basicFilter.preAdjustedImage = UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
+            self.basicFilter.preAdjustedImage =
+                UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
             self.filteredImageView.image = self.basicFilter.filteredImage
         }
     }
@@ -198,12 +190,10 @@ class FilterViewController: UIViewController {
 //MARK: - UICollectionView Methods
 extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        collectionView.cellForItem(at: indexPath)?.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
-        basicFilter.wouldDelegateExecute = true
         basicFilter.filterName = filters[indexPath.row]
-        basicFilter.preFilteredImage = capturedImageView.image
+        basicFilter.preFilteredImage = initialImage
+        
         filteredImageView.image = basicFilter.filteredImage
-        initialImage = basicFilter.filteredImage
         filterItemsCollectionView.cellForItem(at: indexPath)?.alpha = 0.5
         
         for subStackView in imageVariableRootStack.subviews {
@@ -236,9 +226,7 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
 }
 
-extension FilterViewController: UIScrollViewDelegate {
-    
-}
+extension FilterViewController: UIScrollViewDelegate {}
 
 extension UIStackView: NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
@@ -263,11 +251,8 @@ extension FilterViewController {
 }
 
 extension FilterViewController: BasicFilterTemplageDelegate {
-    func filterChange(as image: UIImage?, for filter: String) {
-    }
-    
-    func adjustingValueChange(as image: UIImage?, using adjustKey: String, for adjustVal: Float) {
-    }
+    func filterChange(as image: UIImage?, for filter: String) { }
+    func adjustingValueChange(as image: UIImage?, using adjustKey: String, for adjustVal: Float) { }
 }
 
 extension FilterViewController: UITextFieldDelegate {
@@ -288,14 +273,32 @@ extension FilterViewController: UITextFieldDelegate {
 
 //MARK: - UIImageView extension
 extension UIImageView {
+    func actionPanGesture(recognize gesture: UIPanGestureRecognizer, in canvas: UIView) {
+        let translation = gesture.translation(in: self)
+        self.center = CGPoint(
+            x: self.getChangedX(from: self, as: translation, canvas: canvas),
+            y: self.getChangedY(from: self, as: translation, canvas: canvas)
+        )
+        
+        gesture.setTranslation(CGPoint.zero, in: self) //initialize
+    }
+    
+    func actionPinchGesture(recognize gesture: UIPinchGestureRecognizer, in canvas: UIView) {
+        if gesture.scale * self.frame.width <= canvas.frame.width {
+            self.transform = self.transform.scaledBy(x: gesture.scale, y: gesture.scale)
+        }
+        
+        gesture.scale = 1.0 //initialize
+    }
+    
     func getChangedX(from view: UIImageView, as translation: CGPoint, canvas: UIView) -> CGFloat {
         if (view.center.x + translation.x) <= canvas.frame.width {
             return view.center.x + translation.x
         }else if (view.center.x - translation.x) <= 0{
             return 0
-        }else{
-            return view.frame.width
         }
+        
+        return view.frame.width
     }
     
     func getChangedY(from view: UIImageView, as translation: CGPoint, canvas: UIView) -> CGFloat {
@@ -303,8 +306,9 @@ extension UIImageView {
             return view.center.y + translation.y
         }else if (view.center.y - translation.y) <= 0{
             return 0
-        }else{
-            return canvas.frame.height
         }
+        
+        return canvas.frame.height
     }
+    
 }

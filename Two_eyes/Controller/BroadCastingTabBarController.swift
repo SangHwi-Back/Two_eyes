@@ -9,14 +9,14 @@
 import UIKit
 import ChameleonFramework
 
-protocol BroadCastingTabBarControllerDelegate {
+protocol BroadCastingTabBarControllerDelegate: class {
     func addInitialImage(_ capturedImage: UIImage?)
 }
 
 class BroadCastingTabBarController: UITabBarController {
     
     var capturedImage: UIImage?
-    var broadCastingDelegate: BroadCastingTabBarControllerDelegate?
+    weak var broadCastingDelegate: BroadCastingTabBarControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

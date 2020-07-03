@@ -143,8 +143,6 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
             }
         }
         return nil
-        
-        
     }
     
     func resetCachedAssets() {
@@ -161,10 +159,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         guard let imageData = photo.fileDataRepresentation() else { return }
         
         if let capturedImage = UIImage.init(data: imageData, scale: 1.0) {
-            self.capturedImage = capturedImage
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)
             if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterViewController") as? FilterViewController {
-                destinationVC.currentAsset = self.currentAsset
+                destinationVC.initialImage = capturedImage
                 destinationVC.imageManager = self.imageManager
                 self.navigationController?.pushViewController(destinationVC, animated: true)
             }

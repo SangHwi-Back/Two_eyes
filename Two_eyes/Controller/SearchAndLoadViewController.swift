@@ -186,25 +186,11 @@ class SearchAndLoadViewController: UIViewController {
             return ([new], [old])
         }
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
 extension SearchAndLoadViewController: UICollectionViewDelegate {
-    //searchDetailViewSearchSegue
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-//        performSegue(withIdentifier: "searchDetailViewSearchSegue", sender: self)
-    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { }
 }
 
 extension SearchAndLoadViewController: UICollectionViewDataSource {
@@ -249,7 +235,6 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
 extension SearchAndLoadViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        allPhotos = PHFetchResult<PHAsset>()
         updateCachedAssets()
         albumCollectionView.reloadData()
     }
@@ -260,7 +245,6 @@ extension SearchAndLoadViewController: UISearchBarDelegate {
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let allcount = allPhotos.count
         allPhotos.enumerateObjects { (asset, inx, isStop) in
             asset.requestContentEditingInput(with: nil) { (input, info) in
                 if let url = input?.fullSizeImageURL {
@@ -282,14 +266,10 @@ extension SearchAndLoadViewController: UISearchBarDelegate {
                 }
             }
         }
-        print("allPhoto's count ::: \(allcount)")
-        print("allPhoto's enumeration count ::: \(allPhotos.count)")
     }
     
     //이미지 불러오기 종료, ML작업 종료
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        
-    }
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) { }
 }
 
 extension SearchAndLoadViewController: PHPhotoLibraryChangeObserver {

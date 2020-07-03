@@ -45,16 +45,13 @@ class SearchAndLoadDetailViewController: UIViewController {
     }
     
     override func viewWillLayoutSubviews() {
-//        let isNavigationBarHidden = navigationController?.isNavigationBarHidden ?? false
         navigationController?.isToolbarHidden = false
         self.navigationController?.setNavigationBarHidden(false, animated: false)
-//        view.backgroundColor = isNavigationBarHidden ? .black : .white
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-//        navigationController?.isToolbarHidden = false
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
         
@@ -79,7 +76,9 @@ class SearchAndLoadDetailViewController: UIViewController {
         view.layoutIfNeeded()
         updateImage()
     }
+}
 
+extension SearchAndLoadDetailViewController {
     func updateImage() {
         if asset.mediaSubtypes.contains(.photoLive) {
             updateLivePhoto()
@@ -233,16 +232,10 @@ class SearchAndLoadDetailViewController: UIViewController {
 }
 
 extension SearchAndLoadDetailViewController: PHPhotoLibraryChangeObserver {
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
-        print("")
-    }
+    func photoLibraryDidChange(_ changeInstance: PHChange) { }
 }
 
 extension SearchAndLoadDetailViewController: PHLivePhotoViewDelegate {
-    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
-        print("")
-    }
-    func livePhotoView(_ livePhotoView: PHLivePhotoView, willBeginPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
-        print("")
-    }
+    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) { }
+    func livePhotoView(_ livePhotoView: PHLivePhotoView, willBeginPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) { }
 }

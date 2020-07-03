@@ -49,10 +49,7 @@ class SignInViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        self.view.backgroundColor = UIColor(
-//            gradientStyle: UIGradientStyle.topToBottom,
-//            withFrame: CGRect(origin: view.frame.origin, size: CGSize(width: view.frame.width, height: view.frame.size.height / 2)),
-//            andColors: [UIColor.flatWhite(), UIColor.flatWhiteDark()])
+        
         self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         if paramEmail != "" {
             IDEmailField.text = paramEmail

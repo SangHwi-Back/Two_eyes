@@ -70,13 +70,11 @@ class BasicFilterTemplate {
 extension BasicFilterTemplate {
     //filter를 바꿀때마다 이미지에 필터를 적용해준다.
     func filterChange(as image: UIImage?, for filter: String) -> UIImage? {
-        if filter == "none" || filter == "" {
-            return image
-        }
+        guard filter != "none" && filter != "" else { return image }
         
-        if let safeImage = image, let ciImage = CIImage(image: safeImage), let ciFilter = CIFilter(name: filter) {
+        if let safeImage = image?.fixOrientation(), let ciImage = CIImage(image: safeImage), let ciFilter = CIFilter(name: filter) {
             ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
-            ciFilter.setValue(0.8, forKey: kCIInputIntensityKey)
+            ciFilter.setValue(1.0, forKey: kCIInputIntensityKey)
             if let filterOutput = ciFilter.outputImage {
                 return UIImage(ciImage: filterOutput)
             } else {
@@ -90,48 +88,40 @@ extension BasicFilterTemplate {
     }
     
     func adjustingValueChange(as image: UIImage?, using adjustKey: String, for adjustVal: Float) -> UIImage? {
-        if adjustKey == "" || adjustVal == 0.0 {
-            return image
-        }
+        guard adjustKey != "" && adjustVal != 0.0 && image != nil else { return image }
         
-        if let image = image {
-            switch adjustKey {
+        switch adjustKey {
             case "blur":
                 blurAdjustVal = adjustVal
-                return blurChange(using: adjustVal, image: image)
+                return blurChange(using: adjustVal, image: image!)
             case "brightness":
                 brightnessAdjustVal = adjustVal
-                return brightnessChange(using: adjustVal, image: image)
+                return brightnessChange(using: adjustVal, image: image!)
             case "contrast":
                 contrastAdjustVal = adjustVal
-                return contrastChange(using: adjustVal, image: image)
+                return contrastChange(using: adjustVal, image: image!)
             case "grayScale":
                 return grayScaleChange()
             case "opacity":
                 opacityAdjustVal = adjustVal
-                return opacityChange(using: adjustVal, image: image)
+                return opacityChange(using: adjustVal, image: image!)
             default:
                 return image
-            }
-        }else{
-            return image
         }
         
     }
     
     func adjustingValueInitiate(_ capturedImage: UIImage?) -> Bool {
-        guard capturedImage != nil else {
-            return false
-        }
+        guard capturedImage != nil else { return false }
+        
         blurAdjustVal = 0.0
         brightnessAdjustVal = 0.0
         contrastAdjustVal = 0.0
         opacityAdjustVal = 0.0
-        if filterName == "none" || filterName == "" {
-            filteredImage = capturedImage
-        }else{
-            filteredImage = filterChange(as: capturedImage, for: filterName)
-        }
+        
+        filteredImage =
+            (filterName == "none" || filterName == "") ? capturedImage : filterChange(as: capturedImage, for: filterName)
+        
         return true
     }
     
@@ -140,6 +130,7 @@ extension BasicFilterTemplate {
         if let preFilteredImage = image, let safeCIImage = CIImage(image: preFilteredImage) {
             blurFilter?.setValue(safeCIImage, forKey: kCIInputImageKey)
             blurFilter?.setValue(blurAdjustVal, forKey: kCIInputRadiusKey)
+            
             if let filterOutput = blurFilter?.outputImage {
                 return UIImage(ciImage: filterOutput)
             }else{
@@ -156,6 +147,7 @@ extension BasicFilterTemplate {
         if let safeUIImage = image, let safeCIImage = CIImage(image: safeUIImage) {
             let adjustParams: [String : Any] = ["inputImage": safeCIImage, "inputEV": brightnessAdjustVal]
             brightnessFilter?.setValuesForKeys(adjustParams)
+            
             if let filterOutput = brightnessFilter?.outputImage {
                 return UIImage(ciImage: filterOutput)
             }else{
@@ -221,5 +213,20 @@ extension BasicFilterTemplate {
         } else {
             return nil
         }
+    }
+}
+
+extension UIImage {
+    func fixOrientation() -> UIImage {
+        if self.imageOrientation == UIImage.Orientation.up {
+            return self
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+        self.draw(in: CGRect(x: 0, y: 0, width: self.size.width, height: self.size.height))
+        let normalizedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
+        UIGraphicsEndImageContext()
+        
+        return normalizedImage
     }
 }

@@ -34,7 +34,6 @@ class ConfirmSignUpViewController: UIViewController {
     @IBAction func goToFirstAction(_ sender: UIButton) {
         Auth.auth().createUser(withEmail: self.email!, password: self.password!) { (user, error) in
             //firbase connection Init. created User
-            print("*** Error Occured *** FireAuth's error \(String(describing: error))")
             self.alertController.addAction(self.alertAction)
             if error == nil {
                 self.alertController.title = "사용자 생성을 완료하였습니다. 재로그인해주시기 바랍니다."
@@ -61,12 +60,10 @@ class ConfirmSignUpViewController: UIViewController {
         InstanceID.instanceID().instanceID { (result, error) in
             if error != nil {
                 self.present(SignInViewController(), animated: true) {
-                    print("error occured")
                     self.alertController.addAction(self.alertAction)
                     self.present(self.alertController, animated: true, completion: nil)
                 }
             } else if let result = result {
-                print("Remote instance ID token: \(result.token), tokeySubstring ::: \(String(result.token.prefix(10)))")
                 self.remoteToken.text = String(result.token.prefix(10))
             }
         }
@@ -92,11 +89,9 @@ class ConfirmSignUpViewController: UIViewController {
     }
     
     func confirmCodeValidation() {
-        print("confirmCodeValidation arrived")
         guard email != nil || password != nil || lastName != nil || firstName != nil || address != nil else { return }
         
         if remoteToken.text == confirmCodeTextField.text {
-            print("token matches Successfully")
             goToFirstControl(true)
             confirmCodeControl(false)
         } else {
