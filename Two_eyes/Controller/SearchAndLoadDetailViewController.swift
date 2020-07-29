@@ -141,7 +141,7 @@ extension SearchAndLoadDetailViewController {
     
     @IBAction func usePhotoClicked(_ sender: UIBarButtonItem) {
         //usePhotoSegue 세그웨이 실행
-        if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterViewController") as? FilterViewController {
+        if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
             let options = PHImageRequestOptions()
             options.deliveryMode = .highQualityFormat
             options.isNetworkAccessAllowed = true

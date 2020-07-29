@@ -27,7 +27,7 @@ class SignInViewController: UIViewController {
     @IBOutlet var signUpButton: UIButton!
     @IBOutlet var signInButton: UIButton!
     @IBAction func signUpAction(_ sender: UIButton) {
-        performSegue(withIdentifier: "signUpSegue", sender: self)
+        performSegue(withIdentifier: Constants.signUpSegueIdentifier, sender: self)
     }
     @IBAction func signInAction(_ sender: UIButton) {
         guard let emailInput = IDEmailField.text else {
@@ -50,7 +50,9 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
+        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom,
+                                            withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
+                                            andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         if paramEmail != "" {
             IDEmailField.text = paramEmail
         }
@@ -77,11 +79,11 @@ class SignInViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
-    let alertController = UIAlertController(title: "로그인 에러", message: "", preferredStyle: .alert)
-    let emailAction = UIAlertAction(title: "아이디(이메일)을 입력해주시기 바랍니다.", style: .cancel, handler: nil)
-    let passwordAction = UIAlertAction(title: "비밀번호를 입력해주시기 바랍니다.", style: .cancel, handler: nil)
-    let signInFailedAction = UIAlertAction(title: "로그인에 실패하였습니다.", style: .cancel, handler: nil)
-    let emailPasswordNotCorrectedAction = UIAlertAction(title: "아이디와 비밀번호가 맞지 않습니다.", style: .cancel, handler: nil)
+    let alertController = UIAlertController(title: Constants.loginAlertMessage, message: "", preferredStyle: .alert)
+    let emailAction = UIAlertAction(title: Constants.emailFieldNilMessage, style: .cancel, handler: nil)
+    let passwordAction = UIAlertAction(title: Constants.passwordFieldNilMessage, style: .cancel, handler: nil)
+    let signInFailedAction = UIAlertAction(title: Constants.signInFailedMessage, style: .cancel, handler: nil)
+    let emailPasswordNotCorrectedAction = UIAlertAction(title: Constants.loginInformationIncorrectMessage, style: .cancel, handler: nil)
     
     func presentAlert(_ action: UIAlertAction) {
         alertController.addAction(action)
@@ -101,6 +103,7 @@ class SignInViewController: UIViewController {
     }
 
 }
+
 //MARK: - TextFieldDelegates
 extension SignInViewController: UITextFieldDelegate {
     //return 키 누르면 텍스트 닫힘.

@@ -31,6 +31,10 @@ class BroadCastingTabBarController: UITabBarController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let dest = segue.destination as? SettingsTableViewController {
+            dest.ancestorNavigationBar = navigationController?.navigationBar
+            dest.ancestorNavigationItem = navigationController?.navigationItem
+        }
     }
 
     @IBAction func cameraBtnTab(_ sender: UIBarButtonItem) {
@@ -42,10 +46,13 @@ class BroadCastingTabBarController: UITabBarController {
             switch title {
             case "Search":
                 tabBarController?.selectedIndex = 1
+                navigationController?.navigationItem.title = "Camera&Filter"
             case "Camera&Filter":
                 tabBarController?.selectedIndex = 2
+                navigationController?.navigationItem.title = "Search"
             case "Settings":
                 tabBarController?.selectedIndex = 0
+                navigationController?.navigationItem.title = "Settings"
             default:
                 return
             }

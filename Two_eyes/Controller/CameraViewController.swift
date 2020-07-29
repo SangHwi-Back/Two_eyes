@@ -76,7 +76,6 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
     }
     
     func registerNewPhoto() {
@@ -101,7 +100,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     @IBAction func currentPhoto(_ sender: UIButton) {
         if currentPictureRequested {
-            if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterViewController") as? FilterViewController{
+            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController{
                 destinationVC.currentAsset = self.currentAsset
                 destinationVC.imageManager = self.imageManager
                 self.navigationController?.pushViewController(destinationVC, animated: true)
@@ -112,7 +111,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         guard let capturePhotoOutput = self.capturePhotoOutput else { return }
         
         let photoSettings = AVCapturePhotoSettings()
-        photoSettings.isHighResolutionPhotoEnabled = true
+        photoSettings.isHighResolutionPhotoEnabled = true // 저장된 갚으로 대체할 것
         photoSettings.flashMode = .auto
         capturePhotoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
@@ -160,7 +159,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         
         if let capturedImage = UIImage.init(data: imageData, scale: 1.0) {
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)
-            if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterViewController") as? FilterViewController {
+            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
                 destinationVC.initialImage = capturedImage
                 destinationVC.imageManager = self.imageManager
                 self.navigationController?.pushViewController(destinationVC, animated: true)

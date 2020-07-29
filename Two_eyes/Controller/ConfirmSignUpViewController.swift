@@ -36,19 +36,19 @@ class ConfirmSignUpViewController: UIViewController {
             //firbase connection Init. created User
             self.alertController.addAction(self.alertAction)
             if error == nil {
-                self.alertController.title = "사용자 생성을 완료하였습니다. 재로그인해주시기 바랍니다."
+                self.alertController.title = Constants.signUpSuccessMessage
                 self.present(self.alertController, animated: true, completion: nil)
                 self.navigationController?.popViewController(animated: true)
                 
             }else{
-                self.alertController.title = "사용자 생성 에러\n사용자 생성 도중 에러가 발생하였습니다.\n관리자에게 문의 바랍니다."
+                self.alertController.title = Constants.signUpFailedMessageDescription
                 self.present(self.alertController, animated: true, completion: nil)
             }
         }
     }
     
     //MARK: - AlertController
-    let alertController = UIAlertController(title: "사용자 생성 에러", message: "", preferredStyle: .alert)
+    let alertController = UIAlertController(title: Constants.signUpFailedMessage, message: "", preferredStyle: .alert)
     let alertAction = UIAlertAction(title: "확인", style: .cancel, handler: nil)
     
     override func viewDidLoad() {

@@ -31,18 +31,8 @@ class FilterViewController: UIViewController {
     @IBOutlet var capturedImagePinchGestureRecognizer: UIPinchGestureRecognizer!
     
     //MARK: - constants 생성
-    let filters: [String] = [
-        "none",
-        "CIColorMonochrome",
-        "CISepiaTone",
-        "CIVignette"
-    ]
-    let adjustKey: [String] = [
-        "blur",
-        "brightness",
-        "contrast",
-        "opacity"
-    ]
+    let filters: [String] = Constants.filterViewFilters
+    let adjustKey: [String] = Constants.filterViewAdjustKeys
     var highlightedCollectionItemIndex: Int = 0
     var basicFilter = BasicFilterTemplate()
     var currentAsset: PHAsset?

@@ -88,41 +88,37 @@ class SignUpViewController: UIViewController {
     
     @IBAction func getConfirmCode(_ sender: UIButton) {
         if emailTextField.text == "" {
-            alertController.message = "'이메일'을 입력하지 않으셨습니다.";
+            alertController.message = Constants.emailFieldNilMessage;
             Auth.auth().fetchSignInMethods(forEmail: emailTextField.text!) { (providers, error) in
                 if let _ = error {
-                    print("error Occured")
-                    self.alertController.message = "에러가 발생하였습니다."
+                    self.alertController.message = Constants.normalErrorMessage
                 } else if let _ = providers {
-                    print("providers Occured")
-                    self.alertController.message = "중복된 사용자가 존재합니다."
+                    self.alertController.message = Constants.duplicateUserDetectedMessage
                 }
             }
         }else if lastNameField.text == "" {
-            alertController.message = "'이름'을 입력하지 않으셨습니다.";
+            alertController.message = Constants.lastNameFieldNilMessage
         }else if firstNameField.text == "" {
-            alertController.message = "'성'을 입력하지 않으셨습니다.";
+            alertController.message = Constants.firstNameFieldNilMessage
         }else if passwordField.text == "" {
-            alertController.message = "'비밀번호'를 입력하지 않으셨습니다.";
+            alertController.message = Constants.passwordFieldNilMessage
         }else if rePasswordField.text == "" {
-            alertController.message = "'비밀번호 확인'을 입력하지 않으셨습니다.";
+            alertController.message = Constants.passwordFieldNilMessage
         }else if addressField.text == "" {
-            alertController.message = "'주소'를 입력하지 않으셨습니다.";
-        }else{
-            alertController.message = ""
+            alertController.message = Constants.addressFieldNilMessage
         }
         
         if alertController.message != "" {
             alertController.addAction(defaultAction)
             self.present(alertController, animated: true, completion: nil)
         }else{
-            self.performSegue(withIdentifier: "getConfirmCodeSegue", sender: self)
+            self.performSegue(withIdentifier: Constants.confirmSignUpSegueIdentifier, sender: self)
         }
         
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "getConfirmCodeSegue" {
+        if segue.identifier == Constants.confirmSignUpSegueIdentifier {
             if let confirmSignUpVeiwController = segue.destination as? ConfirmSignUpViewController {
                 confirmSignUpVeiwController.email = emailTextField.text
                 confirmSignUpVeiwController.lastName = lastNameField.text

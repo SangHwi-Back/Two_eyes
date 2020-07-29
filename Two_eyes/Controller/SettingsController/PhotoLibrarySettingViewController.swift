@@ -1,28 +1,34 @@
 //
-//  SettingsTableViewController.swift
+//  PhotoLibrarySettingViewController.swift
 //  Two_eyes
 //
-//  Created by 백상휘 on 2020/05/11.
+//  Created by 백상휘 on 2020/07/29.
 //  Copyright © 2020 Sanghwi Back. All rights reserved.
 //
 
 import UIKit
-import ChameleonFramework
 
-class SettingsTableViewController: UITableViewController {
-
-    @IBOutlet var settingSearchBar: UISearchBar!
-    let settings = ["의견 보내기","일반","필터 사용 히스토리","정보"]
-    let sections = ["",""]
-    let reuseIdentifier = "settingRows"
+class PhotoLibrarySettingViewController: UITableViewController, SettingInterfaceBasicProtocol {
+    var settingName: String = ""
+    var cellReuseIdentifier: String? {
+        get{
+            Constants.settingsCellReuseIdentifier[settingName]
+        }
+    }
+    var cellTitles: [String] {
+        get{
+            Constants.settingsCellTitles[settingName] ?? []
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tableView.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+
+        // Uncomment the following line to preserve selection between presentations
+        // self.clearsSelectionOnViewWillAppear = false
+
+        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+        // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
@@ -32,19 +38,16 @@ class SettingsTableViewController: UITableViewController {
         return 1
     }
 
-    /**
-    테이블뷰의 row수를 return한다.
-     */
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return settings.count
+        return cellTitles.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier ?? "", for: indexPath)
 
         // Configure the cell...
-        cell.textLabel?.text = settings[indexPath.row]
+        cell.textLabel?.text = cellTitles[indexPath.row]
 
         return cell
     }
@@ -93,5 +96,5 @@ class SettingsTableViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
+    
 }

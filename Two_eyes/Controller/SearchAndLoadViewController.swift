@@ -36,7 +36,6 @@ class SearchAndLoadViewController: UIViewController {
     fileprivate let textRecognitionRequest = VNRecognizeTextRequest()
     
     let sectionLocalizedTitles = ["", NSLocalizedString("Smart Albums", comment: ""), NSLocalizedString("Albums", comment: "")]
-    let reuseIdentifier = "albumItems"
     
     //MARK: - Method related view life cycle
     override func viewDidLoad() {
@@ -204,7 +203,7 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
             fatalError("Unexpected cell in collection view1")
         }
         
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? SearchAndLoadCollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.searchCellReuseIdentifier, for: indexPath) as? SearchAndLoadCollectionViewCell else {
             fatalError("Unexpected cell in collection view2")
         }
         
