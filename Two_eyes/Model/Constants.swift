@@ -74,8 +74,10 @@ class Constants {
     //MARK: - FilterSetting View
     
     
-    
-    
+    //MARK: - CameraSetting View
+    static let cameraSettingTypes = [
+        "Sony","PanaSonic","Fuji","EOS"
+    ]
     
     
     

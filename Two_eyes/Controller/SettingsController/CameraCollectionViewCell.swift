@@ -10,4 +10,5 @@ import UIKit
 
 class CameraCollectionViewCell: UICollectionViewCell {
     
+    @IBOutlet weak var cameraSettingLabel: UILabel!
 }

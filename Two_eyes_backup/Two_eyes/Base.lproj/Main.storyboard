@@ -729,22 +729,22 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="118" translatesAutoresizingMaskIntoConstraints="NO" id="ohL-ub-f8g">
-                                <rect key="frame" x="102.5" y="293" width="170" height="274"/>
+                                <rect key="frame" x="20" y="293" width="335" height="274"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="C2S-wc-Kb6">
-                                        <rect key="frame" x="0.0" y="0.0" width="170" height="126"/>
+                                        <rect key="frame" x="63" y="0.0" width="209.5" height="126"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="JsP-6y-Sp9">
-                                                <rect key="frame" x="0.0" y="0.0" width="170" height="126"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="209.5" height="126"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Confirm Code" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KlT-aZ-E6O">
-                                                        <rect key="frame" x="0.0" y="0.0" width="170" height="42"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="209.5" height="42"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="35"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ba3-po-mtX">
-                                                        <rect key="frame" x="0.0" y="92" width="170" height="34"/>
+                                                        <rect key="frame" x="0.0" y="92" width="209.5" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         <textInputTraits key="textInputTraits"/>
                                                         <connections>
@@ -756,7 +756,7 @@
                                         </subviews>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="voD-on-tyF">
-                                        <rect key="frame" x="54" y="244" width="62" height="30"/>
+                                        <rect key="frame" x="136.5" y="244" width="62" height="30"/>
                                         <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
                                         <state key="normal" title="GoToFirst">
                                             <color key="titleColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -774,8 +774,8 @@
                             <constraint firstItem="zIY-f9-IxB" firstAttribute="leading" relation="lessThanOrEqual" secondItem="pKq-qm-wTF" secondAttribute="leading" constant="177" id="5Qa-V5-A2t"/>
                             <constraint firstItem="zIY-f9-IxB" firstAttribute="centerX" secondItem="pKq-qm-wTF" secondAttribute="centerX" id="5kg-Ep-PQz"/>
                             <constraint firstItem="zIY-f9-IxB" firstAttribute="top" relation="greaterThanOrEqual" secondItem="pKq-qm-wTF" secondAttribute="top" constant="100" id="HbU-Do-gev"/>
-                            <constraint firstItem="ohL-ub-f8g" firstAttribute="leading" secondItem="pKq-qm-wTF" secondAttribute="leading" constant="102.33333333333333" id="P8L-C2-j5v"/>
-                            <constraint firstItem="pKq-qm-wTF" firstAttribute="trailing" secondItem="ohL-ub-f8g" secondAttribute="trailing" constant="102.33333333333331" id="Q8A-Xr-CAo"/>
+                            <constraint firstItem="ohL-ub-f8g" firstAttribute="leading" secondItem="pKq-qm-wTF" secondAttribute="leading" constant="20" id="P8L-C2-j5v"/>
+                            <constraint firstItem="pKq-qm-wTF" firstAttribute="trailing" secondItem="ohL-ub-f8g" secondAttribute="trailing" constant="20" id="Q8A-Xr-CAo"/>
                             <constraint firstItem="ohL-ub-f8g" firstAttribute="top" secondItem="zIY-f9-IxB" secondAttribute="bottom" constant="79" id="hBU-1u-XNG"/>
                             <constraint firstItem="pKq-qm-wTF" firstAttribute="bottom" secondItem="ohL-ub-f8g" secondAttribute="bottom" constant="100" id="x3z-0N-MNG"/>
                         </constraints>

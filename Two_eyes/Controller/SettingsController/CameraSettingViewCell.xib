@@ -10,29 +10,30 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CameraSettingViewController" customModule="Two_eyes" customModuleProvider="target"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="xnh-Zx-a9A" customClass="CameraCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="208" height="208"/>
+            <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Bta-iT-mRX">
-                <rect key="frame" x="0.0" y="0.0" width="208" height="208"/>
+                <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cells" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EPZ-TY-qgg">
-                        <rect key="frame" x="83" y="94" width="38" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cells" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EPZ-TY-qgg">
+                        <rect key="frame" x="56.5" y="65" width="37.5" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
-                <color key="backgroundColor" red="0.60609471800000003" green="0.110549219" blue="0.1215417162" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
                 <constraints>
-                    <constraint firstItem="EPZ-TY-qgg" firstAttribute="leading" secondItem="Bta-iT-mRX" secondAttribute="leading" constant="83" id="2nX-Zz-A6e"/>
-                    <constraint firstAttribute="bottom" secondItem="EPZ-TY-qgg" secondAttribute="bottom" constant="93" id="7lb-hW-K6w"/>
-                    <constraint firstAttribute="trailing" secondItem="EPZ-TY-qgg" secondAttribute="trailing" constant="87" id="8Zy-1P-c0Z"/>
-                    <constraint firstItem="EPZ-TY-qgg" firstAttribute="top" secondItem="Bta-iT-mRX" secondAttribute="top" constant="94" id="BLB-jf-bZL"/>
+                    <constraint firstItem="EPZ-TY-qgg" firstAttribute="centerY" secondItem="Bta-iT-mRX" secondAttribute="centerY" id="OHg-RI-10C"/>
+                    <constraint firstItem="EPZ-TY-qgg" firstAttribute="centerX" secondItem="Bta-iT-mRX" secondAttribute="centerX" id="wd7-S3-Fqq"/>
                 </constraints>
             </collectionViewCellContentView>
             <size key="customSize" width="209" height="161"/>
-            <point key="canvasLocation" x="-13" y="618"/>
+            <connections>
+                <outlet property="cameraSettingLabel" destination="EPZ-TY-qgg" id="zF4-kQ-cIO"/>
+            </connections>
+            <point key="canvasLocation" x="-14" y="394"/>
         </collectionViewCell>
     </objects>
 </document>

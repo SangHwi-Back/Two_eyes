@@ -9,6 +9,8 @@
 import UIKit
 
 class FilterSettingViewController: UITableViewController, SettingInterfaceBasicProtocol {
+    var ancestorNavigationBar: UINavigationBar?
+    var ancestorNavigationItem: UINavigationItem?
     var settingName: String = ""
     var cellReuseIdentifier: String? {
         get{
@@ -26,22 +28,21 @@ class FilterSettingViewController: UITableViewController, SettingInterfaceBasicP
         if let cellReuseIdentifier = cellReuseIdentifier {
             tableView.register(UINib(nibName: "FilterSettingViewCell", bundle: nil), forCellReuseIdentifier: cellReuseIdentifier)
         }
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+    }
+    
+    @objc func movePrev() {
+        self.navigationController?.popViewController(animated: true)
     }
 
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return cellTitles.count
     }
 
@@ -53,7 +54,6 @@ class FilterSettingViewController: UITableViewController, SettingInterfaceBasicP
         }
         
         cell.filterSettingLabel.text = cellTitles[indexPath.row]
-        
         cell.filterSettingSlider.isHidden = true
         
         return cell
@@ -94,12 +94,8 @@ class FilterSettingViewController: UITableViewController, SettingInterfaceBasicP
     }
     */
 
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        
     }
     
 }

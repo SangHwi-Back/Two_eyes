@@ -21,7 +21,6 @@ class SettingsTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.isHidden = true
         self.tableView.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom,
                                                  withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
                                                  andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
@@ -32,7 +31,6 @@ class SettingsTableViewController: UITableViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        navigationController?.setNavigationBarHidden(false, animated: false)
     }
 
     // MARK: - Table view data source
@@ -108,12 +106,17 @@ class SettingsTableViewController: UITableViewController {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
         if let dest = segue.destination as? FilterSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
+            dest.ancestorNavigationItem = self.ancestorNavigationItem
+            dest.ancestorNavigationBar = self.ancestorNavigationBar
         }
         
         if let dest = segue.destination as? CameraSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
+            dest.ancestorNavigationItem = self.ancestorNavigationItem
+            dest.ancestorNavigationBar = self.ancestorNavigationBar
         }
         
         if let dest = segue.destination as? PhotoLibrarySettingViewController {
