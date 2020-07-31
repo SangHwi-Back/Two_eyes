@@ -9,8 +9,6 @@
 import UIKit
 
 class FilterSettingViewController: UITableViewController, SettingInterfaceBasicProtocol {
-    var ancestorNavigationBar: UINavigationBar?
-    var ancestorNavigationItem: UINavigationItem?
     var settingName: String = ""
     var cellReuseIdentifier: String? {
         get{
@@ -29,7 +27,9 @@ class FilterSettingViewController: UITableViewController, SettingInterfaceBasicP
             tableView.register(UINib(nibName: "FilterSettingViewCell", bundle: nil), forCellReuseIdentifier: cellReuseIdentifier)
         }
     }
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationItem.hidesBackButton = true
     }
     
     @objc func movePrev() {

@@ -16,8 +16,6 @@ protocol SettingInterfaceBasicProtocol {
 class SettingsTableViewController: UITableViewController {
 
     @IBOutlet var settingSearchBar: UISearchBar!
-    var ancestorNavigationBar: UINavigationBar?
-    var ancestorNavigationItem: UINavigationItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +61,8 @@ class SettingsTableViewController: UITableViewController {
         if let key = Constants.settingsSegueIdentifier[key] {
             performSegue(withIdentifier: key, sender: self)
         }
+        
+        navigationItem.hidesBackButton = false
     }
     
     
@@ -106,17 +106,12 @@ class SettingsTableViewController: UITableViewController {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
         if let dest = segue.destination as? FilterSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
-            dest.ancestorNavigationItem = self.ancestorNavigationItem
-            dest.ancestorNavigationBar = self.ancestorNavigationBar
         }
         
         if let dest = segue.destination as? CameraSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
-            dest.ancestorNavigationItem = self.ancestorNavigationItem
-            dest.ancestorNavigationBar = self.ancestorNavigationBar
         }
         
         if let dest = segue.destination as? PhotoLibrarySettingViewController {

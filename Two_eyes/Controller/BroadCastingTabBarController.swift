@@ -31,10 +31,6 @@ class BroadCastingTabBarController: UITabBarController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let dest = segue.destination as? SettingsTableViewController {
-            dest.ancestorNavigationBar = navigationController?.navigationBar
-            dest.ancestorNavigationItem = navigationController?.navigationItem
-        }
     }
 
     @IBAction func cameraBtnTab(_ sender: UIBarButtonItem) {

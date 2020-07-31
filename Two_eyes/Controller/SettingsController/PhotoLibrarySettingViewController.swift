@@ -24,6 +24,11 @@ class PhotoLibrarySettingViewController: UITableViewController, SettingInterface
     override func viewDidLoad() {
         super.viewDidLoad()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationItem.hidesBackButton = true
+    }
 
     // MARK: - Table view data source
 

@@ -9,8 +9,6 @@
 import UIKit
 
 class CameraSettingViewController: UICollectionViewController, SettingInterfaceBasicProtocol, UICollectionViewDelegateFlowLayout {
-    var ancestorNavigationBar: UINavigationBar?
-    var ancestorNavigationItem: UINavigationItem?
     var settingName: String = ""
     var cellReuseIdentifier: String? {
         get{
@@ -33,7 +31,9 @@ class CameraSettingViewController: UICollectionViewController, SettingInterfaceB
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationItem.hidesBackButton = true
     }
     
     @objc func movePrev() {
