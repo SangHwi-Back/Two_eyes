@@ -27,6 +27,7 @@ class PhotoLibrarySettingViewController: UITableViewController, SettingInterface
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        navigationItem.title = nil
         navigationItem.hidesBackButton = true
     }
 

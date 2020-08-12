@@ -40,8 +40,11 @@ class SearchAndLoadDetailViewController: UIViewController {
     }
     
     deinit {
-        navigationController?.isToolbarHidden = true
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        navigationController?.isToolbarHidden = true
     }
     
     override func viewWillLayoutSubviews() {

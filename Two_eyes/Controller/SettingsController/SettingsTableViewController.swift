@@ -56,13 +56,13 @@ class SettingsTableViewController: UITableViewController {
         let cell = tableView.cellForRow(at: indexPath)
         let key = cell?.textLabel?.text ?? ""
         
-        navigationController?.navigationItem.title = key
-        cell?.isSelected = false
+        navigationItem.title = key
         if let key = Constants.settingsSegueIdentifier[key] {
             performSegue(withIdentifier: key, sender: self)
         }
         
         navigationItem.hidesBackButton = false
+        cell?.isSelected = false
     }
     
     

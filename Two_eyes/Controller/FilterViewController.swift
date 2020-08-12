@@ -11,18 +11,16 @@ import Photos
 import PhotosUI
 import ChameleonFramework
 
-class FilterViewController: UIViewController {
+class FilterViewController: UIViewController, UIViewControllerTransitioningDelegate {
     
     //MARK: - Outlet 연결
     @IBOutlet weak var filteredImageView: UIImageView!
+    var filteredViewLabel = UILabel()
     @IBOutlet weak var capturedImageView: UIImageView!
+    var capturedViewLabel = UILabel()
     @IBOutlet weak var canvasView: UIView!
     
     @IBOutlet weak var filterItemsCollectionView: UICollectionView!
-    @IBOutlet weak var imageVariableScrollView: UIScrollView!
-    
-    @IBOutlet weak var imageVariableRootStack: UIStackView!
-    @IBOutlet weak var imageVariableChildrenStack: UIStackView!
     
     @IBOutlet var filterImagePanGestureRecognizer: UIPanGestureRecognizer!
     @IBOutlet var capturedImagePanGestureRecognizer: UIPanGestureRecognizer!
@@ -30,14 +28,25 @@ class FilterViewController: UIViewController {
     @IBOutlet var filterImagePinchGestureRecognizer: UIPinchGestureRecognizer!
     @IBOutlet var capturedImagePinchGestureRecognizer: UIPinchGestureRecognizer!
     
+    @IBOutlet var modalBackgroundTapGestureRecognizer: UITapGestureRecognizer!
+    
+    var modalPopup = false
+    
     //MARK: - constants 생성
     let filters: [String] = Constants.filterViewFilters
-    let adjustKey: [String] = Constants.filterViewAdjustKeys
+    let coordinator = FilterViewCoordinator()
+    
     var highlightedCollectionItemIndex: Int = 0
     var basicFilter = BasicFilterTemplate()
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
     var initialImage: UIImage?
+    var filteredImageViewLocation: CGPoint {
+        filteredImageView.center
+    }
+    var captruedImageViewLoction: CGPoint {
+        capturedImageView.center
+    }
     
     //MARK: - Methods executed in view life cycle
     override func viewDidLoad() {
@@ -61,15 +70,18 @@ class FilterViewController: UIViewController {
         filterItemsCollectionView.collectionViewLayout = layout
         
         basicFilter.delegate = self
-        imageVariableScrollView.delegate = self
         
         registerPhoto()
-        registerAdjust()
-        // Do any additional setup after loading the view.
+        coordinatorSetting()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        filteredViewLabel.text = "필터이미지"
+        filteredViewLabel.textColor = .white
+        capturedViewLabel.text = "원본"
+        capturedViewLabel.textColor = .white
         
         // Gesture source Start
         filteredImageView.isUserInteractionEnabled = true
@@ -77,6 +89,14 @@ class FilterViewController: UIViewController {
         
         self.capturedImagePanGestureRecognizer.maximumNumberOfTouches = 1
         self.filterImagePanGestureRecognizer.maximumNumberOfTouches = 1
+        self.modalBackgroundTapGestureRecognizer.numberOfTapsRequired = 1
+        self.modalBackgroundTapGestureRecognizer.numberOfTouchesRequired = 1
+        filteredImageView.addSubview(filteredViewLabel)
+        capturedImageView.addSubview(capturedViewLabel)
+        filteredViewLabel.center = filteredImageView.center
+        capturedViewLabel.center = capturedImageView.center
+        filteredViewLabel.bounds.size = filteredImageView.bounds.size
+        capturedViewLabel.bounds.size = capturedImageView.bounds.size
         
         filteredImageView.layer.zPosition = 0
         capturedImageView.layer.zPosition = 1
@@ -95,6 +115,49 @@ class FilterViewController: UIViewController {
         navigationController?.navigationBar.isHidden = true
     }
     
+    func coordinatorSetting() {
+        //modalMasterView
+        coordinator.modalMasterView = self
+        
+        //modal(Detail)View
+        coordinator.modalView = AdjustModalViewController(coordinator: coordinator)
+        coordinator.modalView?.modalPresentationStyle = .custom
+        coordinator.modalView?.isModalInPresentation = true
+        coordinator.modalView?.transitioningDelegate = self
+        coordinator.canvasSize = canvasView.bounds.size
+        
+        //canvasView : missing. no need.
+    }
+    
+    @IBAction func imageViewZIndexChange(_ sender: UISegmentedControl) {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.5) {
+                if sender.selectedSegmentIndex == 0 {
+                    self.filteredImageView.layer.zPosition = 1
+                    self.capturedImageView.layer.zPosition = 0
+                } else {
+                    self.filteredImageView.layer.zPosition = 0
+                    self.capturedImageView.layer.zPosition = 1
+                }
+            }
+        }
+    }
+    
+    @IBAction func imageViewLabelHidden(_ sender: UISegmentedControl) {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.5) {
+                if sender.selectedSegmentIndex == 0 {
+                    self.filteredViewLabel.alpha = 1
+                    self.capturedViewLabel.alpha = 1
+                } else {
+                    self.filteredViewLabel.alpha = 0
+                    self.capturedViewLabel.alpha = 0
+                }
+            }
+        }
+    }
+    
+    
     @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
         filteredImageView.actionPinchGesture(recognize: sender, in: canvasView)
     }
@@ -111,10 +174,73 @@ class FilterViewController: UIViewController {
     @IBAction func capturedImagePanAction(_ sender: UIPanGestureRecognizer) {
         capturedImageView.actionPanGesture(recognize: sender, in: canvasView)
     }
+    
+    @IBAction func adjustScreenPopup(_ sender: UIButton) {
+        self.view.addGestureRecognizer(modalBackgroundTapGestureRecognizer)
+        // 첫번째 실행.
+        present(coordinator.modalView!, animated: true, completion: nil)
+    }
+    
+    @IBAction func modalBackgroundTapAction(_ sender: UITapGestureRecognizer) {
+        print("modalBackgroundTapAction 도착")
+        self.view.removeGestureRecognizer(modalBackgroundTapGestureRecognizer)
+        self.coordinator.modalView?.dismissAction()
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.removeGestureRecognizer(modalBackgroundTapGestureRecognizer)
+        self.presentedViewController?.dismiss(animated: true, completion: nil)
+    }
+    
+    func presentationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController?,
+        source: UIViewController) -> UIPresentationController? {
+        return CustomView(canvasViewRect: canvasView.bounds, coordinator: coordinator, presentedViewController: presented, presenting: presenting)
+    }
+}
+
+class CustomView: UIPresentationController {
+    var canvasViewRect: CGRect
+    var frameSize: CGSize
+    let coordinator: FilterViewCoordinator
+    
+    required init(canvasViewRect: CGRect,
+                  coordinator: FilterViewCoordinator,
+                  presentedViewController: UIViewController,
+                  presenting: UIViewController?) {
+        self.canvasViewRect = canvasViewRect
+        self.coordinator = coordinator
+        let canvasSize = coordinator.canvasSize ?? canvasViewRect.size
+        self.frameSize = CGSize(width: canvasSize.width,
+                                height: UIScreen.main.bounds.height - canvasSize.height - 10.0)
+        super.init(presentedViewController: presentedViewController, presenting: presenting)
+    }
+    
+    override var frameOfPresentedViewInContainerView: CGRect {
+        get {
+            //2번째 실행.
+            return CGRect(origin: CGPoint(x: 0, y: canvasViewRect.maxY + 10.0), size: frameSize)
+        }
+    }
+    override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+    }
+    
+    override func presentationTransitionWillBegin() {
+        super.presentationTransitionWillBegin()
+        presentedView?.layer.cornerRadius = 12
+    }
+    
+    override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
+        self.presentingViewController.setNeedsFocusUpdate()
+    }
+    
 }
 
 //MARK: - Filtering methods
-extension FilterViewController {    
+extension FilterViewController {
     func registerPhoto() {
         basicFilter.filterName = filters[0]
         
@@ -144,35 +270,16 @@ extension FilterViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    func registerAdjust() {
-        let subViews = (imageVariableRootStack.arrangedSubviews.last as! UIStackView).arrangedSubviews
-        
-        for i in 0 ..< adjustKey.count {
-            for subView in subViews {
-                if subView is UITextField {
-                    (subView as! UITextField).text = adjustKey[i]
-                    (subView as! UITextField).allowsEditingTextAttributes = false
-                }
-                if subView is UISlider {
-                    (subView as! UISlider).isEnabled = true
-                    (subView as! UISlider).tag = i
-                    (subView as! UISlider).addTarget(self, action: #selector(adjustValue), for: .valueChanged)
-                }
-            }
-            
-            imageVariableRootStack
-                .addArrangedSubview(imageVariableChildrenStack.copy() as! UIStackView)
-        }
-    }
     
-    @objc func adjustValue(sender:UISlider) {
-        basicFilter.adjustKey = adjustKey[sender.tag]
+    func adjustValue(sender: UISlider, _ key: String) {
+        let center = filteredImageViewLocation
+        basicFilter.adjustKey = key
         basicFilter.adjustValue = sender.value
-        
         DispatchQueue.main.async {
             self.basicFilter.preAdjustedImage =
                 UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
             self.filteredImageView.image = self.basicFilter.filteredImage
+            self.filteredImageView.center = center
         }
     }
 }
@@ -186,11 +293,11 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
         filteredImageView.image = basicFilter.filteredImage
         filterItemsCollectionView.cellForItem(at: indexPath)?.alpha = 0.5
         
-        for subStackView in imageVariableRootStack.subviews {
-            for case let slider as UISlider in subStackView.subviews {
-                slider.value = 0
-            }
-        }
+//        for subStackView in adjustMasterStackView.subviews {
+//            for case let slider as UISlider in subStackView.subviews {
+//                slider.value = 0
+//            }
+//        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -214,21 +321,6 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
         return cell
     }
     
-}
-
-extension FilterViewController: UIScrollViewDelegate {}
-
-extension UIStackView: NSCopying {
-    public func copy(with zone: NSZone? = nil) -> Any {
-        do {
-            let data = try NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: false)
-            return try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! UIStackView
-        } catch {
-            print("error in stackView ::: \(error)")
-        }
-        
-        return UIStackView()
-    }
 }
 
 extension FilterViewController {

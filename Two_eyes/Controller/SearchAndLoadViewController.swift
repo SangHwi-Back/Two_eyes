@@ -31,18 +31,22 @@ class SearchAndLoadViewController: UIViewController {
     
     var availableWidth: CGFloat = 0
     fileprivate let imageManager = PHCachingImageManager()
-    fileprivate var thumbnailSize: CGSize?
+    fileprivate var thumbnailSize: CGSize!
     fileprivate var previousPreheatRect = CGRect.zero
     fileprivate let textRecognitionRequest = VNRecognizeTextRequest()
     
     let sectionLocalizedTitles = ["", NSLocalizedString("Smart Albums", comment: ""), NSLocalizedString("Albums", comment: "")]
+    let cellImageOptions = PHImageRequestOptions()
     
     //MARK: - Method related view life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         self.albumSearchBar.backgroundColor = UIColor.flatSand()
+        self.albumSearchBar.tintColor = UIColor.flatSand()
+        self.albumSearchBar.barTintColor = UIColor.flatSand()
         self.view.backgroundColor = UIColor.flatSand()
         self.albumCollectionView.backgroundColor = UIColor.flatSand()
+        navigationController?.isToolbarHidden = true
         
         albumSearchBar.delegate = self
         resetCachedAssets()
@@ -75,12 +79,11 @@ class SearchAndLoadViewController: UIViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         let width = view.bounds.inset(by: view.safeAreaInsets).width
-        navigationController?.isToolbarHidden = true
-        
+        // Adjust the item size if the available width has changed.
         if availableWidth != width {
             availableWidth = width
-            let columnCount = (availableWidth / (view.bounds.width / 3)).rounded(.towardZero)
-            let itemLength = (availableWidth - columnCount - 1) / 3
+            let columnCount = (availableWidth / 90).rounded(.towardZero)
+            let itemLength = (availableWidth - columnCount - 1) / columnCount
             collectionViewFlowLayout.itemSize = CGSize(width: itemLength, height: itemLength)
         }
     }
@@ -90,8 +93,15 @@ class SearchAndLoadViewController: UIViewController {
      */
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        let scale = UIScreen.main.scale
         let cellSize = collectionViewFlowLayout.itemSize
-        thumbnailSize = CGSize(width: cellSize.width, height: cellSize.height)
+        
+        thumbnailSize = CGSize(
+            width: cellSize.width,
+            height: cellSize.height)
+        
+        cellImageOptions.normalizedCropRect.size = thumbnailSize
+        cellImageOptions.resizeMode = .exact
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -126,7 +136,7 @@ class SearchAndLoadViewController: UIViewController {
      Photo Library의 사진(사용하는 아이폰의 사진)을 PHCachingImageManager를 이용하여 업데이트 한다.
      */
     fileprivate func updateCachedAssets() {
-        guard let thumbnailSize = thumbnailSize, isViewLoaded, view.window != nil else {
+        guard isViewLoaded, view.window != nil else {
             return
         }
         
@@ -150,8 +160,10 @@ class SearchAndLoadViewController: UIViewController {
             .map {indexPath in allPhotos.object(at: indexPath.item)}
         
         //PHImageManager의 Cache를 조정한다. 지워질 Assets에 대해서는 Cache를 없애고, 추가될 Assets에 대해서는 반대로 한다.
-        imageManager.startCachingImages(for: addedAssets, targetSize: thumbnailSize, contentMode: .aspectFit, options: nil)
-        imageManager.stopCachingImages(for: removedAssets, targetSize: thumbnailSize, contentMode: .aspectFit, options: nil)
+        imageManager.startCachingImages(for: addedAssets,
+                                        targetSize: thumbnailSize, contentMode: .aspectFill, options: cellImageOptions)
+        imageManager.stopCachingImages(for: removedAssets,
+                                       targetSize: thumbnailSize, contentMode: .aspectFill, options: cellImageOptions)
         
         previousPreheatRect = preheatRect
     }
@@ -199,10 +211,6 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let thumbnailSize = thumbnailSize else {
-            fatalError("Unexpected cell in collection view1")
-        }
-        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.searchCellReuseIdentifier, for: indexPath) as? SearchAndLoadCollectionViewCell else {
             fatalError("Unexpected cell in collection view2")
         }
@@ -213,18 +221,19 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
             cell.livePhotoBadgeImage = PHLivePhotoView.livePhotoBadgeImage(options: .overContent)
         }
         
+//        cell.imageView.frame.size = thumbnailSize
+        
         //cell에 넣을 미리 로딩된 이미지를 불러온다.
         cell.representAssetIdentifier = asset.localIdentifier
-        imageManager.requestImage(for: asset, targetSize: thumbnailSize, contentMode: .aspectFit, options: nil) { (image, _) in
+        imageManager.requestImage(for: asset,
+                                  targetSize: thumbnailSize,
+                                  contentMode: .aspectFill,
+                                  options: cellImageOptions) { (image, _) in
             if cell.representAssetIdentifier == asset.localIdentifier {
                 cell.thumbnailImage = image
             }
         }
-        imageManager.requestImage(for: asset, targetSize: thumbnailSize, contentMode: .aspectFit, options: nil, resultHandler: { image, _ in
-            if cell.representAssetIdentifier == asset.localIdentifier {
-                cell.thumbnailImage = image
-            }
-        })
+        
         
         return cell
     }

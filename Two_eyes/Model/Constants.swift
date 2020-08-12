@@ -52,7 +52,7 @@ class Constants {
         "카메라 관련 설정":"cameraSettingViewSegue",
         "사진검색 관련 설정":"photoLibrarySettingViewSegue",
         "정보":"informationSettingViewSegue",
-        "로그아웃":"logoutSegue"]
+        "일반":"logoutSegue"]
     static let sections = ["FILTER":1,"CAMERA":1,"PHOTO_LIBRARY":1,"INFORMATION":1,"MAIN":1]
     static let sectionRowCount = [0:1,1:1,2:1,3:1,4:1]
     static let reuseIdentifier = "settingRows"
