@@ -127,7 +127,7 @@ extension ConfirmSignUpViewController: UITextFieldDelegate {
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
-        self.view.frame.origin.y = -150 // Move view 150 points upward
+        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * -1 // Move view upward
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {

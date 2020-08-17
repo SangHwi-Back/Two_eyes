@@ -167,7 +167,9 @@ extension SignUpViewController: UITextFieldDelegate {
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
-        self.view.frame.origin.y = -150 // Move view 150 points upward
+        self.view.frame.origin.y = 0
+        let index = allTextFields.firstIndex(of: allTextFields.filter{$0.isFirstResponder}.first!)!
+        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * CGFloat(index+1) * -0.4 // Move view upward
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {

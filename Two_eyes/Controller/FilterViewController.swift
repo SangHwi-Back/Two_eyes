@@ -98,8 +98,8 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         filteredViewLabel.bounds.size = filteredImageView.bounds.size
         capturedViewLabel.bounds.size = capturedImageView.bounds.size
         
-        filteredImageView.layer.zPosition = 0
-        capturedImageView.layer.zPosition = 1
+        filteredImageView.layer.zPosition = 1
+        capturedImageView.layer.zPosition = 0
         canvasView.layer.zPosition = 2
         // Gesture source End
         
@@ -177,8 +177,9 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     @IBAction func adjustScreenPopup(_ sender: UIButton) {
         self.view.addGestureRecognizer(modalBackgroundTapGestureRecognizer)
-        // 첫번째 실행.
-        present(coordinator.modalView!, animated: true, completion: nil)
+        if let customModalView = coordinator.modalView {
+            present(customModalView, animated: true, completion: nil)
+        }
     }
     
     @IBAction func modalBackgroundTapAction(_ sender: UITapGestureRecognizer) {
@@ -196,31 +197,37 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         forPresented presented: UIViewController,
         presenting: UIViewController?,
         source: UIViewController) -> UIPresentationController? {
-        return CustomView(canvasViewRect: canvasView.bounds, coordinator: coordinator, presentedViewController: presented, presenting: presenting)
+        
+        var modalCanvasViewRect = CGRect(
+            origin: CGPoint(x: 0, y: canvasView.frame.height + canvasView.frame.origin.y),
+            size: filterItemsCollectionView.superview!.superview!.frame.size)
+        modalCanvasViewRect.size.width = self.view.frame.size.width
+        
+        return CustomView(modalCanvasViewRect: modalCanvasViewRect,
+                          coordinator: coordinator,
+                          presentedViewController: presented,
+                          presenting: presenting)
     }
 }
 
 class CustomView: UIPresentationController {
-    var canvasViewRect: CGRect
-    var frameSize: CGSize
+    var modalCanvasViewRect: CGRect
     let coordinator: FilterViewCoordinator
     
-    required init(canvasViewRect: CGRect,
+    required init(modalCanvasViewRect: CGRect,
                   coordinator: FilterViewCoordinator,
                   presentedViewController: UIViewController,
                   presenting: UIViewController?) {
-        self.canvasViewRect = canvasViewRect
+        self.modalCanvasViewRect = modalCanvasViewRect
         self.coordinator = coordinator
-        let canvasSize = coordinator.canvasSize ?? canvasViewRect.size
-        self.frameSize = CGSize(width: canvasSize.width,
-                                height: UIScreen.main.bounds.height - canvasSize.height - 10.0)
         super.init(presentedViewController: presentedViewController, presenting: presenting)
     }
     
     override var frameOfPresentedViewInContainerView: CGRect {
         get {
-            //2번째 실행.
-            return CGRect(origin: CGPoint(x: 0, y: canvasViewRect.maxY + 10.0), size: frameSize)
+            return CGRect(
+                origin: CGPoint(x: 0, y: modalCanvasViewRect.origin.y),
+                size: modalCanvasViewRect.size)
         }
     }
     override func containerViewWillLayoutSubviews() {
@@ -292,12 +299,6 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
         
         filteredImageView.image = basicFilter.filteredImage
         filterItemsCollectionView.cellForItem(at: indexPath)?.alpha = 0.5
-        
-//        for subStackView in adjustMasterStackView.subviews {
-//            for case let slider as UISlider in subStackView.subviews {
-//                slider.value = 0
-//            }
-//        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -345,7 +346,7 @@ extension FilterViewController: UITextFieldDelegate {
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
-        self.view.frame.origin.y = -150 // Move view 150 points upward
+        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * -1 // Move view upward
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {

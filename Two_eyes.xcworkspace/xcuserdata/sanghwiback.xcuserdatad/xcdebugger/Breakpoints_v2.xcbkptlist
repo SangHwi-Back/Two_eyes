@@ -30,8 +30,8 @@
             filePath = "Two_eyes/Controller/FilterViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
             landmarkName = "adjustScreenPopup(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,9 +46,9 @@
             filePath = "Two_eyes/Controller/FilterViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
-            landmarkName = "init(canvasViewRect:coordinator:presentedViewController:presenting:)"
+            startingLineNumber = "221"
+            endingLineNumber = "221"
+            landmarkName = "init(modalCanvasViewRect:coordinator:presentedViewController:presenting:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -62,24 +62,8 @@
             filePath = "Two_eyes/Controller/FilterViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
-            landmarkName = "frameOfPresentedViewInContainerView"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F4A17101-B18C-4ED8-8462-865768C4F10C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Two_eyes/Controller/FilterViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "223"
-            endingLineNumber = "223"
+            startingLineNumber = "228"
+            endingLineNumber = "228"
             landmarkName = "frameOfPresentedViewInContainerView"
             landmarkType = "24">
          </BreakpointContent>
@@ -98,6 +82,86 @@
             endingLineNumber = "52"
             landmarkName = "frameAdjust()"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9ED03240-38BE-4123-8DAA-F67F3AC8974D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/FilterViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "adjustScreenPopup(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "81A57CCB-99A9-48B1-8DB4-FAE23B43B410"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/FilterViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
+            landmarkName = "presentationController(forPresented:presenting:source:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BADCF09F-8C4C-43A2-990C-7180E028446E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/SignUpViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
+            landmarkName = "keyboardWillShow(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "BADCF09F-8C4C-43A2-990C-7180E028446E - a22a17ad82070e9a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Two_eyes.SignUpViewController.(keyboardWillShow in _104E8C3A8D272F70EF73085C042B5EE6)(Foundation.Notification) -&gt; ()"
+                  moduleName = "Two_eyes"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Controller/SignUpViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "172"
+                  endingLineNumber = "172"
+                  offsetFromSymbolStart = "492">
+               </Location>
+               <Location
+                  uuid = "BADCF09F-8C4C-43A2-990C-7180E028446E - 4ab96189c7408306"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (__C.UITextField) -&gt; Swift.Bool in Two_eyes.SignUpViewController.(keyboardWillShow in _104E8C3A8D272F70EF73085C042B5EE6)(Foundation.Notification) -&gt; ()"
+                  moduleName = "Two_eyes"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Controller/SignUpViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "172"
+                  endingLineNumber = "172"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

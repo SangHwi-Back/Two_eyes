@@ -55,7 +55,7 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         doneButton.addTarget(self, action: #selector(dismissAction), for: .touchUpInside)
         
         //adjustMasterStackView Attributes Setting
-        adjustMasterStackView.spacing = 5
+        adjustMasterStackView.spacing = 3
         adjustMasterStackView.axis = .vertical
         
         //adjustItemsStackView Attributes Setting
@@ -81,8 +81,8 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         constraints.append(contentsOf: [
             doneButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -10),
             doneButton.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 15),
-            doneButton.widthAnchor.constraint(equalToConstant: contentSize.width * 0.25),
-            doneButton.heightAnchor.constraint(equalToConstant: contentSize.height * 0.15)
+            doneButton.widthAnchor.constraint(equalToConstant: contentSize.width * 0.2),
+            doneButton.heightAnchor.constraint(equalToConstant: contentSize.height * 0.1)
         ])//doneButton constraints setting
         
         constraints.append(contentsOf: [

@@ -19,7 +19,7 @@ class Constants {
     
     
     //MARK: - SingIn View
-    static let signUpSegueIdentifier = "signupSegue"
+    static let signUpSegueIdentifier = "signUpSegue"
     
     //MARK: - SignUp View
     static let duplicateUserDetectedMessage = "중복된 사용자가 존재합니다."
