@@ -130,38 +130,54 @@
             endingLineNumber = "172"
             landmarkName = "keyboardWillShow(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "BADCF09F-8C4C-43A2-990C-7180E028446E - a22a17ad82070e9a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Two_eyes.SignUpViewController.(keyboardWillShow in _104E8C3A8D272F70EF73085C042B5EE6)(Foundation.Notification) -&gt; ()"
-                  moduleName = "Two_eyes"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Controller/SignUpViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "172"
-                  endingLineNumber = "172"
-                  offsetFromSymbolStart = "492">
-               </Location>
-               <Location
-                  uuid = "BADCF09F-8C4C-43A2-990C-7180E028446E - 4ab96189c7408306"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.UITextField) -&gt; Swift.Bool in Two_eyes.SignUpViewController.(keyboardWillShow in _104E8C3A8D272F70EF73085C042B5EE6)(Foundation.Notification) -&gt; ()"
-                  moduleName = "Two_eyes"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Controller/SignUpViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "172"
-                  endingLineNumber = "172"
-                  offsetFromSymbolStart = "28">
-               </Location>
-            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "181B9DB7-3D7A-4E6A-A687-FBC1A97EEE22"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/SettingsController/MainSettingViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "collectionView(_:cellForItemAt:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "92B88069-0342-4E19-9866-E0E89D61D3C6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/SettingsController/MainSettingViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
+            landmarkName = "collectionView(_:cellForItemAt:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "070156C2-83B5-4045-A23B-04A6334B152B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Two_eyes/Controller/SettingsController/MainSettingViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "61"
+            endingLineNumber = "61"
+            landmarkName = "collectionView(_:cellForItemAt:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

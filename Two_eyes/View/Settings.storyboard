@@ -143,22 +143,76 @@ You are prohibited from copying, modifying, redistributing, rebroadcasting, or r
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="LOGOUT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IC7-GA-0Z2">
-                                <rect key="frame" x="127" y="424" width="160" height="48"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="40"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Theme Chooser" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S5f-1m-hFV">
+                                <rect key="frame" x="0.0" y="100" width="414" height="41"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="E6s-gd-5dy">
+                                <rect key="frame" x="10" y="157.5" width="394" height="459.5"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="u7t-hW-zEk">
+                                    <size key="itemSize" width="100" height="100"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="themeSettingCell" id="DHZ-bB-kVv">
+                                        <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="gFU-mD-YDt">
+                                            <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yDq-wd-6cR">
+                                                    <rect key="frame" x="0.0" y="0.0" width="100" height="92"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JHH-9S-wjc">
+                                                    <rect key="frame" x="0.0" y="100" width="100" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOGOUT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IC7-GA-0Z2">
+                                <rect key="frame" x="0.0" y="667" width="414" height="41"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
+                                <color key="textColor" red="0.60609471800000003" green="0.110549219" blue="0.1215417162" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="E6s-gd-5dy" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" constant="10" id="0Pd-U4-eEN"/>
+                            <constraint firstItem="IC7-GA-0Z2" firstAttribute="top" secondItem="E6s-gd-5dy" secondAttribute="bottom" constant="50" id="12y-v5-SW7"/>
+                            <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="IC7-GA-0Z2" secondAttribute="trailing" id="2Ax-Ah-bY6"/>
+                            <constraint firstItem="S5f-1m-hFV" firstAttribute="top" secondItem="0bB-9y-3sf" secondAttribute="top" constant="100" id="3qJ-Df-bzl"/>
+                            <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="S5f-1m-hFV" secondAttribute="trailing" id="LYH-9R-oxw"/>
+                            <constraint firstItem="S5f-1m-hFV" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" id="cCd-ay-aQc"/>
+                            <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="E6s-gd-5dy" secondAttribute="trailing" constant="10" id="gL7-g3-aFC"/>
+                            <constraint firstItem="0bB-9y-3sf" firstAttribute="bottom" secondItem="IC7-GA-0Z2" secondAttribute="bottom" constant="100" id="tRa-lu-3zn"/>
+                            <constraint firstItem="IC7-GA-0Z2" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" id="twf-Ig-fJT"/>
+                            <constraint firstItem="E6s-gd-5dy" firstAttribute="firstBaseline" secondItem="S5f-1m-hFV" secondAttribute="baseline" constant="25" symbolType="layoutAnchor" id="vda-FD-kVb"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="0bB-9y-3sf"/>
                     </view>
                     <navigationItem key="navigationItem" id="juo-0X-Ea1"/>
+                    <connections>
+                        <outlet property="LogoutLabel" destination="IC7-GA-0Z2" id="Frd-eC-6Xh"/>
+                        <outlet property="themeChooserCollectionView" destination="E6s-gd-5dy" id="NbU-Zh-cEp"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RGR-5J-UMb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1243" y="1412"/>
+            <point key="canvasLocation" x="1242.0289855072465" y="1411.6071428571429"/>
         </scene>
         <!--Settings-->
         <scene sceneID="e2u-0Z-D5J">

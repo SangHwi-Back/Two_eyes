@@ -42,6 +42,7 @@
 		1B9F1EE524D18F9F00C055A1 /* TowEyesFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE424D18F9F00C055A1 /* TowEyesFileManager.swift */; };
 		1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */; };
 		1BAE36C624D54E650079DF8E /* FilterViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */; };
+		1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2814124ED17B0004ABD2C /* ThemeManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		1B9F1EE424D18F9F00C055A1 /* TowEyesFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowEyesFileManager.swift; sourceTree = "<group>"; };
 		1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustModalViewController.swift; sourceTree = "<group>"; };
 		1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewCoordinator.swift; sourceTree = "<group>"; };
+		1BC2814124ED17B0004ABD2C /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		1D0085B0312BA077C9E1231F /* Pods-Two_eyes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Two_eyes.debug.xcconfig"; path = "Target Support Files/Pods-Two_eyes/Pods-Two_eyes.debug.xcconfig"; sourceTree = "<group>"; };
 		4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Two_eyes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -121,6 +123,7 @@
 			children = (
 				1B1FC887246CD026008C0647 /* AppDelegate.swift */,
 				1B1FC889246CD026008C0647 /* SceneDelegate.swift */,
+				1BC2814124ED17B0004ABD2C /* ThemeManager.swift */,
 				1B1FC8BA246CD378008C0647 /* Model */,
 				1B1FC8A3246CD344008C0647 /* Controller */,
 				1B9F1ED524D143A400C055A1 /* View */,
@@ -341,6 +344,7 @@
 				1B1FC892246CD026008C0647 /* Two_eyes.xcdatamodeld in Sources */,
 				1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */,
 				1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */,
+				1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */,
 				1B1FC8AF246CD35B008C0647 /* SettingsTableViewController.swift in Sources */,
 				1B1FC8C1246CD387008C0647 /* BasicFilterTemplate.swift in Sources */,
 				1B1FC8B6246CD35B008C0647 /* CameraViewController.swift in Sources */,

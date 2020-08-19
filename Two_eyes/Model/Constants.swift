@@ -79,6 +79,9 @@ class Constants {
         "Sony","PanaSonic","Fuji","EOS"
     ]
     
-    
+    //MARK: - MainSetting View
+    static let applicationThemeNames = [
+        "Space_Gray", "Silver" ,"Egg_Tart", "Blue_Jelly", "Milk_Choco"
+    ]
     
 }
