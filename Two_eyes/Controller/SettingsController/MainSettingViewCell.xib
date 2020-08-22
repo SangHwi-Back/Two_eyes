@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MainSettingViewController" customModule="Two_eyes" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="" id="cW7-eV-sZC" customClass="MainSettingViewCell" customModule="Two_eyes" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="150" height="180"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="D7z-7g-HgM">
+                <rect key="frame" x="0.0" y="0.0" width="150" height="180"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="SoZ-jL-QQl">
+                        <rect key="frame" x="0.0" y="0.0" width="150" height="153"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="73q-ii-TlU">
+                                <rect key="frame" x="0.0" y="0.0" width="150" height="30.5"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aMh-rM-E7P">
+                                <rect key="frame" x="0.0" y="30.5" width="150" height="30.5"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6za-EW-nTi">
+                                <rect key="frame" x="0.0" y="61" width="150" height="31"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jO4-Qi-NgW">
+                                <rect key="frame" x="0.0" y="92" width="150" height="30.5"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0wt-WC-GGu">
+                                <rect key="frame" x="0.0" y="122.5" width="150" height="30.5"/>
+                            </imageView>
+                        </subviews>
+                    </stackView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N3i-T8-mP2">
+                        <rect key="frame" x="0.0" y="159.5" width="150" height="20.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="N3i-T8-mP2" firstAttribute="leading" secondItem="D7z-7g-HgM" secondAttribute="leading" id="4Gv-tb-kia"/>
+                    <constraint firstAttribute="trailing" secondItem="N3i-T8-mP2" secondAttribute="trailing" id="8Re-ch-Byh"/>
+                    <constraint firstAttribute="bottom" secondItem="N3i-T8-mP2" secondAttribute="bottom" id="9hj-hb-bXx"/>
+                    <constraint firstItem="SoZ-jL-QQl" firstAttribute="height" secondItem="D7z-7g-HgM" secondAttribute="height" multiplier="0.85" id="Hvm-oA-eQQ"/>
+                    <constraint firstItem="SoZ-jL-QQl" firstAttribute="top" secondItem="D7z-7g-HgM" secondAttribute="top" id="X5q-zJ-dT8"/>
+                    <constraint firstItem="SoZ-jL-QQl" firstAttribute="leading" secondItem="D7z-7g-HgM" secondAttribute="leading" id="leA-52-QYj"/>
+                    <constraint firstAttribute="trailing" secondItem="SoZ-jL-QQl" secondAttribute="trailing" id="uvq-dv-dRk"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <connections>
+                <outlet property="imageView1" destination="73q-ii-TlU" id="u5S-om-hsd"/>
+                <outlet property="imageView2" destination="aMh-rM-E7P" id="M6J-08-INF"/>
+                <outlet property="imageView3" destination="6za-EW-nTi" id="JnV-27-gxw"/>
+                <outlet property="imageView4" destination="jO4-Qi-NgW" id="M11-5l-27p"/>
+                <outlet property="imageView5" destination="0wt-WC-GGu" id="nts-fn-VJk"/>
+                <outlet property="imageViewStack" destination="SoZ-jL-QQl" id="e3g-T3-Vg3"/>
+                <outlet property="label" destination="N3i-T8-mP2" id="VIS-Zn-iBl"/>
+            </connections>
+            <point key="canvasLocation" x="134.78260869565219" y="509.59821428571428"/>
+        </collectionViewCell>
+    </objects>
+</document>

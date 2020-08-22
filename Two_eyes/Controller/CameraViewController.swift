@@ -10,7 +10,6 @@ import UIKit
 import AVFoundation
 import Photos
 import PhotosUI
-import ChameleonFramework
 
 class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     func photoLibraryDidChange(_ changeInstance: PHChange) {
@@ -34,7 +33,6 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         
         if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
             currentCameraType = captureDevice.deviceType

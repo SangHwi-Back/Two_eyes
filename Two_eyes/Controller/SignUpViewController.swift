@@ -8,7 +8,6 @@
 
 import UIKit
 import FirebaseAuth
-import ChameleonFramework
 
 class SignUpViewController: UIViewController {
     
@@ -45,12 +44,10 @@ class SignUpViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let toolBarKeyBoard = keyboardToolBarFactory()
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         
         for label in allLabels {
             label.numberOfLines = 1
             label.adjustsFontSizeToFitWidth = true
-            label.textColor = UIColor.flatOrangeDark()
         }
         
         for textField in allTextFields {
@@ -58,7 +55,6 @@ class SignUpViewController: UIViewController {
             textField.font = UIFont(name: allLabels.first!.font.fontName, size: allLabels.first!.font.pointSize / 2)
             textField.minimumFontSize = 10
             textField.inputAccessoryView = toolBarKeyBoard
-            textField.backgroundColor = UIColor.flatWhite()
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -75,7 +71,6 @@ class SignUpViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
     }
     
     override func viewDidDisappear(_ animated: Bool) {

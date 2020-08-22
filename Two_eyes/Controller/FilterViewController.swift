@@ -9,7 +9,6 @@
 import UIKit
 import Photos
 import PhotosUI
-import ChameleonFramework
 
 class FilterViewController: UIViewController, UIViewControllerTransitioningDelegate {
     
@@ -51,12 +50,6 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     //MARK: - Methods executed in view life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.filterItemsCollectionView.backgroundColor = UIColor.flatSand()
-        self.view.backgroundColor = UIColor(
-            gradientStyle: UIGradientStyle.topToBottom,
-            withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
-            andColors: [UIColor.flatSand(), UIColor.flatSandDark()]
-        )
         
         navigationController?.navigationBar.isHidden = false
         
@@ -283,8 +276,9 @@ extension FilterViewController {
         basicFilter.adjustKey = key
         basicFilter.adjustValue = sender.value
         DispatchQueue.main.async {
-            self.basicFilter.preAdjustedImage =
-                UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
+//            self.initialImage?.size = self.filteredImageView.frame.size
+            self.basicFilter.preAdjustedImage = self.initialImage!
+//                UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
             self.filteredImageView.image = self.basicFilter.filteredImage
             self.filteredImageView.center = center
         }

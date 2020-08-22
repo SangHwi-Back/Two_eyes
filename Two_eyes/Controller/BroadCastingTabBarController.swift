@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ChameleonFramework
 
 protocol BroadCastingTabBarControllerDelegate: class {
     func addInitialImage(_ capturedImage: UIImage?)
@@ -27,7 +26,6 @@ class BroadCastingTabBarController: UITabBarController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

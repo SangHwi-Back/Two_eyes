@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ChameleonFramework
 
 protocol SettingInterfaceBasicProtocol {
     var settingName: String { get set }
@@ -16,20 +15,6 @@ protocol SettingInterfaceBasicProtocol {
 class SettingsTableViewController: UITableViewController {
 
     @IBOutlet var settingSearchBar: UISearchBar!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.tableView.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom,
-                                                 withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
-                                                 andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-    }
 
     // MARK: - Table view data source
 
@@ -47,8 +32,6 @@ class SettingsTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.reuseIdentifier, for: indexPath)
         // Configure the cell...
         cell.textLabel?.text = Constants.settings[indexPath.section]
-        cell.backgroundColor = UIColor.flatSand()
-
         return cell
     }
     
@@ -64,43 +47,6 @@ class SettingsTableViewController: UITableViewController {
         navigationItem.hidesBackButton = false
         cell?.isSelected = false
     }
-    
-    
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
 
     // MARK: - Navigation
 

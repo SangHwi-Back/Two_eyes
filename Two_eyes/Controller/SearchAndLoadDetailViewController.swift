@@ -10,7 +10,6 @@
 import UIKit
 import Photos
 import PhotosUI
-import ChameleonFramework
 
 class SearchAndLoadDetailViewController: UIViewController {
     
@@ -36,7 +35,6 @@ class SearchAndLoadDetailViewController: UIViewController {
         livePhotoView.delegate = self
         PHPhotoLibrary.shared().register(self)
         navigationItem.hidesBackButton = false
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
     }
     
     deinit {
@@ -56,7 +54,6 @@ class SearchAndLoadDetailViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
         
         if asset.mediaType == .video {
             toolbarItems = [favoriteButton, space, playButton, space, trashButton]

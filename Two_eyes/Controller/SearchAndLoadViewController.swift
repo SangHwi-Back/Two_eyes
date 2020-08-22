@@ -14,7 +14,6 @@ import Photos
 import PhotosUI
 import CoreML
 import Vision
-import ChameleonFramework
 
 class SearchAndLoadViewController: UIViewController {
 
@@ -41,11 +40,6 @@ class SearchAndLoadViewController: UIViewController {
     //MARK: - Method related view life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.albumSearchBar.backgroundColor = UIColor.flatSand()
-        self.albumSearchBar.tintColor = UIColor.flatSand()
-        self.albumSearchBar.barTintColor = UIColor.flatSand()
-        self.view.backgroundColor = UIColor.flatSand()
-        self.albumCollectionView.backgroundColor = UIColor.flatSand()
         navigationController?.isToolbarHidden = true
         
         albumSearchBar.delegate = self

@@ -10,7 +10,7 @@
 		05916AE8133BB714ED1FD526 /* Pods_Two_eyes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */; };
 		1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC887246CD026008C0647 /* AppDelegate.swift */; };
 		1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC889246CD026008C0647 /* SceneDelegate.swift */; };
-		1B1FC892246CD026008C0647 /* Two_eyes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */; };
+		1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC890246CD026008C0647 /* ApplicationTheme.xcdatamodeld */; };
 		1B1FC894246CD027008C0647 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC893246CD027008C0647 /* Assets.xcassets */; };
 		1B1FC897246CD027008C0647 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC895246CD027008C0647 /* LaunchScreen.storyboard */; };
 		1B1FC89F246CD15F008C0647 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B1FC89E246CD15F008C0647 /* GoogleService-Info.plist */; };
@@ -28,6 +28,11 @@
 		1B1FC8C0246CD387008C0647 /* SearchImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BC246CD387008C0647 /* SearchImage.swift */; };
 		1B1FC8C1246CD387008C0647 /* BasicFilterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BD246CD387008C0647 /* BasicFilterTemplate.swift */; };
 		1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC8BE246CD387008C0647 /* SearchSettings.swift */; };
+		1B4C342E24EF5E4600ADCDC8 /* MainSettingViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C342D24EF5E4600ADCDC8 /* MainSettingViewCell.swift */; };
+		1B4C343524EF699400ADCDC8 /* MainSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C343324EF699400ADCDC8 /* MainSettingViewController.swift */; };
+		1B4C343624EF699400ADCDC8 /* MainSettingViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B4C343424EF699400ADCDC8 /* MainSettingViewCell.xib */; };
+		1B4C343B24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */; };
+		1B4C343D24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */; };
 		1B9F1ECB24CD54B500C055A1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1ECA24CD54B500C055A1 /* Constants.swift */; };
 		1B9F1ECD24CEC65300C055A1 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B9F1ECC24CEC65300C055A1 /* Settings.storyboard */; };
 		1B9F1ED324D1438E00C055A1 /* FilterSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1ED124D1438E00C055A1 /* FilterSettingViewController.swift */; };
@@ -36,10 +41,9 @@
 		1B9F1ED924D15B4100C055A1 /* CameraSettingViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B9F1ED724D15B4100C055A1 /* CameraSettingViewCell.xib */; };
 		1B9F1EDC24D15CE800C055A1 /* PhotoLibrarySettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EDA24D15CE800C055A1 /* PhotoLibrarySettingViewController.swift */; };
 		1B9F1EDD24D15CE800C055A1 /* PhotoLibrarySettingViewRow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B9F1EDB24D15CE800C055A1 /* PhotoLibrarySettingViewRow.xib */; };
-		1B9F1EDF24D15D3700C055A1 /* MainSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EDE24D15D3700C055A1 /* MainSettingViewController.swift */; };
 		1B9F1EE124D16AAF00C055A1 /* CameraCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE024D16AAF00C055A1 /* CameraCollectionViewCell.swift */; };
 		1B9F1EE324D1876100C055A1 /* FilterSettingViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE224D1876100C055A1 /* FilterSettingViewCell.swift */; };
-		1B9F1EE524D18F9F00C055A1 /* TowEyesFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE424D18F9F00C055A1 /* TowEyesFileManager.swift */; };
+		1B9F1EE524D18F9F00C055A1 /* TwoEyesFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */; };
 		1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */; };
 		1BAE36C624D54E650079DF8E /* FilterViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */; };
 		1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2814124ED17B0004ABD2C /* ThemeManager.swift */; };
@@ -69,6 +73,11 @@
 		1B1FC8BC246CD387008C0647 /* SearchImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchImage.swift; sourceTree = "<group>"; };
 		1B1FC8BD246CD387008C0647 /* BasicFilterTemplate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFilterTemplate.swift; sourceTree = "<group>"; };
 		1B1FC8BE246CD387008C0647 /* SearchSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchSettings.swift; sourceTree = "<group>"; };
+		1B4C342D24EF5E4600ADCDC8 /* MainSettingViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainSettingViewCell.swift; sourceTree = "<group>"; };
+		1B4C343324EF699400ADCDC8 /* MainSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainSettingViewController.swift; sourceTree = "<group>"; };
+		1B4C343424EF699400ADCDC8 /* MainSettingViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainSettingViewCell.xib; sourceTree = "<group>"; };
+		1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ApplicationTheme+CoreDataProperties.swift"; path = "/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataProperties.swift"; sourceTree = "<absolute>"; };
+		1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ApplicationTheme+CoreDataClass.swift"; path = "/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataClass.swift"; sourceTree = "<absolute>"; };
 		1B9F1ECA24CD54B500C055A1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		1B9F1ECC24CEC65300C055A1 /* Settings.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
 		1B9F1ED124D1438E00C055A1 /* FilterSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSettingViewController.swift; sourceTree = "<group>"; };
@@ -77,10 +86,9 @@
 		1B9F1ED724D15B4100C055A1 /* CameraSettingViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CameraSettingViewCell.xib; sourceTree = "<group>"; };
 		1B9F1EDA24D15CE800C055A1 /* PhotoLibrarySettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrarySettingViewController.swift; sourceTree = "<group>"; };
 		1B9F1EDB24D15CE800C055A1 /* PhotoLibrarySettingViewRow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoLibrarySettingViewRow.xib; sourceTree = "<group>"; };
-		1B9F1EDE24D15D3700C055A1 /* MainSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainSettingViewController.swift; sourceTree = "<group>"; };
 		1B9F1EE024D16AAF00C055A1 /* CameraCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCollectionViewCell.swift; sourceTree = "<group>"; };
 		1B9F1EE224D1876100C055A1 /* FilterSettingViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSettingViewCell.swift; sourceTree = "<group>"; };
-		1B9F1EE424D18F9F00C055A1 /* TowEyesFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowEyesFileManager.swift; sourceTree = "<group>"; };
+		1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoEyesFileManager.swift; sourceTree = "<group>"; };
 		1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustModalViewController.swift; sourceTree = "<group>"; };
 		1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewCoordinator.swift; sourceTree = "<group>"; };
 		1BC2814124ED17B0004ABD2C /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
@@ -124,6 +132,7 @@
 				1B1FC887246CD026008C0647 /* AppDelegate.swift */,
 				1B1FC889246CD026008C0647 /* SceneDelegate.swift */,
 				1BC2814124ED17B0004ABD2C /* ThemeManager.swift */,
+				1B4C343E24EFA77F00ADCDC8 /* Entity */,
 				1B1FC8BA246CD378008C0647 /* Model */,
 				1B1FC8A3246CD344008C0647 /* Controller */,
 				1B9F1ED524D143A400C055A1 /* View */,
@@ -131,7 +140,7 @@
 				1B1FC895246CD027008C0647 /* LaunchScreen.storyboard */,
 				1B1FC898246CD027008C0647 /* Info.plist */,
 				1B1FC89E246CD15F008C0647 /* GoogleService-Info.plist */,
-				1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */,
+				1B1FC890246CD026008C0647 /* ApplicationTheme.xcdatamodeld */,
 			);
 			path = Two_eyes;
 			sourceTree = "<group>";
@@ -162,9 +171,18 @@
 				1B1FC8BE246CD387008C0647 /* SearchSettings.swift */,
 				1B9F1ECA24CD54B500C055A1 /* Constants.swift */,
 				1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */,
-				1B9F1EE424D18F9F00C055A1 /* TowEyesFileManager.swift */,
+				1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		1B4C343E24EFA77F00ADCDC8 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */,
+				1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */,
+			);
+			path = Entity;
 			sourceTree = "<group>";
 		};
 		1B9F1ECE24CEED1B00C055A1 /* SettingsController */ = {
@@ -179,7 +197,9 @@
 				1B9F1ED724D15B4100C055A1 /* CameraSettingViewCell.xib */,
 				1B9F1EDA24D15CE800C055A1 /* PhotoLibrarySettingViewController.swift */,
 				1B9F1EDB24D15CE800C055A1 /* PhotoLibrarySettingViewRow.xib */,
-				1B9F1EDE24D15D3700C055A1 /* MainSettingViewController.swift */,
+				1B4C343324EF699400ADCDC8 /* MainSettingViewController.swift */,
+				1B4C342D24EF5E4600ADCDC8 /* MainSettingViewCell.swift */,
+				1B4C343424EF699400ADCDC8 /* MainSettingViewCell.xib */,
 			);
 			path = SettingsController;
 			sourceTree = "<group>";
@@ -272,6 +292,7 @@
 			files = (
 				1B1FC897246CD027008C0647 /* LaunchScreen.storyboard in Resources */,
 				1B1FC8A2246CD32D008C0647 /* Main.storyboard in Resources */,
+				1B4C343624EF699400ADCDC8 /* MainSettingViewCell.xib in Resources */,
 				1B9F1EDD24D15CE800C055A1 /* PhotoLibrarySettingViewRow.xib in Resources */,
 				1B1FC89F246CD15F008C0647 /* GoogleService-Info.plist in Resources */,
 				1B1FC894246CD027008C0647 /* Assets.xcassets in Resources */,
@@ -333,24 +354,27 @@
 				1B1FC8BF246CD387008C0647 /* SearchAndLoadCollectionViewCell.swift in Sources */,
 				1B1FC8B5246CD35B008C0647 /* SearchAndLoadDetailViewController.swift in Sources */,
 				1B1FC8C0246CD387008C0647 /* SearchImage.swift in Sources */,
-				1B9F1EE524D18F9F00C055A1 /* TowEyesFileManager.swift in Sources */,
+				1B9F1EE524D18F9F00C055A1 /* TwoEyesFileManager.swift in Sources */,
+				1B4C343B24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift in Sources */,
 				1BAE36C624D54E650079DF8E /* FilterViewCoordinator.swift in Sources */,
 				1B1FC8B1246CD35B008C0647 /* FilterViewController.swift in Sources */,
 				1B1FC8B7246CD35B008C0647 /* SearchAndLoadViewController.swift in Sources */,
 				1B9F1EE324D1876100C055A1 /* FilterSettingViewCell.swift in Sources */,
 				1B1FC8B0246CD35B008C0647 /* SignUpViewController.swift in Sources */,
 				1B9F1EE124D16AAF00C055A1 /* CameraCollectionViewCell.swift in Sources */,
+				1B4C343524EF699400ADCDC8 /* MainSettingViewController.swift in Sources */,
 				1B9F1ED824D15B4100C055A1 /* CameraSettingViewController.swift in Sources */,
-				1B1FC892246CD026008C0647 /* Two_eyes.xcdatamodeld in Sources */,
+				1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */,
 				1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */,
+				1B4C343D24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift in Sources */,
 				1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */,
 				1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */,
 				1B1FC8AF246CD35B008C0647 /* SettingsTableViewController.swift in Sources */,
 				1B1FC8C1246CD387008C0647 /* BasicFilterTemplate.swift in Sources */,
 				1B1FC8B6246CD35B008C0647 /* CameraViewController.swift in Sources */,
+				1B4C342E24EF5E4600ADCDC8 /* MainSettingViewCell.swift in Sources */,
 				1B1FC8B4246CD35B008C0647 /* BroadCastingTabBarController.swift in Sources */,
 				1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */,
-				1B9F1EDF24D15D3700C055A1 /* MainSettingViewController.swift in Sources */,
 				1B9F1EDC24D15CE800C055A1 /* PhotoLibrarySettingViewController.swift in Sources */,
 				1B9F1ED324D1438E00C055A1 /* FilterSettingViewController.swift in Sources */,
 				1B1FC8B3246CD35B008C0647 /* SignInViewController.swift in Sources */,
@@ -558,13 +582,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		1B1FC890246CD026008C0647 /* Two_eyes.xcdatamodeld */ = {
+		1B1FC890246CD026008C0647 /* ApplicationTheme.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
 				1B1FC891246CD026008C0647 /* Two_eyes.xcdatamodel */,
 			);
 			currentVersion = 1B1FC891246CD026008C0647 /* Two_eyes.xcdatamodel */;
-			path = Two_eyes.xcdatamodeld;
+			path = ApplicationTheme.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

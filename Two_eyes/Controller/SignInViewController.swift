@@ -8,7 +8,6 @@
 
 import UIKit
 import FirebaseAuth
-import ChameleonFramework
 
 @IBDesignable
 class SignInViewController: UIViewController {
@@ -50,9 +49,6 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom,
-                                            withFrame: CGRect(origin: view.frame.origin, size: view.frame.size),
-                                            andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         if paramEmail != "" {
             IDEmailField.text = paramEmail
         }
@@ -63,17 +59,11 @@ class SignInViewController: UIViewController {
             }
         }
         
-        IDEmailLabel.textColor = UIColor.flatOrangeDark()
-        passwordLabel.textColor = UIColor.flatOrangeDark()
         IDEmailField.delegate = self
         PasswordField.delegate = self
-        IDEmailField.backgroundColor = UIColor.flatWhite()
-        PasswordField.backgroundColor = UIColor.flatWhite()
         
         signInButton.adjustsImageSizeForAccessibilityContentSizeCategory = true
         signUpButton.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        signInButton.setTitleColor(UIColor.flatOrangeDark(), for: .normal)
-        signUpButton.setTitleColor(UIColor.flatOrangeDark(), for: .normal)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)

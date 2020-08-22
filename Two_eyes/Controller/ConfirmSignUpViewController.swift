@@ -10,7 +10,6 @@ import UIKit
 import FirebaseAuth
 import FirebaseInstanceID
 import FirebaseMessaging
-import ChameleonFramework
 
 class ConfirmSignUpViewController: UIViewController {
 
@@ -54,7 +53,6 @@ class ConfirmSignUpViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.confirmCodeTextField.delegate = self
-        self.view.backgroundColor = UIColor(gradientStyle: UIGradientStyle.topToBottom, withFrame: CGRect(origin: view.frame.origin, size: view.frame.size), andColors: [UIColor.flatSand(), UIColor.flatSandDark()])
         
         // Do any additional setup after loading the view.
         InstanceID.instanceID().instanceID { (result, error) in
@@ -85,7 +83,6 @@ class ConfirmSignUpViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barTintColor = UIColor(hexString: "#ffcd3c")
     }
     
     func confirmCodeValidation() {

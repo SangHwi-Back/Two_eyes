@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ChameleonFramework
 
 class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewControllerTransitioningDelegate {
     var modalLabel = UILabel()
@@ -25,7 +24,6 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         super.viewDidLoad()
         self.view.backgroundColor = .darkGray
         adjustScrollView.delegate = self
-        adjustScrollView.backgroundColor = .flatWhiteDark()
         
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         adjustMasterStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +48,6 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         
         //doneButton Attributes Setting
         doneButton.setTitle("Done", for: .normal)
-        doneButton.setTitleColor(.flatWhite(), for: .highlighted)
         doneButton.backgroundColor = .lightGray
         doneButton.addTarget(self, action: #selector(dismissAction), for: .touchUpInside)
         

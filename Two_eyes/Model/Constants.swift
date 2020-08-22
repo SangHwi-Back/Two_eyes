@@ -16,7 +16,7 @@ class Constants {
     static let signInFailedMessage = "로그인에 실패하였습니다."
     static let loginInformationIncorrectMessage = "아이디와 비밀번호가 맞지 않습니다."
     static let normalErrorMessage = "에러가 발생하였습니다."
-    
+    static let themeEntityName = "ApplicationTheme"
     
     //MARK: - SingIn View
     static let signUpSegueIdentifier = "signUpSegue"
@@ -81,7 +81,19 @@ class Constants {
     
     //MARK: - MainSetting View
     static let applicationThemeNames = [
-        "Space_Gray", "Silver" ,"Egg_Tart", "Blue_Jelly", "Milk_Choco"
+        "Default", "Space_Gray", "Silver" ,"Egg_Tart", "Blue_Jelly", "Milk_Choco"
+    ]
+    static let applicationDefaultThemes = [
+        "Default":["id":"Default","nav_tabBar_Color":"","button_Color":"","buttonText_Color":"","bodyText_Color":"","backGround_Color":""],
+        "Space_Gray":["id":"Space_Gray","nav_tabBar_Color":"44.44.46","button_Color":"72.72.74","buttonText_Color":"255.255.255","bodyText_Color":"255.255.255","backGround_Color":"142.142.147"],
+        "Silver":["id":"Silver","nav_tabBar_Color":"199.199.204","button_Color":"142.142.147","buttonText_Color":"255.255.255","bodyText_Color":"255.255.255","backGround_Color":"229.229.234"],
+        "Egg_Tart":["id":"Egg_Tart","nav_tabBar_Color":"157.11.11","button_Color":"218.45.45","buttonText_Color":"255.255.255","bodyText_Color":"255.255.255","backGround_Color":"246.218.99"],
+        "Blue_Jelly":["id":"Blue_Jelly","nav_tabBar_Color":"94.233.255","button_Color":"62.100.255","buttonText_Color":"255.255.255","bodyText_Color":"255.255.255","backGround_Color":"236.252.255"],
+        "Milk_Choco":["id":"Milk_Choco","nav_tabBar_Color":"145.91.74","button_Color":"92.77.77","buttonText_Color":"255.255.255","bodyText_Color":"255.255.255","backGround_Color":"242.241.231"],
+        "RX-78":["id":"RX-78","nav_tabBar_Color":"255.0.0","button_Color":"0.0.255","buttonText_Color":"255.255.255","bodyText_Color":"255.0.255","backGround_Color":"255.255.255"]
+    ]
+    static let themeKeys = [
+        "nav_tabBar_Color","backGround_Color","button_Color","buttonText_Color","bodyText_Color"
     ]
     
 }

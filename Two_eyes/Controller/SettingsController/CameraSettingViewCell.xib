@@ -33,7 +33,7 @@
             <connections>
                 <outlet property="cameraSettingLabel" destination="EPZ-TY-qgg" id="zF4-kQ-cIO"/>
             </connections>
-            <point key="canvasLocation" x="-14" y="394"/>
+            <point key="canvasLocation" x="-14.492753623188406" y="393.75"/>
         </collectionViewCell>
     </objects>
 </document>
