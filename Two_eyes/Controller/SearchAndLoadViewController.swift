@@ -21,12 +21,13 @@ class SearchAndLoadViewController: UIViewController {
     @IBOutlet var albumSearchBar: UISearchBar!
     @IBOutlet var albumCollectionView: UICollectionView!
     @IBOutlet var collectionViewFlowLayout: UICollectionViewFlowLayout!
+    @IBOutlet var cancelButton: UIButton!
     
     // MARK: Properties
-    var allPhotos: PHFetchResult<PHAsset>!
-    var smartAlbums: PHFetchResult<PHAssetCollection>!
-    var photosCollection: PHAssetCollection!
-    var userCollections: PHFetchResult<PHCollection>!
+    private var allPhotos: PHFetchResult<PHAsset>!
+    private var smartAlbums: PHFetchResult<PHAssetCollection>!
+    private var photosCollection: PHAssetCollection!
+    private var userCollections: PHFetchResult<PHCollection>!
     
     var availableWidth: CGFloat = 0
     fileprivate let imageManager = PHCachingImageManager()
@@ -34,8 +35,8 @@ class SearchAndLoadViewController: UIViewController {
     fileprivate var previousPreheatRect = CGRect.zero
     fileprivate let textRecognitionRequest = VNRecognizeTextRequest()
     
-    let sectionLocalizedTitles = ["", NSLocalizedString("Smart Albums", comment: ""), NSLocalizedString("Albums", comment: "")]
-    let cellImageOptions = PHImageRequestOptions()
+//    let sectionLocalizedTitles = ["", NSLocalizedString("Smart Albums", comment: ""), NSLocalizedString("Albums", comment: "")]
+    private let cellImageOptions = PHImageRequestOptions()
     
     //MARK: - Method related view life cycle
     override func viewDidLoad() {
@@ -45,6 +46,8 @@ class SearchAndLoadViewController: UIViewController {
         albumSearchBar.delegate = self
         resetCachedAssets()
         PHPhotoLibrary.shared().register(self)
+        cancelButton.layer.cornerRadius = 10
+        cancelButton.layer.masksToBounds = true
         
         albumCollectionView.delegate = self
         albumCollectionView.dataSource = self
@@ -66,7 +69,7 @@ class SearchAndLoadViewController: UIViewController {
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
-    @IBAction func cancelButton(_ sender: UIButton) {
+    @IBAction func cancelButtonInAction(_ sender: UIButton) {
         self.albumSearchBar.resignFirstResponder()
     }
     
@@ -251,7 +254,7 @@ extension SearchAndLoadViewController: UISearchBarDelegate {
             asset.requestContentEditingInput(with: nil) { (input, info) in
                 if let url = input?.fullSizeImageURL {
                     let instRequestHandler = VNImageRequestHandler(url: url, options: [:])
-                    try? instRequestHandler.perform([self.textRecognitionRequest])
+                    try? instRequestHandler.perform([self.textRecognitionRequest]) // 오류가 났어!!
                     
                     guard let visionResult = self.textRecognitionRequest.results as? [VNRecognizedTextObservation] else {
                         return

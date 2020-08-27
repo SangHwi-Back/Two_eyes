@@ -14,9 +14,7 @@ class FilterSettingViewCell: UITableViewCell {
     @IBOutlet weak var filterSettingSlider: UISlider!
     @IBOutlet weak var filterSettingSwitch: UISwitch!
     
-    @IBAction func onSliderChanged(_ sender: UISlider) {
-        
-    }
+    @IBAction func onSliderChanged(_ sender: UISlider) {}
     
     @IBAction func onSwitchClicked(_ sender: UISwitch) {
         TwoEyesFileManager.onSwitchClicked(filterSettingLabel.text, sender.isOn, "filterSetting")

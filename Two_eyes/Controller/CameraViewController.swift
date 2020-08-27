@@ -12,20 +12,19 @@ import Photos
 import PhotosUI
 
 class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
-    }
+    func photoLibraryDidChange(_ changeInstance: PHChange) {}
 
     @IBOutlet var cameraPreview: UIView!
     @IBOutlet var currentPicture: UIButton!
     
-    var captureSession: AVCaptureSession?
-    var videoPreviewLayer: AVCaptureVideoPreviewLayer?
-    var capturePhotoOutput: AVCapturePhotoOutput?
+    private var captureSession: AVCaptureSession?
+    private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
+    private var capturePhotoOutput: AVCapturePhotoOutput?
     
-    var currentPictureRequested: Bool = false
-    var capturedImage: UIImage?
-    var currentAsset: PHAsset?
-    var currentAssetFetchOptions: PHFetchOptions?
+    private var currentPictureRequested: Bool = false
+    private var capturedImage: UIImage?
+    private var currentAsset: PHAsset?
+    private var currentAssetFetchOptions: PHFetchOptions?
     
     fileprivate let imageManager = PHCachingImageManager()
     fileprivate var currentCameraInput: AVCaptureInput?
@@ -50,18 +49,21 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
             return
         }
         
-        videoPreviewLayer?.videoGravity = .resizeAspectFill
-        videoPreviewLayer?.frame = cameraPreview.layer.bounds
-        cameraPreview.layer.addSublayer(videoPreviewLayer!)
-        
-        captureSession?.startRunning()
-        
         capturePhotoOutput = AVCapturePhotoOutput()
-        capturePhotoOutput?.isHighResolutionCaptureEnabled = true
-        captureSession?.addOutput(capturePhotoOutput!)
+        
+        guard let videoPreviewLayer = videoPreviewLayer, let captureSession = captureSession, let capturePhotoOutput = capturePhotoOutput else { return }
+        
+        videoPreviewLayer.videoGravity = .resizeAspectFill
+        videoPreviewLayer.frame = cameraPreview.layer.bounds
+        cameraPreview.layer.addSublayer(videoPreviewLayer)
+        
+        captureSession.startRunning()
+        
+        capturePhotoOutput.isHighResolutionCaptureEnabled = true
+        captureSession.addOutput(capturePhotoOutput)
         
         let captureMetadataOutput = AVCaptureMetadataOutput()
-        captureSession?.addOutput(captureMetadataOutput)
+        captureSession.addOutput(captureMetadataOutput)
         
         captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
@@ -76,7 +78,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         super.viewWillAppear(animated)
     }
     
-    func registerNewPhoto() {
+    private func registerNewPhoto() {
         let photoOptions = PHFetchOptions()
         photoOptions.fetchLimit = 1
         photoOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
@@ -98,7 +100,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     @IBAction func currentPhoto(_ sender: UIButton) {
         if currentPictureRequested {
-            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController{
+            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
                 destinationVC.currentAsset = self.currentAsset
                 destinationVC.imageManager = self.imageManager
                 self.navigationController?.pushViewController(destinationVC, animated: true)
@@ -142,18 +144,14 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         return nil
     }
     
-    func resetCachedAssets() {
-        imageManager.stopCachingImagesForAllAssets()
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    private func resetCachedAssets() {
+        self.imageManager.stopCachingImagesForAllAssets()
     }
 }
 
 extension CameraViewController: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard error == nil else { return }
-        guard let imageData = photo.fileDataRepresentation() else { return }
+        guard error == nil, let imageData = photo.fileDataRepresentation() else { return }
         
         if let capturedImage = UIImage.init(data: imageData, scale: 1.0) {
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)

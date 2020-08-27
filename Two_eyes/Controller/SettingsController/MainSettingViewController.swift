@@ -10,17 +10,20 @@ import UIKit
 import CoreData
 
 class MainSettingViewController: UIViewController {
-
-    @IBOutlet weak var LogoutLabel: UILabel!
     
     @IBOutlet weak var themeChooserCollectionView: UICollectionView!
+    @IBOutlet var saveThemeKey: UIButton!
+    @IBOutlet var logout: UIButton!
     
     var cellSize = CGSize()
     var cellLabelSize = CGSize()
     var cellImageViewSize = CGSize()
+    var selectedCellId: String?
     
     let choosedTheme = UserDefaults.standard.value(forKey: "MainTheme") ?? "Egg_Tart"
     let container = NSPersistentContainer(name: Constants.themeEntityName)
+    let saveAlertController = UIAlertController(title: "테마 저장", message: "정말로 테마를 저장하시겠습니까?", preferredStyle: .alert)
+    let successAlertController = UIAlertController(title: "알림", message: "테마가 정상적으로 적용되었습니다.", preferredStyle: .alert)
     
     let themeManager: ThemeManager? = (UIApplication.shared.delegate as? AppDelegate)?.themeManager
     
@@ -44,9 +47,30 @@ class MainSettingViewController: UIViewController {
         themeChooserCollectionView.setCollectionViewLayout(layout, animated: true)
         themeChooserCollectionView.reloadData()
         
+        alertControllerInitializer()
         // Do any additional setup after loading the view.
     }
     
+    @IBAction func logoutInAction(_ sender: UIButton) {
+        
+        
+    }
+    @IBAction func saveThemeInAction(_ sender: UIButton) {
+        self.present(self.saveAlertController, animated: true)
+    }
+    
+    private func alertControllerInitializer() {
+        let positiveAction = UIAlertAction(title: "예", style: .default) { _ in
+            UserDefaults.standard.set(self.selectedCellId, forKey: "MainTheme")
+        }
+        let negativeAction = UIAlertAction(title: "아니요", style: .cancel)
+        
+        self.saveAlertController.addAction(positiveAction)
+        self.saveAlertController.addAction(negativeAction)
+        
+        let confirmAction = UIAlertAction(title: "확인", style: .cancel)
+        self.successAlertController.addAction(confirmAction)
+    }
 }
 
 extension MainSettingViewController: UICollectionViewDataSource {
@@ -66,12 +90,9 @@ extension MainSettingViewController: UICollectionViewDataSource {
         let themeName = Constants.applicationThemeNames[indexPath.row]
         let themeInfo = storedThemes.filter { $0.id == themeName }.first!
         
-//        let themeInfo = Constants.applicationDefaultThemes[themeName]!.filter {$0.key != "id"}.mapValues{
-//            return themeName == "Default" ? UIColor.white : $0.toUIColor
-//        }
-        
         cell.label.text = themeName
         cell.themeName = themeName
+        cell.themeInfo = themeInfo
         
         for (index, imageView) in cell.imageViewStack.subviews.enumerated() where imageView is UIImageView {
             if themeName == "Default" {
@@ -81,7 +102,6 @@ extension MainSettingViewController: UICollectionViewDataSource {
             if let colorString = themeInfo.value(forKey: Constants.themeKeys[index]) as? String {
                 imageView.backgroundColor = colorString.toUIColor
             }
-//            imageView.backgroundColor = (themeInfo.value(forKey: Constants.themeKeys[index]) as! String).toUIColor
             imageView.layer.borderWidth = 0.5
             imageView.layer.borderColor = CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 1.0)
         }
@@ -92,15 +112,33 @@ extension MainSettingViewController: UICollectionViewDataSource {
 
 extension MainSettingViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell else {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell,
+            let themeManager = themeManager,
+            let themeInfo = cell.themeInfo else {
             return
         }
         
-        cell.isHighlighted = true
+        cell.isSelected = true
         
+        themeManager.setSelectedThemeKey(themeInfo.id)
+        themeManager.applyTheme()
+        
+        self.selectedCellId = themeInfo.id
+        
+        self.present(self.successAlertController, animated: true) {
+            self.view.setNeedsDisplay()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        collectionView.cellForItem(at: indexPath)?.isHighlighted = false
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell,
+            let themeManager = themeManager else {
+            return
+        }
+        
+        cell.isSelected = false
+        
+        themeManager.setSelectedThemeKey("Default")
+        themeManager.applyTheme()
     }
 }

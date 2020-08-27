@@ -20,5 +20,6 @@ class MainSettingViewCell: UICollectionViewCell {
     @IBOutlet var label: UILabel!
     
     var themeName: String = ""
+    var themeInfo: ApplicationTheme?
     
 }

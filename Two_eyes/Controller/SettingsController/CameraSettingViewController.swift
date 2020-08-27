@@ -9,13 +9,13 @@
 import UIKit
 
 class CameraSettingViewController: UICollectionViewController, SettingInterfaceBasicProtocol, UICollectionViewDelegateFlowLayout {
-    var settingName: String = ""
-    var cellReuseIdentifier: String? {
+    internal var settingName: String = ""
+    private var cellReuseIdentifier: String? {
         get{
             Constants.settingsCellReuseIdentifier[settingName]
         }
     }
-    var cellTitles: [String] {
+    private var cellTitles: [String] {
         get{
             Constants.cameraSettingTypes
         }
@@ -41,7 +41,7 @@ class CameraSettingViewController: UICollectionViewController, SettingInterfaceB
         self.navigationController?.popViewController(animated: true)
     }
     
-    // MARK: UICollectionViewDataSource
+    //MARK: - UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -63,14 +63,13 @@ class CameraSettingViewController: UICollectionViewController, SettingInterfaceB
         return cell
     }
 
-    // MARK: UICollectionViewDelegate
+    //MARK: - UICollectionViewDelegate
     
-    // Select Event
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    var padding: CGFloat = 0.0
+    private var padding: CGFloat = 0.0
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width / 2 - padding, height: view.frame.width / 2 - padding)

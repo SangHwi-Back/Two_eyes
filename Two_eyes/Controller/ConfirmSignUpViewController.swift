@@ -18,7 +18,7 @@ class ConfirmSignUpViewController: UIViewController {
     var lastName: String?
     var firstName: String?
     var address: String?
-    var remoteTokenTemp: String?
+    private var remoteTokenTemp: String?
     
     //MARK: - Outlet 연결
     @IBOutlet var remoteToken: UILabel!
@@ -47,8 +47,8 @@ class ConfirmSignUpViewController: UIViewController {
     }
     
     //MARK: - AlertController
-    let alertController = UIAlertController(title: Constants.signUpFailedMessage, message: "", preferredStyle: .alert)
-    let alertAction = UIAlertAction(title: "확인", style: .cancel, handler: nil)
+    private let alertController = UIAlertController(title: Constants.signUpFailedMessage, message: "", preferredStyle: .alert)
+    private let alertAction = UIAlertAction(title: "확인", style: .cancel, handler: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,7 +85,7 @@ class ConfirmSignUpViewController: UIViewController {
         navigationController?.navigationBar.isHidden = false
     }
     
-    func confirmCodeValidation() {
+    private func confirmCodeValidation() {
         guard email != nil || password != nil || lastName != nil || firstName != nil || address != nil else { return }
         
         if remoteToken.text == confirmCodeTextField.text {
@@ -97,16 +97,16 @@ class ConfirmSignUpViewController: UIViewController {
         
     }
     
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    private func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
         let dataDict:[String: String] = ["token": fcmToken]
         NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
     }
     
-    func goToFirstControl(_ flag: Bool) {
+    private func goToFirstControl(_ flag: Bool) {
         goToFirst.isEnabled = flag
     }
     
-    func confirmCodeControl(_ flag: Bool) {
+    private func confirmCodeControl(_ flag: Bool) {
         confirmCodeTextField.isEnabled = flag
     }
     

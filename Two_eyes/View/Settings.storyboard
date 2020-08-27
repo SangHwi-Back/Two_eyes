@@ -144,13 +144,13 @@ You are prohibited from copying, modifying, redistributing, rebroadcasting, or r
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Theme Chooser" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S5f-1m-hFV">
-                                <rect key="frame" x="0.0" y="100" width="414" height="41"/>
+                                <rect key="frame" x="0.0" y="50" width="414" height="41"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="E6s-gd-5dy">
-                                <rect key="frame" x="20" y="157.5" width="374" height="459.5"/>
+                                <rect key="frame" x="20" y="107.5" width="374" height="451.5"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="u7t-hW-zEk">
                                     <size key="itemSize" width="100" height="100"/>
@@ -169,31 +169,49 @@ You are prohibited from copying, modifying, redistributing, rebroadcasting, or r
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOGOUT" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IC7-GA-0Z2">
-                                <rect key="frame" x="0.0" y="667" width="414" height="41"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CO2-Gq-1OS">
+                                <rect key="frame" x="150.5" y="712" width="113" height="46"/>
+                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                <state key="normal" title="LOGOUT">
+                                    <color key="titleColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="logoutInAction:" destination="OjB-v5-Ok3" eventType="touchUpInside" id="abc-3I-MZb"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z94-Er-Pqi">
+                                <rect key="frame" x="177.5" y="609" width="59" height="53"/>
+                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
-                                <color key="textColor" red="0.60609471800000003" green="0.110549219" blue="0.1215417162" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <state key="normal" title="저장">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="saveThemeInAction:" destination="OjB-v5-Ok3" eventType="touchUpInside" id="XZ9-11-2mf"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="E6s-gd-5dy" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" constant="20" id="0Pd-U4-eEN"/>
-                            <constraint firstItem="IC7-GA-0Z2" firstAttribute="top" secondItem="E6s-gd-5dy" secondAttribute="bottom" constant="50" id="12y-v5-SW7"/>
-                            <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="IC7-GA-0Z2" secondAttribute="trailing" id="2Ax-Ah-bY6"/>
-                            <constraint firstItem="S5f-1m-hFV" firstAttribute="top" secondItem="0bB-9y-3sf" secondAttribute="top" constant="100" id="3qJ-Df-bzl"/>
+                            <constraint firstItem="S5f-1m-hFV" firstAttribute="top" secondItem="0bB-9y-3sf" secondAttribute="top" constant="50" id="3qJ-Df-bzl"/>
                             <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="S5f-1m-hFV" secondAttribute="trailing" id="LYH-9R-oxw"/>
+                            <constraint firstItem="0bB-9y-3sf" firstAttribute="bottom" secondItem="CO2-Gq-1OS" secondAttribute="bottom" constant="50" id="Lvx-HS-Sg5"/>
+                            <constraint firstItem="CO2-Gq-1OS" firstAttribute="centerX" secondItem="0bB-9y-3sf" secondAttribute="centerX" id="MFK-WE-qCw"/>
                             <constraint firstItem="S5f-1m-hFV" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" id="cCd-ay-aQc"/>
                             <constraint firstItem="0bB-9y-3sf" firstAttribute="trailing" secondItem="E6s-gd-5dy" secondAttribute="trailing" constant="20" id="gL7-g3-aFC"/>
-                            <constraint firstItem="0bB-9y-3sf" firstAttribute="bottom" secondItem="IC7-GA-0Z2" secondAttribute="bottom" constant="100" id="tRa-lu-3zn"/>
-                            <constraint firstItem="IC7-GA-0Z2" firstAttribute="leading" secondItem="0bB-9y-3sf" secondAttribute="leading" id="twf-Ig-fJT"/>
+                            <constraint firstItem="Z94-Er-Pqi" firstAttribute="top" secondItem="E6s-gd-5dy" secondAttribute="bottom" constant="50" id="phd-69-WWG"/>
                             <constraint firstItem="E6s-gd-5dy" firstAttribute="firstBaseline" secondItem="S5f-1m-hFV" secondAttribute="baseline" constant="25" symbolType="layoutAnchor" id="vda-FD-kVb"/>
+                            <constraint firstItem="CO2-Gq-1OS" firstAttribute="top" secondItem="Z94-Er-Pqi" secondAttribute="bottom" constant="50" id="vo3-5X-wff"/>
+                            <constraint firstItem="Z94-Er-Pqi" firstAttribute="centerX" secondItem="0bB-9y-3sf" secondAttribute="centerX" id="zJK-VP-Gmr"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="0bB-9y-3sf"/>
                     </view>
                     <navigationItem key="navigationItem" id="juo-0X-Ea1"/>
                     <connections>
-                        <outlet property="LogoutLabel" destination="IC7-GA-0Z2" id="Frd-eC-6Xh"/>
+                        <outlet property="logout" destination="CO2-Gq-1OS" id="pNB-p0-kDw"/>
+                        <outlet property="saveThemeKey" destination="Z94-Er-Pqi" id="S8o-34-sUK"/>
                         <outlet property="themeChooserCollectionView" destination="E6s-gd-5dy" id="dbn-sD-Dax"/>
                     </connections>
                 </viewController>

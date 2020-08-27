@@ -9,16 +9,16 @@
 import UIKit
 
 class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewControllerTransitioningDelegate {
-    var modalLabel = UILabel()
-    var slider = UISlider()
+    private var modalLabel = UILabel()
+    private var slider = UISlider()
     
-    let adjustScrollView = UIScrollView()
+    private let adjustScrollView = UIScrollView()
     let adjustMasterStackView = UIStackView()
-    let adjustItemsStackView = UIStackView()
-    let doneButton = UIButton()
-    let adjustKey: [String] = Constants.filterViewAdjustKeys
+    private let adjustItemsStackView = UIStackView()
+    private let doneButton = UIButton()
+    private let adjustKey: [String] = Constants.filterViewAdjustKeys
     
-    let coordinator: FilterViewCoordinator?
+    private let coordinator: FilterViewCoordinator?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,7 +42,7 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         fatalError("init(coder:), AdjustModalViewController.coordinator has not been implemented")
     }
     
-    func frameAdjust() {
+    private func frameAdjust() {
         let contentSize = coordinator?.canvasSize ??
             CGSize(width: self.view.frame.size.width, height: self.view.frame.size.height * 0.2) //1번째 실행
         
@@ -70,7 +70,6 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         self.view.addSubview(doneButton)
         self.view.addSubview(adjustScrollView)
         adjustScrollView.addSubview(adjustMasterStackView)
-//        adjustMasterStackView.addSubview(adjustItemsStackView)
         
         //Setting Constraints
         var constraints = [NSLayoutConstraint]()
@@ -101,7 +100,7 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         allConstraintsActivate(constraints, activate: true)
     }
     
-    func registerAdjust() {
+    private func registerAdjust() {
         for i in 0..<adjustKey.count {
             if let itemsStackView = adjustItemsStackView.copy() as? UIStackView,
                 let stackLabel = modalLabel.copy() as? UILabel,
@@ -125,13 +124,13 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         }
     }
     
-    func allConstraintsActivate(_ constraints: [NSLayoutConstraint], activate: Bool) {
+    private func allConstraintsActivate(_ constraints: [NSLayoutConstraint], activate: Bool) {
         for constraint in constraints {
             constraint.isActive = activate
         }
     }
     
-    @objc func adjustValue(sender: UISlider) {
+    @objc private func adjustValue(sender: UISlider) {
         DispatchQueue.main.async {
             self.coordinator?.modalMasterView?.adjustValue(sender: sender, self.adjustKey[sender.tag])
         }

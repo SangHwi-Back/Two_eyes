@@ -14,7 +14,7 @@ import Firebase
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
 
     var window: UIWindow?
-    var themeManager: ThemeManager?
+    private(set) var themeManager: ThemeManager?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -32,9 +32,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         application.registerForRemoteNotifications()
         
         Messaging.messaging().delegate = self
+        UINavigationBar.appearance().barStyle = UIBarStyle.default
         
         themeManager = ThemeManager()
         themeManager!.getThemes()
+        themeManager!.setDefaultTheme()
         themeManager!.applyTheme()
         
         return true

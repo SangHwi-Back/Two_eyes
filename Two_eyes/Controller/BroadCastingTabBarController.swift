@@ -16,6 +16,7 @@ class BroadCastingTabBarController: UITabBarController {
     
     var capturedImage: UIImage?
     weak var broadCastingDelegate: BroadCastingTabBarControllerDelegate?
+    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +30,7 @@ class BroadCastingTabBarController: UITabBarController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        segue.destination.view.backgroundColor = themeManager.getThemeBackgroundColor()
     }
 
     @IBAction func cameraBtnTab(_ sender: UIBarButtonItem) {
@@ -40,18 +42,40 @@ class BroadCastingTabBarController: UITabBarController {
             switch title {
             case "Search":
                 tabBarController?.selectedIndex = 1
-                navigationController?.navigationItem.title = "Camera&Filter"
+                navigationItem.title = "Search"
             case "Camera&Filter":
                 tabBarController?.selectedIndex = 2
-                navigationController?.navigationItem.title = "Search"
+                navigationItem.title = "Camera&Filter"
             case "Settings":
                 tabBarController?.selectedIndex = 0
-                navigationController?.navigationItem.title = "Settings"
+                navigationItem.title = "Settings"
             default:
                 return
             }
         }
+        
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.view.backgroundColor = themeManager.getNavtabBackgroundColor()
+        self.tabBarController?.tabBar.isTranslucent = false
+        self.tabBarController?.tabBar.backgroundColor = themeManager.getNavtabBackgroundColor()
     }
+    
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        viewController.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        
+        if let vc = viewController as? SearchAndLoadViewController {
+            vc.albumCollectionView.backgroundColor = themeManager.getThemeBackgroundColor()
+            vc.albumSearchBar.barTintColor = themeManager.getThemeBackgroundColor()
+        } else if let vc = viewController as? SettingsTableViewController {
+            vc.view.backgroundColor = themeManager.getThemeBackgroundColor()
+            vc.tableView.dequeueReusableCell(withIdentifier: "settingRows")?.contentView.backgroundColor = themeManager.getThemeBackgroundColor()
+        }
+        
+//        self.tabBar.isTranslucent = false
+//        self.tabBar.backgroundColor = themeManager.getThemeBackgroundColor()
+        return true
+    }
+    
 }
 
 

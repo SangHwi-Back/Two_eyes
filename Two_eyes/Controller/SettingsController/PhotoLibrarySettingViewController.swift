@@ -9,13 +9,13 @@
 import UIKit
 
 class PhotoLibrarySettingViewController: UITableViewController, SettingInterfaceBasicProtocol {
-    var settingName: String = ""
-    var cellReuseIdentifier: String? {
+    internal var settingName: String = ""
+    private var cellReuseIdentifier: String? {
         get{
             Constants.settingsCellReuseIdentifier[settingName]
         }
     }
-    var cellTitles: [String] {
+    private var cellTitles: [String] {
         get{
             Constants.settingsCellTitles[settingName] ?? []
         }

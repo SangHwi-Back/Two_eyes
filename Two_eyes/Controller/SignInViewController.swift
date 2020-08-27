@@ -69,13 +69,13 @@ class SignInViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
-    let alertController = UIAlertController(title: Constants.loginAlertMessage, message: "", preferredStyle: .alert)
-    let emailAction = UIAlertAction(title: Constants.emailFieldNilMessage, style: .cancel, handler: nil)
-    let passwordAction = UIAlertAction(title: Constants.passwordFieldNilMessage, style: .cancel, handler: nil)
-    let signInFailedAction = UIAlertAction(title: Constants.signInFailedMessage, style: .cancel, handler: nil)
-    let emailPasswordNotCorrectedAction = UIAlertAction(title: Constants.loginInformationIncorrectMessage, style: .cancel, handler: nil)
+    private let alertController = UIAlertController(title: Constants.loginAlertMessage, message: "", preferredStyle: .alert)
+    private let emailAction = UIAlertAction(title: Constants.emailFieldNilMessage, style: .cancel, handler: nil)
+    private let passwordAction = UIAlertAction(title: Constants.passwordFieldNilMessage, style: .cancel, handler: nil)
+    private let signInFailedAction = UIAlertAction(title: Constants.signInFailedMessage, style: .cancel, handler: nil)
+    private let emailPasswordNotCorrectedAction = UIAlertAction(title: Constants.loginInformationIncorrectMessage, style: .cancel, handler: nil)
     
-    func presentAlert(_ action: UIAlertAction) {
+    private func presentAlert(_ action: UIAlertAction) {
         alertController.addAction(action)
         self.present(alertController, animated: true, completion: nil)
     }
@@ -102,7 +102,7 @@ extension SignInViewController: UITextFieldDelegate {
         return false
     }
     
-    func keyboardToolBarFactory() -> UIToolbar {
+    private func keyboardToolBarFactory() -> UIToolbar {
         let toolBarKeyboard = UIToolbar()
         toolBarKeyboard.sizeToFit()
         let btnBar = UIBarButtonItem(title: "Next", style: .plain, target: self, action: #selector(self.nextBtnClicked))
@@ -112,7 +112,7 @@ extension SignInViewController: UITextFieldDelegate {
         return toolBarKeyboard
     }
     
-    @objc func nextBtnClicked(sender: Any) {
+    @objc private func nextBtnClicked(sender: Any) {
         for i in 0 ..< allTextFields.count {
             if allTextFields[i].isFirstResponder {
                 allTextFields[ i == allTextFields.count-1 ? 0 : i+1 ].becomeFirstResponder()
@@ -121,7 +121,7 @@ extension SignInViewController: UITextFieldDelegate {
         }
     }
     
-    @objc func prevBtnClicked(sender: Any) {
+    @objc private func prevBtnClicked(sender: Any) {
         for i in 0..<allTextFields.count {
             if allTextFields[i].isFirstResponder {
                 allTextFields[ i == 0 ? allTextFields.count - 1 : i - 1 ].becomeFirstResponder()

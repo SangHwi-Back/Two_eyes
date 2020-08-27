@@ -29,14 +29,12 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     @IBOutlet var modalBackgroundTapGestureRecognizer: UITapGestureRecognizer!
     
-    var modalPopup = false
-    
     //MARK: - constants 생성
-    let filters: [String] = Constants.filterViewFilters
-    let coordinator = FilterViewCoordinator()
+    private let filters: [String] = Constants.filterViewFilters
+    private let coordinator = FilterViewCoordinator()
+    private var highlightedCollectionItemIndex: Int = 0
+    private var basicFilter = BasicFilterTemplate()
     
-    var highlightedCollectionItemIndex: Int = 0
-    var basicFilter = BasicFilterTemplate()
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
     var initialImage: UIImage?

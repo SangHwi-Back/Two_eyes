@@ -27,13 +27,31 @@ struct Theme {
 
 class ThemeManager {
     
-    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-    lazy var context = appDelegate?.persistentContainer.viewContext
+    func getThemeBackgroundColor() -> UIColor {
+        if self.selectedThemeKey != "Default" {
+            return themeBackgroundColor!
+        } else {
+            return UIColor.systemBackground
+        }
+    }
     
-    let userDefaultsKey = "MainTheme"
+    func getNavtabBackgroundColor() -> UIColor {
+        if navTabBackgroundColor == nil {
+            return UIColor.systemBackground
+        } else {
+            return navTabBackgroundColor!
+        }
+    }
     
-    lazy var selectedThemeKey = UserDefaults.standard.value(forKey: userDefaultsKey) as? String ?? "Default"
-    var storedThemes : [ApplicationTheme]?
+    private let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
+    lazy private var context = appDelegate?.persistentContainer.viewContext
+    
+    private let userDefaultsKey = "MainTheme"
+    
+    lazy private(set) var selectedThemeKey = UserDefaults.standard.value(forKey: userDefaultsKey) as? String ?? "Default"
+    private(set) var storedThemes : [ApplicationTheme]?
+    private var themeBackgroundColor: UIColor?
+    private var navTabBackgroundColor: UIColor?
     
     func setDefaultTheme() {
         guard let context = context else {
@@ -66,21 +84,48 @@ class ThemeManager {
             return
         }
         
-        guard self.selectedThemeKey != "Default", let theme = storedThemes.filter({$0.id == self.selectedThemeKey}).first else {
-            print("escape in 'selectedThemeKey != \"Default\", let theme = storedThemes.filter({$0.id == selectedThemeKey}).first'.")
+        guard self.selectedThemeKey != "Default" else {
+            applyDefaultTheme()
+            print("set default theme and return")
             return
         }
         
-        let sharedApplication = UIApplication.shared // singleton app instance
-        sharedApplication.delegate?.window??.tintColor = theme.backGround_Color.toUIColor
+        guard let theme = storedThemes.filter({$0.id == self.selectedThemeKey}).first else {
+            print("chosen theme not found")
+            return
+        }
         
-        UINavigationBar.appearance().backgroundColor = theme.nav_tabBar_Color.toUIColor
+        UITabBar.appearance().isTranslucent = false
         UITabBar.appearance().backgroundColor = theme.nav_tabBar_Color.toUIColor
+        
         UIButton.appearance().backgroundColor = theme.button_Color.toUIColor
         UIButton.appearance().tintColor = theme.buttonText_Color.toUIColor
         UILabel.appearance().tintColor = theme.bodyText_Color.toUIColor
         UITextField.appearance().tintColor = theme.bodyText_Color.toUIColor
         UISearchBar.appearance().tintColor = theme.buttonText_Color.toUIColor
+        
+        self.themeBackgroundColor = theme.backGround_Color.toUIColor
+        self.navTabBackgroundColor = theme.nav_tabBar_Color.toUIColor
+        
+        print("Completed theme apply", theme)
+    }
+    
+    func applyDefaultTheme() {
+        UITabBar.appearance().isTranslucent = true
+        UITabBar.appearance().backgroundColor = nil
+        
+        UIButton.appearance().backgroundColor = nil
+        UIButton.appearance().tintColor = UIColor(named: "black")
+        UILabel.appearance().tintColor = nil
+        UITextField.appearance().tintColor = nil
+        UISearchBar.appearance().tintColor = UIColor(named: "white")
+        
+        self.themeBackgroundColor = UIColor.systemBackground
+        self.navTabBackgroundColor = UIColor.systemBackground
+    }
+    
+    func setSelectedThemeKey(_ key: String) {
+        self.selectedThemeKey = key
     }
     
     @discardableResult

@@ -17,7 +17,6 @@ protocol BasicFilterTemplageDelegate {
 class BasicFilterTemplate {
     var delegate: BasicFilterTemplageDelegate?
     var wouldDelegateExecute: Bool = true
-    var ciImage: CIImage?
     
     /*
      * preFilteredImage = filteredImage에 Filter효과를 주기 위한 변수이다.

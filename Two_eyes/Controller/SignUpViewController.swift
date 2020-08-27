@@ -133,7 +133,7 @@ extension SignUpViewController: UITextFieldDelegate {
         return false
     }
     
-    func keyboardToolBarFactory() -> UIToolbar {
+    private func keyboardToolBarFactory() -> UIToolbar {
         let toolBarKeyboard = UIToolbar()
         toolBarKeyboard.sizeToFit()
         let btnBar = UIBarButtonItem(title: "Next", style: .plain, target: self, action: #selector(self.nextBtnClicked))
@@ -143,7 +143,7 @@ extension SignUpViewController: UITextFieldDelegate {
         return toolBarKeyboard
     }
     
-    @objc func nextBtnClicked(sender: Any) {
+    @objc private func nextBtnClicked(sender: Any) {
         for i in 0 ..< allTextFields.count {
             if allTextFields[i].isFirstResponder {
                 allTextFields[ i == allTextFields.count-1 ? 0 : i+1 ].becomeFirstResponder()
@@ -152,7 +152,7 @@ extension SignUpViewController: UITextFieldDelegate {
         }
     }
     
-    @objc func prevBtnClicked(sender: Any) {
+    @objc private func prevBtnClicked(sender: Any) {
         for i in 0..<allTextFields.count {
             if allTextFields[i].isFirstResponder {
                 allTextFields[ i == 0 ? allTextFields.count - 1 : i - 1 ].becomeFirstResponder()

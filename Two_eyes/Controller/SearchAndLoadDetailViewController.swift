@@ -79,7 +79,7 @@ class SearchAndLoadDetailViewController: UIViewController {
 }
 
 extension SearchAndLoadDetailViewController {
-    func updateImage() {
+    private func updateImage() {
         if asset.mediaSubtypes.contains(.photoLive) {
             updateLivePhoto()
         } else {
@@ -87,13 +87,13 @@ extension SearchAndLoadDetailViewController {
         }
     }
     
-    var targetSize: CGSize {
+    private var targetSize: CGSize {
         let scale = UIScreen.main.scale
         return CGSize(width: imageView.bounds.width * scale, height: imageView.bounds.height * scale)
     }
     
     //Live Photo 이미지를 뷰에 세팅함.
-    func updateLivePhoto() {
+    private func updateLivePhoto() {
         let options = PHLivePhotoRequestOptions()
         options.deliveryMode = .highQualityFormat
         options.isNetworkAccessAllowed = true
@@ -119,7 +119,7 @@ extension SearchAndLoadDetailViewController {
     }
     
     //정적 이미지를 뷰에 세팅함.
-    func updateStaticImage() {
+    private func updateStaticImage() {
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat
         options.isNetworkAccessAllowed = true
