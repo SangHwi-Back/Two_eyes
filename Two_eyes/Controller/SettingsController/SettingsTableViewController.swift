@@ -15,6 +15,19 @@ protocol SettingInterfaceBasicProtocol {
 class SettingsTableViewController: UITableViewController {
 
     @IBOutlet var settingSearchBar: UISearchBar!
+    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
+        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
+        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        
+        self.tableView.reloadData()
+    }
 
     // MARK: - Table view data source
 
@@ -28,11 +41,27 @@ class SettingsTableViewController: UITableViewController {
         return Constants.settings[section]
     }
     
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if themeManager.getNavtabBackgroundColor() != UIColor.systemBackground {
+            view.tintColor = themeManager.getNavtabBackgroundColor()
+            let header = view as! UITableViewHeaderFooterView
+            header.textLabel?.textColor = themeManager.getBodyTextColor()
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.reuseIdentifier, for: indexPath)
         // Configure the cell...
         cell.textLabel?.text = Constants.settings[indexPath.section]
+        
+        if themeManager.getNavtabBackgroundColor() != UIColor.systemBackground {
+            cell.textLabel?.textColor = themeManager.getBodyTextColor()
+            cell.contentView.backgroundColor = themeManager.getThemeBackgroundColor()
+        }
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

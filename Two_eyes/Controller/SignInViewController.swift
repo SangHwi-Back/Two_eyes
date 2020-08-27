@@ -91,6 +91,12 @@ class SignInViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
     }
+    
+    func navViewBackgroundChange(_ customColor: UIColor, _ customTextColor: UIColor) {
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.navigationBar.barTintColor = customColor
+        self.navigationController?.navigationBar.tintColor = customTextColor
+    }
 
 }
 

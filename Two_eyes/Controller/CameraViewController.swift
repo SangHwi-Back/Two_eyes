@@ -29,6 +29,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     fileprivate let imageManager = PHCachingImageManager()
     fileprivate var currentCameraInput: AVCaptureInput?
     fileprivate var currentCameraType: AVCaptureDevice.DeviceType?
+    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,6 +77,12 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
+        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
+        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
     }
     
     private func registerNewPhoto() {

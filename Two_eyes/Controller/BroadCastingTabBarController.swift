@@ -50,30 +50,9 @@ class BroadCastingTabBarController: UITabBarController {
                 tabBarController?.selectedIndex = 0
                 navigationItem.title = "Settings"
             default:
-                return
+                navigationItem.title = "Camera&Filter"
             }
         }
-        
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationController?.view.backgroundColor = themeManager.getNavtabBackgroundColor()
-        self.tabBarController?.tabBar.isTranslucent = false
-        self.tabBarController?.tabBar.backgroundColor = themeManager.getNavtabBackgroundColor()
-    }
-    
-    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        viewController.view.backgroundColor = themeManager.getThemeBackgroundColor()
-        
-        if let vc = viewController as? SearchAndLoadViewController {
-            vc.albumCollectionView.backgroundColor = themeManager.getThemeBackgroundColor()
-            vc.albumSearchBar.barTintColor = themeManager.getThemeBackgroundColor()
-        } else if let vc = viewController as? SettingsTableViewController {
-            vc.view.backgroundColor = themeManager.getThemeBackgroundColor()
-            vc.tableView.dequeueReusableCell(withIdentifier: "settingRows")?.contentView.backgroundColor = themeManager.getThemeBackgroundColor()
-        }
-        
-//        self.tabBar.isTranslucent = false
-//        self.tabBar.backgroundColor = themeManager.getThemeBackgroundColor()
-        return true
     }
     
 }

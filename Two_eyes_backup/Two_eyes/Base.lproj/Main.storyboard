@@ -143,13 +143,16 @@
                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="7gP-ce-2tE">
                                 <rect key="frame" x="0.0" y="44" width="375" height="56"/>
                                 <subviews>
-                                    <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="gZJ-WX-U3I">
+                                    <searchBar contentMode="redraw" placeholder="Text for Search" translatesAutoresizingMaskIntoConstraints="NO" id="gZJ-WX-U3I">
                                         <rect key="frame" x="0.0" y="0.0" width="312.5" height="56"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </searchBar>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G5h-uF-J3y">
                                         <rect key="frame" x="312.5" y="0.0" width="62.5" height="56"/>
-                                        <state key="normal" title="취소"/>
+                                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" title="취소">
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
                                         <connections>
                                             <action selector="cancelButtonInAction:" destination="bVb-Fa-hK0" eventType="touchUpInside" id="INO-Oc-4eD"/>
                                         </connections>

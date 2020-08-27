@@ -35,8 +35,9 @@ class SearchAndLoadViewController: UIViewController {
     fileprivate var previousPreheatRect = CGRect.zero
     fileprivate let textRecognitionRequest = VNRecognizeTextRequest()
     
-//    let sectionLocalizedTitles = ["", NSLocalizedString("Smart Albums", comment: ""), NSLocalizedString("Albums", comment: "")]
     private let cellImageOptions = PHImageRequestOptions()
+    
+    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
     
     //MARK: - Method related view life cycle
     override func viewDidLoad() {
@@ -90,15 +91,20 @@ class SearchAndLoadViewController: UIViewController {
      */
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        let scale = UIScreen.main.scale
-        let cellSize = collectionViewFlowLayout.itemSize
         
         thumbnailSize = CGSize(
-            width: cellSize.width,
-            height: cellSize.height)
+            width: self.view.frame.width / 3 - 20,
+            height: self.view.frame.width / 3 - 20)
         
         cellImageOptions.normalizedCropRect.size = thumbnailSize
         cellImageOptions.resizeMode = .exact
+        
+        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
+        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
+        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        self.albumSearchBar.alpha = 0.5
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -218,19 +224,18 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
             cell.livePhotoBadgeImage = PHLivePhotoView.livePhotoBadgeImage(options: .overContent)
         }
         
-//        cell.imageView.frame.size = thumbnailSize
+        cell.frame.size = thumbnailSize
         
         //cell에 넣을 미리 로딩된 이미지를 불러온다.
         cell.representAssetIdentifier = asset.localIdentifier
         imageManager.requestImage(for: asset,
                                   targetSize: thumbnailSize,
-                                  contentMode: .aspectFill,
+                                  contentMode: .default,
                                   options: cellImageOptions) { (image, _) in
             if cell.representAssetIdentifier == asset.localIdentifier {
                 cell.thumbnailImage = image
             }
         }
-        
         
         return cell
     }

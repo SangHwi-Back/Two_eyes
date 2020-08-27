@@ -25,7 +25,7 @@ class MainSettingViewController: UIViewController {
     let saveAlertController = UIAlertController(title: "테마 저장", message: "정말로 테마를 저장하시겠습니까?", preferredStyle: .alert)
     let successAlertController = UIAlertController(title: "알림", message: "테마가 정상적으로 적용되었습니다.", preferredStyle: .alert)
     
-    let themeManager: ThemeManager? = (UIApplication.shared.delegate as? AppDelegate)?.themeManager
+    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,8 +51,17 @@ class MainSettingViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    @IBAction func logoutInAction(_ sender: UIButton) {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
+        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
+        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
+        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
+        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+    }
+    
+    @IBAction func logoutInAction(_ sender: UIButton) {
         
     }
     @IBAction func saveThemeInAction(_ sender: UIButton) {
@@ -61,7 +70,7 @@ class MainSettingViewController: UIViewController {
     
     private func alertControllerInitializer() {
         let positiveAction = UIAlertAction(title: "예", style: .default) { _ in
-            UserDefaults.standard.set(self.selectedCellId, forKey: "MainTheme")
+            UserDefaults.standard.set(self.selectedCellId ?? "Default", forKey: "MainTheme")
         }
         let negativeAction = UIAlertAction(title: "아니요", style: .cancel)
         
@@ -80,7 +89,7 @@ extension MainSettingViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "mainSettingViewCell", for: indexPath) as? MainSettingViewCell,
-            let storedThemes = self.themeManager?.storedThemes else {
+            let storedThemes = self.themeManager.storedThemes else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "mainSettingViewCell", for: indexPath)
             cell.frame = CGRect(x: 0, y: 0, width: 150, height: 180)
             cell.backgroundColor = .black
@@ -113,7 +122,6 @@ extension MainSettingViewController: UICollectionViewDataSource {
 extension MainSettingViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell,
-            let themeManager = themeManager,
             let themeInfo = cell.themeInfo else {
             return
         }
@@ -127,12 +135,12 @@ extension MainSettingViewController: UICollectionViewDelegate {
         
         self.present(self.successAlertController, animated: true) {
             self.view.setNeedsDisplay()
+            self.view.setNeedsLayout()
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell,
-            let themeManager = themeManager else {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MainSettingViewCell else {
             return
         }
         

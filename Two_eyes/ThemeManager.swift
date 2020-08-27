@@ -12,7 +12,7 @@ import CoreData
 
 extension String {
     var toUIColor: UIColor {
-        let rgb = Array(self.split(separator: "."))
+        let rgb = Array(self.split(separator: ".").map{String($0)})
         return UIColor(displayP3Red: CGFloat(Int(rgb[0])!) / 255, green: CGFloat(Int(rgb[1])!) / 255, blue: CGFloat(Int(rgb[2])!) / 255, alpha: 1)
     }
 }
@@ -28,19 +28,15 @@ struct Theme {
 class ThemeManager {
     
     func getThemeBackgroundColor() -> UIColor {
-        if self.selectedThemeKey != "Default" {
-            return themeBackgroundColor!
-        } else {
-            return UIColor.systemBackground
-        }
+        return themeBackgroundColor == nil ? UIColor.systemBackground : themeBackgroundColor!
     }
     
     func getNavtabBackgroundColor() -> UIColor {
-        if navTabBackgroundColor == nil {
-            return UIColor.systemBackground
-        } else {
-            return navTabBackgroundColor!
-        }
+        return navTabBackgroundColor == nil ? UIColor.systemBackground : navTabBackgroundColor!
+    }
+    
+    func getBodyTextColor() -> UIColor {
+        return bodyTextColor == nil ? UIColor.black : bodyTextColor!
     }
     
     private let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
@@ -52,6 +48,10 @@ class ThemeManager {
     private(set) var storedThemes : [ApplicationTheme]?
     private var themeBackgroundColor: UIColor?
     private var navTabBackgroundColor: UIColor?
+    private var bodyTextColor: UIColor?
+    
+    private(set) var navigationBarApperance: UINavigationBarAppearance?
+    private(set) var navigationBarButtonItemApperance: UIBarButtonItemAppearance?
     
     func setDefaultTheme() {
         guard let context = context else {
@@ -95,33 +95,32 @@ class ThemeManager {
             return
         }
         
-        UITabBar.appearance().isTranslucent = false
-        UITabBar.appearance().backgroundColor = theme.nav_tabBar_Color.toUIColor
+        self.themeBackgroundColor = theme.backGround_Color.toUIColor
+        self.navTabBackgroundColor = theme.nav_tabBar_Color.toUIColor
+        self.bodyTextColor = theme.bodyText_Color.toUIColor
         
         UIButton.appearance().backgroundColor = theme.button_Color.toUIColor
         UIButton.appearance().tintColor = theme.buttonText_Color.toUIColor
         UILabel.appearance().tintColor = theme.bodyText_Color.toUIColor
         UITextField.appearance().tintColor = theme.bodyText_Color.toUIColor
-        UISearchBar.appearance().tintColor = theme.buttonText_Color.toUIColor
-        
-        self.themeBackgroundColor = theme.backGround_Color.toUIColor
-        self.navTabBackgroundColor = theme.nav_tabBar_Color.toUIColor
+        UICollectionView.appearance().backgroundColor = theme.backGround_Color.toUIColor
+        UISearchBar.appearance().backgroundColor = theme.nav_tabBar_Color.toUIColor
         
         print("Completed theme apply", theme)
     }
     
     func applyDefaultTheme() {
-        UITabBar.appearance().isTranslucent = true
-        UITabBar.appearance().backgroundColor = nil
+        
+        self.themeBackgroundColor = nil
+        self.navTabBackgroundColor = nil
+        self.bodyTextColor = nil
         
         UIButton.appearance().backgroundColor = nil
         UIButton.appearance().tintColor = UIColor(named: "black")
         UILabel.appearance().tintColor = nil
         UITextField.appearance().tintColor = nil
+        UICollectionView.appearance().backgroundColor = nil
         UISearchBar.appearance().tintColor = UIColor(named: "white")
-        
-        self.themeBackgroundColor = UIColor.systemBackground
-        self.navTabBackgroundColor = UIColor.systemBackground
     }
     
     func setSelectedThemeKey(_ key: String) {

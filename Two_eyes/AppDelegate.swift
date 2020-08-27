@@ -36,7 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         themeManager = ThemeManager()
         themeManager!.getThemes()
-        themeManager!.setDefaultTheme()
         themeManager!.applyTheme()
         
         return true
@@ -49,6 +48,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
     }
 
     // MARK: - Core Data stack
