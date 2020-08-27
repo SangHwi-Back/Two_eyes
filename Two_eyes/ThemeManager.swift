@@ -71,6 +71,7 @@ class ThemeManager {
         
         do {
             try context.save()
+            self.getThemes()
         } catch {
             print("error in COMMITing save default themes")
         }
@@ -78,7 +79,8 @@ class ThemeManager {
     
     func applyTheme() {
         // UserDefaults.standard.synchronize() //check userDefaults save the data successfully(Bool)
-        guard let storedThemes = self.storedThemes else {
+        
+        guard !(self.storedThemes?.isEmpty ?? true), let storedThemes = self.storedThemes else {
             setDefaultTheme()
             print("escape in 'let storedThemes = storedThemes'.")
             return
