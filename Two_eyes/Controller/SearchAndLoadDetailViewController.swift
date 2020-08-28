@@ -15,6 +15,7 @@ class SearchAndLoadDetailViewController: UIViewController {
     
     var asset: PHAsset! // Photo Library
     var assetCollection: PHAssetCollection! // Photo Library's detail data.
+    var imageManager: PHCachingImageManager?
     
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var livePhotoView: PHLivePhotoView!
@@ -140,23 +141,7 @@ extension SearchAndLoadDetailViewController {
     }
     
     @IBAction func usePhotoClicked(_ sender: UIBarButtonItem) {
-        //usePhotoSegue 세그웨이 실행
-        if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.isNetworkAccessAllowed = true
-            options.progressHandler = { progress, _, _, _ in
-                DispatchQueue.main.async {
-                    self.progressView.progress = Float(progress)
-                }
-            }
-            
-            PHImageManager.default().requestImage(for: asset, targetSize: destinationVC.capturedImageView.intrinsicContentSize, contentMode: .aspectFit, options: options) { (requestedImage, _) in
-                destinationVC.capturedImageView.image = requestedImage
-            }
-            
-            present(destinationVC, animated: true, completion: nil)
-        }
+        performSegue(withIdentifier: "usePhotoSegue", sender: self)
     }
     
     //trash 버튼 클릭. asset에서 하나 제거 하면서 현재의 화면은 popViewController로 없애버림.
@@ -195,6 +180,22 @@ extension SearchAndLoadDetailViewController {
             } else {
                 print("Can't remove the asset")
             }
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "usePhotoSegue", let destinationVC = segue.destination as? FilterViewController {
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isNetworkAccessAllowed = true
+            options.progressHandler = { progress, _, _, _ in
+                DispatchQueue.main.async {
+                    self.progressView.progress = Float(progress)
+                }
+            }
+            
+            destinationVC.currentAsset = asset
+            destinationVC.imageManager = self.imageManager
         }
     }
     

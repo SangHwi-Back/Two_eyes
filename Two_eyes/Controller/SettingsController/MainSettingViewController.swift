@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import FirebaseAuth
 
 class MainSettingViewController: UIViewController {
     
@@ -62,7 +63,17 @@ class MainSettingViewController: UIViewController {
     }
     
     @IBAction func logoutInAction(_ sender: UIButton) {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let mainVC = mainStoryboard.instantiateViewController(identifier: "SignIn")
         
+        do {
+            try Auth.auth().signOut()
+            appDelegate.window?.rootViewController = mainVC
+            appDelegate.window?.makeKeyAndVisible()
+        } catch {
+            print(error)
+        }
     }
     @IBAction func saveThemeInAction(_ sender: UIButton) {
         self.present(self.saveAlertController, animated: true)

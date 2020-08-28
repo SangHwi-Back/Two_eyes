@@ -72,7 +72,6 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         resetCachedAssets()
         PHPhotoLibrary.shared().register(self)
         
-        registerNewPhoto()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,6 +82,8 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
         self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
         self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        
+        registerNewPhoto()
     }
     
     private func registerNewPhoto() {

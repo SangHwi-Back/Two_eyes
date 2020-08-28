@@ -282,9 +282,7 @@ extension FilterViewController {
         basicFilter.adjustKey = key
         basicFilter.adjustValue = sender.value
         DispatchQueue.main.async {
-//            self.initialImage?.size = self.filteredImageView.frame.size
             self.basicFilter.preAdjustedImage = self.initialImage!
-//                UIImage(image: self.initialImage!, scaledTo: self.filteredImageView.frame.size)
             self.filteredImageView.image = self.basicFilter.filteredImage
             self.filteredImageView.center = center
         }

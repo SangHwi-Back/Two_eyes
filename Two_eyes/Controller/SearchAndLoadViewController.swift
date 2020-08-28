@@ -53,14 +53,6 @@ class SearchAndLoadViewController: UIViewController {
         albumCollectionView.delegate = self
         albumCollectionView.dataSource = self
         
-        if allPhotos == nil {
-            let allPhotosOptions = PHFetchOptions()
-            allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            allPhotos = PHAsset.fetchAssets(with: allPhotosOptions) //Photo Library load
-        }
-        
-        albumCollectionView.reloadData()
-        
         textRecognitionRequest.recognitionLevel = .fast
         textRecognitionRequest.revision = VNRecognizeTextRequestRevision1
         textRecognitionRequest.usesLanguageCorrection = false
@@ -76,28 +68,27 @@ class SearchAndLoadViewController: UIViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        let width = view.bounds.inset(by: view.safeAreaInsets).width
-        // Adjust the item size if the available width has changed.
-        if availableWidth != width {
-            availableWidth = width
-            let columnCount = (availableWidth / 90).rounded(.towardZero)
-            let itemLength = (availableWidth - columnCount - 1) / columnCount
-            collectionViewFlowLayout.itemSize = CGSize(width: itemLength, height: itemLength)
-        }
+        collectionViewFlowLayout.itemSize = thumbnailSize
     }
     
     /**
-     뷰가 나타나기 전 이미지 썸네일 크기를 설정한다.
+     뷰가 나타나기 전 이미지 썸네일 크기를 설정한다. ( ViewWillLayoutSubView 보다 먼저 호출 )
      */
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         thumbnailSize = CGSize(
             width: self.view.frame.width / 3 - 20,
-            height: self.view.frame.width / 3 - 20)
+            height: (self.view.frame.width / 3 - 20) * 1.2)
         
         cellImageOptions.normalizedCropRect.size = thumbnailSize
         cellImageOptions.resizeMode = .exact
+        
+        let allPhotosOptions = PHFetchOptions()
+        allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        allPhotos = PHAsset.fetchAssets(with: allPhotosOptions) //Photo Library load
+        
+        albumCollectionView.reloadData()
         
         self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
         self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
@@ -121,6 +112,7 @@ class SearchAndLoadViewController: UIViewController {
         }
         let indexPath = albumCollectionView.indexPath(for: cell)!
         destination.asset = allPhotos.object(at: indexPath.item)
+        destination.imageManager = self.imageManager
         destination.assetCollection = photosCollection
     }
     
@@ -144,8 +136,8 @@ class SearchAndLoadViewController: UIViewController {
         }
         
         //미리 두 배의 윈도우 높이 값을 가져옴.
-        let visibleRect = CGRect(origin: albumCollectionView!.contentOffset, size: albumCollectionView!.bounds.size)
-        let preheatRect = visibleRect.insetBy(dx: 0, dy: -0.5 * visibleRect.height)
+        let visibleRect = CGRect(origin: albumCollectionView!.contentOffset, size: albumCollectionView!.frame.size)
+        let preheatRect = visibleRect.insetBy(dx: 0, dy: -1 * visibleRect.height)
         
         //preheatRect보다 현재 보는 화면이 현저히 차이가 날 경우만 업데이트.
         let delta = abs(preheatRect.midY - previousPreheatRect.midY)
@@ -230,7 +222,7 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
         cell.representAssetIdentifier = asset.localIdentifier
         imageManager.requestImage(for: asset,
                                   targetSize: thumbnailSize,
-                                  contentMode: .default,
+                                  contentMode: .aspectFill,
                                   options: cellImageOptions) { (image, _) in
             if cell.representAssetIdentifier == asset.localIdentifier {
                 cell.thumbnailImage = image
