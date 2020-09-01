@@ -42,6 +42,8 @@ class SignInViewController: UIViewController {
             if error != nil {
                 self?.presentAlert(self!.emailPasswordNotCorrectedAction)
                 return
+            } else {
+                self?.performSegue(withIdentifier: "signInSegue", sender: self)
             }
         }
     }
@@ -65,8 +67,8 @@ class SignInViewController: UIViewController {
         signInButton.adjustsImageSizeForAccessibilityContentSizeCategory = true
         signUpButton.adjustsImageSizeForAccessibilityContentSizeCategory = true
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
     private let alertController = UIAlertController(title: Constants.loginAlertMessage, message: "", preferredStyle: .alert)
@@ -80,9 +82,6 @@ class SignInViewController: UIViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
@@ -92,10 +91,9 @@ class SignInViewController: UIViewController {
         super.viewWillDisappear(animated)
     }
     
-    func navViewBackgroundChange(_ customColor: UIColor, _ customTextColor: UIColor) {
-        self.navigationController?.navigationBar.isTranslucent = false
-        self.navigationController?.navigationBar.barTintColor = customColor
-        self.navigationController?.navigationBar.tintColor = customTextColor
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
 
 }

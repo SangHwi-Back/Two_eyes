@@ -40,6 +40,9 @@ class MainSettingViewController: UIViewController {
         layout.itemSize = cellSize
         layout.minimumLineSpacing = 30
         
+        saveThemeKey.layer.cornerRadius = 10
+        logout.layer.cornerRadius = 10
+        
         themeChooserCollectionView.delegate = self
         themeChooserCollectionView.dataSource = self
         themeChooserCollectionView.register(UINib(nibName: "MainSettingViewCell", bundle: nil), forCellWithReuseIdentifier: "mainSettingViewCell")
@@ -63,14 +66,14 @@ class MainSettingViewController: UIViewController {
     }
     
     @IBAction func logoutInAction(_ sender: UIButton) {
-        let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+        let scenedelegate = self.view.window?.windowScene?.delegate as! SceneDelegate
         let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let mainVC = mainStoryboard.instantiateViewController(identifier: "SignIn")
+        let mainVC = mainStoryboard.instantiateViewController(identifier: "initialView")
         
         do {
             try Auth.auth().signOut()
-            appDelegate.window?.rootViewController = mainVC
-            appDelegate.window?.makeKeyAndVisible()
+            scenedelegate.window?.rootViewController = mainVC
+            scenedelegate.window?.makeKeyAndVisible()
         } catch {
             print(error)
         }

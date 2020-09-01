@@ -57,8 +57,8 @@ class SignUpViewController: UIViewController {
             textField.inputAccessoryView = toolBarKeyBoard
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -75,6 +75,7 @@ class SignUpViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -164,7 +165,7 @@ extension SignUpViewController: UITextFieldDelegate {
     @objc private func keyboardWillShow(_ sender: Notification) {
         self.view.frame.origin.y = 0
         let index = allTextFields.firstIndex(of: allTextFields.filter{$0.isFirstResponder}.first!)!
-        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * CGFloat(index+1) * -0.4 // Move view upward
+        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * CGFloat(index+1) * -0.1 // Move view upward
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {

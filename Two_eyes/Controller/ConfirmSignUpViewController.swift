@@ -18,6 +18,7 @@ class ConfirmSignUpViewController: UIViewController {
     var lastName: String?
     var firstName: String?
     var address: String?
+    private var isSuccess = false
     private var remoteTokenTemp: String?
     
     //MARK: - Outlet 연결
@@ -33,32 +34,34 @@ class ConfirmSignUpViewController: UIViewController {
     @IBAction func goToFirstAction(_ sender: UIButton) {
         Auth.auth().createUser(withEmail: self.email!, password: self.password!) { (user, error) in
             //firbase connection Init. created User
-            self.alertController.addAction(self.alertAction)
+            self.alertController.addAction(self.alertAction!)
             if error == nil {
                 self.alertController.title = Constants.signUpSuccessMessage
-                self.present(self.alertController, animated: true, completion: nil)
-                self.navigationController?.popViewController(animated: true)
-                
+                self.isSuccess = true
             }else{
                 self.alertController.title = Constants.signUpFailedMessageDescription
-                self.present(self.alertController, animated: true, completion: nil)
             }
+            
+            self.present(self.alertController, animated: true, completion: nil)
         }
     }
     
     //MARK: - AlertController
     private let alertController = UIAlertController(title: Constants.signUpFailedMessage, message: "", preferredStyle: .alert)
-    private let alertAction = UIAlertAction(title: "확인", style: .cancel, handler: nil)
+    private var alertAction: UIAlertAction?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.confirmCodeTextField.delegate = self
+        alertAction = UIAlertAction(title: "확인", style: .default) { _ in
+            self.performSegue(withIdentifier: Constants.signInCompleteSegueIdentifier, sender: self)
+        }
         
         // Do any additional setup after loading the view.
         InstanceID.instanceID().instanceID { (result, error) in
             if error != nil {
                 self.present(SignInViewController(), animated: true) {
-                    self.alertController.addAction(self.alertAction)
+                    self.alertController.addAction(self.alertAction!)
                     self.present(self.alertController, animated: true, completion: nil)
                 }
             } else if let result = result {
@@ -71,6 +74,9 @@ class ConfirmSignUpViewController: UIViewController {
             label.adjustsFontSizeToFitWidth = true
         }
         
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
         goToFirst.adjustsImageSizeForAccessibilityContentSizeCategory = true
         goToFirstControl(false)
         confirmCodeControl(true)
@@ -78,6 +84,7 @@ class ConfirmSignUpViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -111,7 +118,7 @@ class ConfirmSignUpViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let destinationVC = segue.destination as? SignInViewController {
+        if let destinationVC = segue.destination as? SignInViewController, isSuccess {
             destinationVC.paramEmail = self.email
         }
     }
@@ -124,7 +131,7 @@ extension ConfirmSignUpViewController: UITextFieldDelegate {
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
-        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * -1 // Move view upward
+        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * -0.5 // Move view upward
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {
