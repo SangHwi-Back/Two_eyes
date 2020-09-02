@@ -13,6 +13,7 @@ import FirebaseAuth
 class SignInViewController: UIViewController {
     
     var paramEmail: String? = ""
+    let indicator = UIActivityIndicatorView()
 
     //MARK: - Outlet 연결
     @IBOutlet var IDEmailLabel: UILabel!
@@ -38,9 +39,13 @@ class SignInViewController: UIViewController {
             return
         }
         
+        indicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
         Auth.auth().signIn(withEmail: emailInput, password: passwordInput) { [weak self] authResult, error in
             if error != nil {
                 self?.presentAlert(self!.emailPasswordNotCorrectedAction)
+                self?.indicator.stopAnimating()
+                self?.view.isUserInteractionEnabled = true
                 return
             } else {
                 self?.performSegue(withIdentifier: "signInSegue", sender: self)
@@ -69,6 +74,11 @@ class SignInViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
+        indicator.center = self.view.center
+        indicator.style = .large
+        indicator.hidesWhenStopped = true
+        self.view.addSubview(indicator)
     }
     
     private let alertController = UIAlertController(title: Constants.loginAlertMessage, message: "", preferredStyle: .alert)
@@ -89,6 +99,8 @@ class SignInViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        self.indicator.stopAnimating()
+        self.view.isUserInteractionEnabled = true
     }
     
     override func viewDidDisappear(_ animated: Bool) {
