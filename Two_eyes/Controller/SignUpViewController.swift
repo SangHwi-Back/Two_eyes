@@ -9,28 +9,28 @@
 import UIKit
 import FirebaseAuth
 
+enum SignUpInformation {
+    case email
+    case lastName
+    case firstName
+    case password
+}
+
 class SignUpViewController: UIViewController {
     
     //MARK: - IBOutlet 연결
     @IBOutlet var emailTextField: UITextField!
+    @IBOutlet weak var emailTextIndicator: UIButton!
     @IBOutlet var lastNameField: UITextField!
+    @IBOutlet weak var lastNameIndicator: UIButton!
     @IBOutlet var firstNameField: UITextField!
+    @IBOutlet weak var firstNameIndicator: UIButton!
     @IBOutlet var passwordField: UITextField!
+    @IBOutlet weak var passwordIndicator: UIButton!
     @IBOutlet var rePasswordField: UITextField!
-    @IBOutlet var addressField: UITextField!
+    @IBOutlet weak var rePasswordIndicator: UIButton!
     
     @IBOutlet var allTextFields: [UITextField]!
-    
-    @IBOutlet var emailLabel: UILabel!
-    @IBOutlet var lastNameLabel: UILabel!
-    @IBOutlet var firstNameLabel: UILabel!
-    @IBOutlet var passwordLabel: UILabel!
-    @IBOutlet var rePasswordLabel: UILabel!
-    @IBOutlet var addressLabel: UILabel!
-    
-    @IBOutlet var allLabels: [UILabel]!
-    
-    @IBOutlet var signUpStackView: UIStackView!
     
     @IBOutlet var getConfirmCodeOutlet: UIButton!
     
@@ -45,14 +45,8 @@ class SignUpViewController: UIViewController {
         super.viewDidLoad()
         let toolBarKeyBoard = keyboardToolBarFactory()
         
-        for label in allLabels {
-            label.numberOfLines = 1
-            label.adjustsFontSizeToFitWidth = true
-        }
-        
         for textField in allTextFields {
             textField.delegate = self
-            textField.font = UIFont(name: allLabels.first!.font.fontName, size: allLabels.first!.font.pointSize / 2)
             textField.minimumFontSize = 10
             textField.inputAccessoryView = toolBarKeyBoard
         }
@@ -100,8 +94,6 @@ class SignUpViewController: UIViewController {
             alertController.message = Constants.passwordFieldNilMessage
         }else if rePasswordField.text == "" {
             alertController.message = Constants.passwordFieldNilMessage
-        }else if addressField.text == "" {
-            alertController.message = Constants.addressFieldNilMessage
         }
         
         if alertController.message != "" {
@@ -120,7 +112,6 @@ class SignUpViewController: UIViewController {
                 confirmSignUpVeiwController.lastName = lastNameField.text
                 confirmSignUpVeiwController.firstName = firstNameField.text
                 confirmSignUpVeiwController.password = passwordField.text
-                confirmSignUpVeiwController.address = addressField.text
             }
         }
     }
