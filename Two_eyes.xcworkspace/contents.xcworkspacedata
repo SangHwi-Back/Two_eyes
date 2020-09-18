@@ -2,12 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataClass.swift">
-   </FileRef>
-   <FileRef
-      location = "group:/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataProperties.swift">
-   </FileRef>
-   <FileRef
       location = "group:Two_eyes.xcodeproj">
    </FileRef>
    <FileRef
