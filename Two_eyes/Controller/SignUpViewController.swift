@@ -19,18 +19,19 @@ enum SignUpInformation {
 class SignUpViewController: UIViewController {
     
     //MARK: - IBOutlet 연결
-    @IBOutlet var emailTextField: UITextField!
+    @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var emailTextIndicator: UIButton!
-    @IBOutlet var lastNameField: UITextField!
+    @IBOutlet weak var lastNameField: UITextField!
     @IBOutlet weak var lastNameIndicator: UIButton!
-    @IBOutlet var firstNameField: UITextField!
+    @IBOutlet weak var firstNameField: UITextField!
     @IBOutlet weak var firstNameIndicator: UIButton!
-    @IBOutlet var passwordField: UITextField!
+    @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var passwordIndicator: UIButton!
-    @IBOutlet var rePasswordField: UITextField!
+    @IBOutlet weak var rePasswordField: UITextField!
     @IBOutlet weak var rePasswordIndicator: UIButton!
     
     @IBOutlet var allTextFields: [UITextField]!
+    @IBOutlet var allTextFieldIndicators: [UIButton]!
     
     @IBOutlet var getConfirmCodeOutlet: UIButton!
     
@@ -40,7 +41,6 @@ class SignUpViewController: UIViewController {
     
     
     //MARK: - ViewController
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         let toolBarKeyBoard = keyboardToolBarFactory()
@@ -49,6 +49,11 @@ class SignUpViewController: UIViewController {
             textField.delegate = self
             textField.minimumFontSize = 10
             textField.inputAccessoryView = toolBarKeyBoard
+        }
+        
+        for indicator in allTextFieldIndicators {
+            indicator.tintColor = .red
+            indicator.isUserInteractionEnabled = false
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -114,6 +119,16 @@ class SignUpViewController: UIViewController {
                 confirmSignUpVeiwController.password = passwordField.text
             }
         }
+    }
+    @IBAction func emailValidation(_ sender: UITextField) {
+    }
+    @IBAction func lastNameValidation(_ sender: UITextField) {
+    }
+    @IBAction func firstNameValidation(_ sender: UITextField) {
+    }
+    @IBAction func passwordValidation(_ sender: UITextField) {
+    }
+    @IBAction func rePasswordValidation(_ sender: UITextField) {
     }
 }
 
