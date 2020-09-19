@@ -230,6 +230,10 @@ extension SignUpViewController: UITextFieldDelegate, UITextInputTraits {
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
+        if self.keyboardHeight == nil {
+            self.keyboardHeight = (sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)!.cgRectValue.height
+        }
+        
         if let textField = allTextFields.filter({$0.tag == 1 && $0.isFirstResponder}).first {
             textField.keyboardType = .emailAddress
         }
@@ -239,10 +243,6 @@ extension SignUpViewController: UITextFieldDelegate, UITextInputTraits {
         
         UIView.animate(withDuration: 0.5) {
             if let currentTag = currentTextField?.tag, currentTag >= 4 {
-                if self.keyboardHeight == nil {
-                    self.keyboardHeight = (sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)!.cgRectValue.height
-                }
-                
                 if self.view.frame.origin.y <= self.keyboardHeight! / CGFloat(currentTag) * -1 {
                     self.view.frame.origin.y -= self.keyboardHeight! / CGFloat(currentTag) * -1
                 } else if self.view.frame.origin.y >= self.keyboardHeight! / CGFloat(currentTag) * -1 {
