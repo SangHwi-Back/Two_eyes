@@ -1,0 +1,6 @@
+framework module Pods_Two_eyes {
+  umbrella header "Pods-Two_eyes-umbrella.h"
+
+  export *
+  module * { export * }
+}
