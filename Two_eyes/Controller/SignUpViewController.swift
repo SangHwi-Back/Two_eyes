@@ -9,38 +9,34 @@
 import UIKit
 import FirebaseAuth
 
-enum SignUpInformation {
-    case email
-    case lastName
-    case firstName
-    case password
-}
-
 class SignUpViewController: UIViewController {
     
     //MARK: - IBOutlet 연결
-    @IBOutlet var emailTextField: UITextField!
+    @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var emailTextIndicator: UIButton!
-    @IBOutlet var lastNameField: UITextField!
+    @IBOutlet weak var lastNameField: UITextField!
     @IBOutlet weak var lastNameIndicator: UIButton!
-    @IBOutlet var firstNameField: UITextField!
+    @IBOutlet weak var firstNameField: UITextField!
     @IBOutlet weak var firstNameIndicator: UIButton!
-    @IBOutlet var passwordField: UITextField!
+    @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var passwordIndicator: UIButton!
-    @IBOutlet var rePasswordField: UITextField!
+    @IBOutlet weak var rePasswordField: UITextField!
     @IBOutlet weak var rePasswordIndicator: UIButton!
     
     @IBOutlet var allTextFields: [UITextField]!
+    @IBOutlet var allTextFieldIndicator: [UIButton]!
     
-    @IBOutlet var getConfirmCodeOutlet: UIButton!
+    @IBOutlet weak var getConfirmCodeOutlet: UIButton!
     
     //MARK: - UIAlertController 생성 및 초기화
     private let alertController = UIAlertController(title: "부적절한 값 오류", message: "", preferredStyle: .alert)
     private let defaultAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-    
+    private let smallCaseAlphabetArray = (0..<26).map { i in String(UnicodeScalar(i + UnicodeScalar(unicodeScalarLiteral: "a").value)!) }
+    private let upperCaseAlphabetArray = (0..<26).map { i in String(UnicodeScalar(i + UnicodeScalar(unicodeScalarLiteral: "A").value)!) }
+    private let numberArray = (0...9).map{String($0)}
+    private var keyboardHeight: CGFloat?
     
     //MARK: - ViewController
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         let toolBarKeyBoard = keyboardToolBarFactory()
@@ -49,6 +45,11 @@ class SignUpViewController: UIViewController {
             textField.delegate = self
             textField.minimumFontSize = 10
             textField.inputAccessoryView = toolBarKeyBoard
+        }
+        
+        for indicator in allTextFieldIndicator {
+            indicator.tintColor = .red
+            indicator.isUserInteractionEnabled = false
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -77,32 +78,38 @@ class SignUpViewController: UIViewController {
     }
     
     @IBAction func getConfirmCode(_ sender: UIButton) {
-        if emailTextField.text == "" {
-            alertController.message = Constants.emailFieldNilMessage;
-            Auth.auth().fetchSignInMethods(forEmail: emailTextField.text!) { (providers, error) in
-                if let _ = error {
-                    self.alertController.message = Constants.normalErrorMessage
-                } else if let _ = providers {
-                    self.alertController.message = Constants.duplicateUserDetectedMessage
+        if emailTextIndicator.tintColor == .red {
+            if let text = emailTextField.text {
+                Auth.auth().fetchSignInMethods(forEmail: text) { (providers, error) in
+                    if let _ = providers {
+                        self.showAlert(Constants.duplicateUserDetectedMessage)
+                    } else {
+                        self.showAlert(Constants.normalErrorMessage)
+                    }
                 }
+            } else {
+                self.showAlert(Constants.emailFieldNilMessage)
             }
-        }else if lastNameField.text == "" {
-            alertController.message = Constants.lastNameFieldNilMessage
-        }else if firstNameField.text == "" {
-            alertController.message = Constants.firstNameFieldNilMessage
-        }else if passwordField.text == "" {
-            alertController.message = Constants.passwordFieldNilMessage
-        }else if rePasswordField.text == "" {
-            alertController.message = Constants.passwordFieldNilMessage
+            return
+        } else if lastNameIndicator.tintColor == .red {
+            self.showAlert(Constants.lastNameFieldNilMessage)
+            return
+        } else if firstNameIndicator.tintColor == .red {
+            self.showAlert(Constants.firstNameFieldNilMessage)
+            return
+        } else if passwordIndicator.tintColor == .red || rePasswordField.tintColor == .red {
+            self.showAlert(Constants.passwordFieldNilMessage)
+            return
         }
         
-        if alertController.message != "" {
-            alertController.addAction(defaultAction)
-            self.present(alertController, animated: true, completion: nil)
-        }else{
-            self.performSegue(withIdentifier: Constants.confirmSignUpSegueIdentifier, sender: self)
-        }
+        self.performSegue(withIdentifier: Constants.confirmSignUpSegueIdentifier, sender: self)
         
+    }
+    
+    private func showAlert(_ message: String) {
+        self.alertController.message = message
+        self.alertController.addAction(self.defaultAction)
+        self.present(self.alertController, animated: true, completion: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -115,10 +122,51 @@ class SignUpViewController: UIViewController {
             }
         }
     }
+    @IBAction func emailValidation(_ sender: UITextField) {
+        if var text = sender.text ,let atIndex = text.firstIndex(of: "@"), let dotIndex = text.firstIndex(of: ".") {
+            if text.startIndex == atIndex || text.endIndex == atIndex {
+                emailTextIndicator.tintColor = .red
+                return
+            } else if text.startIndex == dotIndex || text.endIndex == dotIndex {
+                emailTextIndicator.tintColor = .red
+                return
+            }
+            
+            if dotIndex < atIndex {
+                emailTextIndicator.tintColor = .red
+                return
+            }
+            
+            text = text.filter{ $0 != "@" }.filter{ $0 != "." }
+            
+            let anySpecific = text.map{String($0)}.filter ({
+                !numberArray.contains($0) || !smallCaseAlphabetArray.contains($0) || !upperCaseAlphabetArray.contains($0)
+            }).isEmpty
+            
+            emailTextIndicator.tintColor = anySpecific ? .red : .systemGreen
+            return
+        }
+    }
+    @IBAction func lastNameValidation(_ sender: UITextField) {
+        let anySpecific = sender.text?.isEmpty ?? false
+        lastNameIndicator.tintColor = anySpecific ? .red : .systemGreen
+    }
+    @IBAction func firstNameValidation(_ sender: UITextField) {
+        let anySpecific = sender.text?.isEmpty ?? false
+        firstNameIndicator.tintColor = anySpecific ? .red : .systemGreen
+    }
+    @IBAction func passwordValidation(_ sender: UITextField) {
+        let anySpecific = sender.text?.isEmpty ?? false
+        passwordIndicator.tintColor = anySpecific ? .red : .systemGreen
+    }
+    @IBAction func rePasswordValidation(_ sender: UITextField) {
+        let anySpecific = sender.text?.isEmpty ?? false
+        rePasswordIndicator.tintColor = anySpecific ? .red : .systemGreen
+    }
 }
 
 //MARK: - TextFieldDelegates
-extension SignUpViewController: UITextFieldDelegate {
+extension SignUpViewController: UITextFieldDelegate, UITextInputTraits {
     //return 키 누르면 텍스트 닫힘.
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.view.endEditing(true)
@@ -128,35 +176,82 @@ extension SignUpViewController: UITextFieldDelegate {
     private func keyboardToolBarFactory() -> UIToolbar {
         let toolBarKeyboard = UIToolbar()
         toolBarKeyboard.sizeToFit()
-        let btnBar = UIBarButtonItem(title: "Next", style: .plain, target: self, action: #selector(self.nextBtnClicked))
-        let nilBar = UIBarButtonItem(title: "Prev", style: .plain, target: self, action: #selector(self.prevBtnClicked))
-        toolBarKeyboard.items = [nilBar, btnBar]
+        let nextBtn = UIBarButtonItem(title: "Next", style: .plain, target: self, action: #selector(self.nextBtnClicked))
+        let prevBtn = UIBarButtonItem(title: "Prev", style: .plain, target: self, action: #selector(self.prevBtnClicked))
+        toolBarKeyboard.items = [prevBtn, nextBtn]
         toolBarKeyboard.tintColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         return toolBarKeyboard
     }
     
     @objc private func nextBtnClicked(sender: Any) {
-        for i in 0 ..< allTextFields.count {
-            if allTextFields[i].isFirstResponder {
-                allTextFields[ i == allTextFields.count-1 ? 0 : i+1 ].becomeFirstResponder()
+        let currentField = allTextFields.filter({$0.isFirstResponder}).first
+        if currentField != nil {
+            
+            currentField!.resignFirstResponder()
+            
+            if currentField!.tag == 5 {
+                allTextFields.filter({$0.tag == 1}).first?.becomeFirstResponder()
+                NotificationCenter.default.post(name: UIResponder.keyboardWillShowNotification, object: nil)
                 return
+            }
+            
+            for textField in allTextFields.sorted(by: { $0.tag < $1.tag }) {
+                if textField.tag == currentField!.tag {
+                    continue
+                } else if textField.tag == currentField!.tag + 1 {
+                    textField.becomeFirstResponder()
+                    NotificationCenter.default.post(name: UIResponder.keyboardWillShowNotification, object: nil)
+                    break
+                }
             }
         }
     }
     
     @objc private func prevBtnClicked(sender: Any) {
-        for i in 0..<allTextFields.count {
-            if allTextFields[i].isFirstResponder {
-                allTextFields[ i == 0 ? allTextFields.count - 1 : i - 1 ].becomeFirstResponder()
+        let currentField = allTextFields.filter({$0.isFirstResponder}).first
+        if currentField != nil {
+            currentField!.resignFirstResponder()
+            if currentField!.tag == 1 {
+                allTextFields.filter({$0.tag == 5}).first?.becomeFirstResponder()
+                NotificationCenter.default.post(name: UIResponder.keyboardWillShowNotification, object: nil)
                 return
+            }
+            
+            for textField in allTextFields.sorted(by: { $0.tag < $1.tag }) {
+                if textField.tag == currentField!.tag {
+                    continue
+                } else if textField.tag == currentField!.tag - 1 {
+                    textField.becomeFirstResponder()
+                    NotificationCenter.default.post(name: UIResponder.keyboardWillShowNotification, object: nil)
+                    break
+                }
             }
         }
     }
     
     @objc private func keyboardWillShow(_ sender: Notification) {
-        self.view.frame.origin.y = 0
-        let index = allTextFields.firstIndex(of: allTextFields.filter{$0.isFirstResponder}.first!)!
-        self.view.frame.origin.y = ((sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height ?? 150) * CGFloat(index+1) * -0.1 // Move view upward
+        if self.keyboardHeight == nil {
+            self.keyboardHeight = (sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)!.cgRectValue.height
+        }
+        
+        if let textField = allTextFields.filter({$0.tag == 1 && $0.isFirstResponder}).first {
+            textField.keyboardType = .emailAddress
+        }
+        
+        // sender 의 위치가 keyboard의 height 절대값보다 더 많이 내려와 있다면
+        let currentTextField = allTextFields.filter{$0.isFirstResponder}.first
+        
+        UIView.animate(withDuration: 0.5) {
+            if let currentTag = currentTextField?.tag, currentTag >= 4 {
+                if self.view.frame.origin.y <= self.keyboardHeight! / CGFloat(currentTag) * -1 {
+                    self.view.frame.origin.y -= self.keyboardHeight! / CGFloat(currentTag) * -1
+                } else if self.view.frame.origin.y >= self.keyboardHeight! / CGFloat(currentTag) * -1 {
+                    self.view.frame.origin.y += self.keyboardHeight! / CGFloat(currentTag) * -1
+                }
+            } else {
+                self.view.frame.origin.y = 0
+            }
+        }
     }
     
     @objc private func keyboardWillHide(_ sender: Notification) {
