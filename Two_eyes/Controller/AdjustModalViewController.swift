@@ -22,7 +22,7 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .darkGray
+        self.view.backgroundColor = .white
         adjustScrollView.delegate = self
         
         doneButton.translatesAutoresizingMaskIntoConstraints = false

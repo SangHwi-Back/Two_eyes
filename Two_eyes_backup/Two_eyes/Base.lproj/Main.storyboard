@@ -368,13 +368,13 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="1ta-dK-cWI">
-                                <rect key="frame" x="20" y="453" width="335" height="194"/>
+                                <rect key="frame" x="0.0" y="453" width="375" height="194"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eyn-T1-41q">
-                                        <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
+                                        <rect key="frame" x="10.5" y="0.0" width="354" height="35"/>
                                         <subviews>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="yJQ-nU-oIe">
-                                                <rect key="frame" x="0.0" y="0.0" width="163.5" height="36"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="173" height="36"/>
                                                 <segments>
                                                     <segment title="원본"/>
                                                     <segment title="필터이미지"/>
@@ -384,7 +384,7 @@
                                                 </connections>
                                             </segmentedControl>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="btt-M6-XQr">
-                                                <rect key="frame" x="171.5" y="0.0" width="163.5" height="36"/>
+                                                <rect key="frame" x="181" y="0.0" width="173" height="36"/>
                                                 <segments>
                                                     <segment title="구분표시"/>
                                                     <segment title="구분표시안함"/>
@@ -399,10 +399,10 @@
                                         </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="9" translatesAutoresizingMaskIntoConstraints="NO" id="xSe-8d-jzL">
-                                        <rect key="frame" x="0.0" y="51" width="335" height="60"/>
+                                        <rect key="frame" x="0.0" y="51" width="375" height="52"/>
                                         <subviews>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BnI-QW-qSa">
-                                                <rect key="frame" x="0.0" y="0.0" width="266" height="60"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="314" height="52"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="NU0-fP-Kse">
                                                     <size key="itemSize" width="68" height="31"/>
@@ -412,9 +412,9 @@
                                                 </collectionViewFlowLayout>
                                                 <cells>
                                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="filterItems" id="K6z-wN-zL9">
-                                                        <rect key="frame" x="0.0" y="5" width="50" height="50"/>
+                                                        <rect key="frame" x="0.0" y="1" width="50" height="50"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="zUe-rt-KFT">
+                                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="nt1-fs-vb8">
                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </collectionViewCellContentView>
@@ -423,7 +423,7 @@
                                                 </cells>
                                             </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lf6-Yc-uMy">
-                                                <rect key="frame" x="275" y="1.5" width="60" height="56.5"/>
+                                                <rect key="frame" x="323" y="1.5" width="52" height="48.5"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="lf6-Yc-uMy" secondAttribute="height" id="cYG-3H-CXb"/>
                                                 </constraints>
@@ -434,12 +434,9 @@
                                                 </connections>
                                             </button>
                                         </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="59" id="LpW-Jy-2JH"/>
-                                        </constraints>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mud-dn-iU4">
-                                        <rect key="frame" x="134" y="126.5" width="67" height="68"/>
+                                        <rect key="frame" x="150" y="118.5" width="75" height="76"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="Mud-dn-iU4" secondAttribute="height" multiplier="1:1" id="cY8-KY-Gay"/>
                                         </constraints>
@@ -452,6 +449,8 @@
                                         </connections>
                                     </button>
                                 </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="xSe-8d-jzL" firstAttribute="width" secondItem="1ta-dK-cWI" secondAttribute="width" id="pNn-s1-MUK"/>
                                     <constraint firstItem="Mud-dn-iU4" firstAttribute="width" secondItem="xSe-8d-jzL" secondAttribute="width" multiplier="0.2" id="vmJ-JU-AAh"/>
@@ -463,12 +462,12 @@
                         <constraints>
                             <constraint firstItem="Pl1-4M-IsO" firstAttribute="leading" secondItem="Wni-gX-aAG" secondAttribute="leading" id="2uu-8I-fyY"/>
                             <constraint firstItem="Pl1-4M-IsO" firstAttribute="top" secondItem="Wni-gX-aAG" secondAttribute="top" constant="20" id="9zV-tl-Idx"/>
-                            <constraint firstItem="1ta-dK-cWI" firstAttribute="leading" secondItem="Wni-gX-aAG" secondAttribute="leading" constant="20" id="GGb-tX-nDv"/>
+                            <constraint firstItem="1ta-dK-cWI" firstAttribute="leading" secondItem="Wni-gX-aAG" secondAttribute="leading" id="GGb-tX-nDv"/>
                             <constraint firstItem="Pl1-4M-IsO" firstAttribute="height" secondItem="Zfu-Gd-x8x" secondAttribute="height" multiplier="0.5" id="PMv-Yr-AFp"/>
-                            <constraint firstItem="1ta-dK-cWI" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Pl1-4M-IsO" secondAttribute="bottom" constant="20" id="S6C-Rz-xyy"/>
+                            <constraint firstItem="1ta-dK-cWI" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Pl1-4M-IsO" secondAttribute="bottom" id="S6C-Rz-xyy"/>
                             <constraint firstItem="Wni-gX-aAG" firstAttribute="trailing" secondItem="Pl1-4M-IsO" secondAttribute="trailing" id="UEf-sy-eGn"/>
                             <constraint firstItem="1ta-dK-cWI" firstAttribute="bottom" secondItem="Wni-gX-aAG" secondAttribute="bottom" id="Vly-DE-dVO"/>
-                            <constraint firstItem="Wni-gX-aAG" firstAttribute="trailing" secondItem="1ta-dK-cWI" secondAttribute="trailing" constant="20" id="lzP-B8-kNr"/>
+                            <constraint firstItem="Wni-gX-aAG" firstAttribute="trailing" secondItem="1ta-dK-cWI" secondAttribute="trailing" id="lzP-B8-kNr"/>
                             <constraint firstItem="1ta-dK-cWI" firstAttribute="height" secondItem="Zfu-Gd-x8x" secondAttribute="height" multiplier="0.3" id="yAM-TV-bxb"/>
                         </constraints>
                         <connections>
@@ -479,6 +478,7 @@
                     <navigationItem key="navigationItem" id="NKU-7L-ycf"/>
                     <value key="contentSizeForViewInPopover" type="size" width="375" height="300"/>
                     <connections>
+                        <outlet property="adjustRootStackView" destination="1ta-dK-cWI" id="pPb-WA-ybu"/>
                         <outlet property="canvasView" destination="Pl1-4M-IsO" id="wmC-5M-6vy"/>
                         <outlet property="capturedImagePanGestureRecognizer" destination="jb6-90-Jnt" id="lsh-QF-2dU"/>
                         <outlet property="capturedImagePinchGestureRecognizer" destination="CMq-Gj-Igf" id="oXT-cM-t7u"/>
@@ -940,7 +940,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="x11-pV-KSr"/>
         <segue reference="vTA-xU-5LS"/>
     </inferredMetricsTieBreakers>
     <resources>

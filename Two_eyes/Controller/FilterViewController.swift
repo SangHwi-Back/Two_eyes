@@ -13,21 +13,21 @@ import PhotosUI
 class FilterViewController: UIViewController, UIViewControllerTransitioningDelegate {
     
     //MARK: - Outlet 연결
-    @IBOutlet weak var filteredImageView: UIImageView!
-    var filteredViewLabel = UILabel()
-    @IBOutlet weak var capturedImageView: UIImageView!
     var capturedViewLabel = UILabel()
+    var filteredViewLabel = UILabel()
+    
+    @IBOutlet weak var filteredImageView: UIImageView!
+    @IBOutlet weak var capturedImageView: UIImageView!
     @IBOutlet weak var canvasView: UIView!
     
     @IBOutlet weak var filterItemsCollectionView: UICollectionView!
     
-    @IBOutlet var filterImagePanGestureRecognizer: UIPanGestureRecognizer!
-    @IBOutlet var capturedImagePanGestureRecognizer: UIPanGestureRecognizer!
-    
-    @IBOutlet var filterImagePinchGestureRecognizer: UIPinchGestureRecognizer!
-    @IBOutlet var capturedImagePinchGestureRecognizer: UIPinchGestureRecognizer!
-    
-    @IBOutlet var modalBackgroundTapGestureRecognizer: UITapGestureRecognizer!
+    @IBOutlet weak var filterImagePanGestureRecognizer: UIPanGestureRecognizer!
+    @IBOutlet weak var capturedImagePanGestureRecognizer: UIPanGestureRecognizer!
+    @IBOutlet weak var filterImagePinchGestureRecognizer: UIPinchGestureRecognizer!
+    @IBOutlet weak var capturedImagePinchGestureRecognizer: UIPinchGestureRecognizer!
+    @IBOutlet weak var modalBackgroundTapGestureRecognizer: UITapGestureRecognizer!
+    @IBOutlet weak var adjustRootStackView: UIStackView!
     
     //MARK: - constants 생성
     private let filters: [String] = Constants.filterViewFilters
@@ -38,12 +38,6 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
     var initialImage: UIImage?
-    var filteredImageViewLocation: CGPoint {
-        filteredImageView.center
-    }
-    var captruedImageViewLoction: CGPoint {
-        capturedImageView.center
-    }
     
     private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
     
@@ -53,14 +47,9 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         
         navigationController?.navigationBar.isHidden = false
         
-        filterItemsCollectionView.delegate = self
-        filterItemsCollectionView.dataSource = self
-        filterItemsCollectionView.allowsSelection = true
-        
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        filterItemsCollectionView.isScrollEnabled = true
-        filterItemsCollectionView.collectionViewLayout = layout
+        self.filterItemsCollectionView.delegate = self
+        self.filterItemsCollectionView.dataSource = self
+        self.filterItemsCollectionView.allowsSelection = true
         
         basicFilter.delegate = self
         
@@ -77,23 +66,19 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         capturedViewLabel.textColor = .white
         
         // Gesture source Start
-        filteredImageView.isUserInteractionEnabled = true
-        capturedImageView.isUserInteractionEnabled = true
+        self.filteredImageView.isUserInteractionEnabled = true
+        self.capturedImageView.isUserInteractionEnabled = true
         
-        self.capturedImagePanGestureRecognizer.maximumNumberOfTouches = 1
-        self.filterImagePanGestureRecognizer.maximumNumberOfTouches = 1
-        self.modalBackgroundTapGestureRecognizer.numberOfTapsRequired = 1
-        self.modalBackgroundTapGestureRecognizer.numberOfTouchesRequired = 1
-        filteredImageView.addSubview(filteredViewLabel)
-        capturedImageView.addSubview(capturedViewLabel)
-        filteredViewLabel.center = filteredImageView.center
-        capturedViewLabel.center = capturedImageView.center
-        filteredViewLabel.bounds.size = filteredImageView.bounds.size
-        capturedViewLabel.bounds.size = capturedImageView.bounds.size
+        self.filteredImageView.addSubview(filteredViewLabel)
+        self.capturedImageView.addSubview(capturedViewLabel)
         
-        filteredImageView.layer.zPosition = 1
-        capturedImageView.layer.zPosition = 0
-        canvasView.layer.zPosition = 2
+        filteredViewLabel.bounds = filteredImageView.frame
+        capturedViewLabel.bounds = capturedImageView.frame
+        
+        self.capturedImageView.layer.zPosition = 1
+        self.filteredImageView.layer.zPosition = 2
+        self.canvasView.layer.zPosition = 0
+        self.adjustRootStackView.layer.zPosition = 3
         // Gesture source End
         
         basicFilter.wouldDelegateExecute = true
@@ -123,7 +108,7 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         coordinator.modalView?.modalPresentationStyle = .custom
         coordinator.modalView?.isModalInPresentation = true
         coordinator.modalView?.transitioningDelegate = self
-        coordinator.canvasSize = canvasView.bounds.size
+        coordinator.canvasSize = self.canvasView.bounds.size
         
         //canvasView : missing. no need.
     }
@@ -158,20 +143,20 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     
     @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        filteredImageView.actionPinchGesture(recognize: sender, in: canvasView)
+        self.filteredImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func capturedImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        capturedImageView.actionPinchGesture(recognize: sender, in: canvasView)
+        self.capturedImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
     }
     
     
     @IBAction func filteredImagePanAction(_ sender: UIPanGestureRecognizer) {
-        filteredImageView.actionPanGesture(recognize: sender, in: canvasView)
+        self.filteredImageView.actionPanGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func capturedImagePanAction(_ sender: UIPanGestureRecognizer) {
-        capturedImageView.actionPanGesture(recognize: sender, in: canvasView)
+        self.capturedImageView.actionPanGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func adjustScreenPopup(_ sender: UIButton) {
@@ -182,7 +167,6 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     }
     
     @IBAction func modalBackgroundTapAction(_ sender: UITapGestureRecognizer) {
-        print("modalBackgroundTapAction 도착")
         self.view.removeGestureRecognizer(modalBackgroundTapGestureRecognizer)
         self.coordinator.modalView?.dismissAction()
     }
@@ -197,10 +181,9 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         presenting: UIViewController?,
         source: UIViewController) -> UIPresentationController? {
         
-        var modalCanvasViewRect = CGRect(
-            origin: CGPoint(x: 0, y: canvasView.frame.height + canvasView.frame.origin.y),
-            size: filterItemsCollectionView.superview!.superview!.frame.size)
-        modalCanvasViewRect.size.width = self.view.frame.size.width
+        let modalCanvasViewRect = CGRect(
+            origin: CGPoint(x: 0, y: self.canvasView.frame.maxY),
+            size: self.adjustRootStackView.frame.size)
         
         return CustomView(modalCanvasViewRect: modalCanvasViewRect,
                           coordinator: coordinator,
@@ -255,8 +238,11 @@ extension FilterViewController {
             filteredImageView.image = initialImage
         }
         
-        if let imageManager = imageManager, let currentAsset = currentAsset {
-            imageManager.requestImage(for: currentAsset, targetSize: capturedImageView.frame.size, contentMode: .aspectFit, options: nil) { (image, _) in
+        if let imageManager = self.imageManager, let currentAsset = self.currentAsset {
+            imageManager.requestImage(for: currentAsset,
+                                      targetSize: capturedImageView.frame.size,
+                                      contentMode: .aspectFit,
+                                      options: nil) { (image, _) in
                 self.initialImage = image
                 self.capturedImageView.image = image
                 self.filteredImageView.image = image
@@ -278,7 +264,7 @@ extension FilterViewController {
     
     
     func adjustValue(sender: UISlider, _ key: String) {
-        let center = filteredImageViewLocation
+        let center = self.filteredImageView.center
         basicFilter.adjustKey = key
         basicFilter.adjustValue = sender.value
         DispatchQueue.main.async {
@@ -319,7 +305,6 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
         cell.backgroundView = UIImageView(image: basicFilter.filteredImage)
         return cell
     }
-    
 }
 
 extension FilterViewController {
@@ -373,23 +358,25 @@ extension UIImageView {
     }
     
     func getChangedX(from view: UIImageView, as translation: CGPoint, canvas: UIView) -> CGFloat {
-        if (view.center.x + translation.x) <= canvas.frame.width {
+        // view가 가로로 반 이상 잘리면 더 이상 이동 불가
+        if view.center.x + translation.x <= 0 { // 왼쪽
+            return view.center.x
+        } else if view.center.x + translation.x >= canvas.frame.width { // 오른쪽
+            return view.center.x
+        } else {
             return view.center.x + translation.x
-        }else if (view.center.x - translation.x) <= 0{
-            return 0
         }
-        
-        return view.frame.width
     }
     
     func getChangedY(from view: UIImageView, as translation: CGPoint, canvas: UIView) -> CGFloat {
-        if (view.center.y + translation.y) <= canvas.frame.height {
+        // view가 세로로 반 이상 잘리면 더 이상 이동 불가
+        if view.center.y + translation.y <= 0 { // 위
+            return view.center.y
+        } else if view.center.y + translation.y >= canvas.frame.height { // 아래
+            return view.center.y
+        } else {
             return view.center.y + translation.y
-        }else if (view.center.y - translation.y) <= 0{
-            return 0
         }
-        
-        return canvas.frame.height
     }
     
 }
