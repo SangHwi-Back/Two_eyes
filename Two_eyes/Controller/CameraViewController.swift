@@ -17,9 +17,9 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     @IBOutlet var cameraPreview: UIView!
     @IBOutlet var currentPicture: UIButton!
     
-    private var captureSession: AVCaptureSession?
+    private var captureSession: AVCaptureSession = AVCaptureSession()
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
-    private var capturePhotoOutput: AVCapturePhotoOutput?
+    private var capturePhotoOutput: AVCapturePhotoOutput = AVCapturePhotoOutput()
     
     private var currentPictureRequested: Bool = false
     private var capturedImage: UIImage?
@@ -36,23 +36,23 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         
         if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
             currentCameraType = captureDevice.deviceType
-            if let input = try? AVCaptureDeviceInput(device: captureDevice) {
-                captureSession = AVCaptureSession()
+            if let input = try? AVCaptureDeviceInput(device: captureDevice), captureSession.canAddInput(input) {
                 currentCameraInput = input
-                captureSession?.addInput(input)
+                captureSession.addInput(input)
+                videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            } else {
+                if let viewControllers = self.tabBarController?.viewControllers {
+                    for vc in viewControllers {
+                        if let vc = vc as? SearchAndLoadViewController {
+                            self.tabBarController?.selectedViewController = vc
+                        }
+                    }
+                }
+                self.tabBarController?.reloadInputViews()
             }
         }
         
-        if let captureSession = captureSession {
-            videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        } else {
-            performSegue(withIdentifier: "filterViewSearchSegue", sender: self)
-            return
-        }
-        
-        capturePhotoOutput = AVCapturePhotoOutput()
-        
-        guard let videoPreviewLayer = videoPreviewLayer, let captureSession = captureSession, let capturePhotoOutput = capturePhotoOutput else { return }
+        guard let videoPreviewLayer = videoPreviewLayer else { return }
         
         videoPreviewLayer.videoGravity = .resizeAspectFill
         videoPreviewLayer.frame = cameraPreview.layer.bounds
@@ -71,7 +71,6 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         
         resetCachedAssets()
         PHPhotoLibrary.shared().register(self)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,19 +92,26 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         currentAssetFetchOptions = photoOptions
         
         let newPhoto = PHAsset.fetchAssets(with: photoOptions)
-        currentAsset = newPhoto.object(at: 0)
-                
-        imageManager.requestImage(for: currentAsset!, targetSize: currentPicture.frame.size, contentMode: .aspectFit, options: nil) { (image, _) in
-            self.currentPicture.setBackgroundImage(image, for: .normal)
-            self.currentPictureRequested = true
+        
+        if let currentAsset = newPhoto.firstObject {
+            imageManager.requestImage(
+                    for: currentAsset,
+                    targetSize: currentPicture.frame.size,
+                    contentMode: .aspectFill,
+                    options: nil) { (image, _) in
+                self.currentAsset = currentAsset
+                self.currentPicture.setBackgroundImage(image, for: .normal)
+                self.currentPictureRequested = true
+            }
         }
     }
     
     deinit {
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
-        self.captureSession?.stopRunning()
+        self.captureSession.stopRunning()
     }
     
+    //MARK: - Buttons action methods
     @IBAction func currentPhoto(_ sender: UIButton) {
         if currentPictureRequested {
             if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
@@ -116,28 +122,25 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         }
     }
     @IBAction func takePhoto(_ sender: UIButton) {
-        guard let capturePhotoOutput = self.capturePhotoOutput else { return }
-        
         let photoSettings = AVCapturePhotoSettings()
         photoSettings.isHighResolutionPhotoEnabled = true // 저장된 갚으로 대체할 것
         photoSettings.flashMode = .auto
         capturePhotoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
-    
     @IBAction func reverseCamera(_ sender: UIButton) {
-        captureSession?.beginConfiguration()
-        defer { captureSession?.commitConfiguration() }
+        captureSession.beginConfiguration()
+        defer { captureSession.commitConfiguration() }
         
         let nextPosition = ((currentCameraInput as? AVCaptureDeviceInput)?.device.position == .front) ? AVCaptureDevice.Position.back : .front
         
         if let currentCameraInput = currentCameraInput {
-            captureSession?.removeInput(currentCameraInput)
+            captureSession.removeInput(currentCameraInput)
         }
 
         if let newCamera = cameraDevice(position: nextPosition),
             let newVideoInput = try? AVCaptureDeviceInput(device: newCamera) {
-            captureSession?.canAddInput(newVideoInput)
-            captureSession?.addInput(newVideoInput)
+            captureSession.canAddInput(newVideoInput)
+            captureSession.addInput(newVideoInput)
             currentCameraInput = newVideoInput
         }
     }

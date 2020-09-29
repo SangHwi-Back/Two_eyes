@@ -204,7 +204,7 @@ extension BasicFilterTemplate {
     }
 
     func opacityChange(using adjustVal: Float, image: UIImage?) -> UIImage? {
-        opacityAdjustVal = adjustVal
+        opacityAdjustVal = 1-adjustVal
         if let safeUIImage = image {
             UIGraphicsBeginImageContextWithOptions(safeUIImage.size, false, safeUIImage.scale)
             safeUIImage.draw(at: CGPoint.zero, blendMode: .normal, alpha: CGFloat(adjustVal))
