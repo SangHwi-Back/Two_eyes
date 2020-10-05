@@ -33,7 +33,7 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     private let filters: [String] = Constants.filterViewFilters
     private let coordinator = FilterViewCoordinator()
     private var highlightedCollectionItemIndex: Int = 0
-    private var basicFilter = BasicFilterTemplate()
+    private var basicFilter: BasicFilterTemplate!
     
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
@@ -51,9 +51,8 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         self.filterItemsCollectionView.dataSource = self
         self.filterItemsCollectionView.allowsSelection = true
         
-        basicFilter.delegate = self
-        
         registerPhoto()
+        self.basicFilter.delegate = self
         coordinatorSetting()
         
     }
@@ -141,6 +140,9 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         }
     }
     
+    @IBAction func filterCombinationActivate(_ sender: UISegmentedControl) {
+        self.basicFilter.combinationActivated = (sender.selectedSegmentIndex == 0)
+    }
     
     @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
         self.filteredImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
@@ -231,11 +233,10 @@ class CustomView: UIPresentationController {
 //MARK: - Filtering methods
 extension FilterViewController {
     func registerPhoto() {
-        basicFilter.filterName = filters[0]
+        var tempImage: UIImage?
         
         if initialImage != nil {
-            capturedImageView.image = initialImage
-            filteredImageView.image = initialImage
+            tempImage = initialImage!
         }
         
         if let imageManager = self.imageManager, let currentAsset = self.currentAsset {
@@ -243,11 +244,20 @@ extension FilterViewController {
                                       targetSize: capturedImageView.frame.size,
                                       contentMode: .aspectFit,
                                       options: nil) { (image, _) in
-                self.initialImage = image
-                self.capturedImageView.image = image
-                self.filteredImageView.image = image
+                tempImage = image
             }
         }
+        
+        if let safeImage = tempImage {
+            capturedImageView.image = safeImage
+            filteredImageView.image = safeImage
+            self.basicFilter = BasicFilterTemplate(image: safeImage)
+            self.basicFilter.filterName = filters[0]
+            self.initialImage = safeImage
+        } else {
+            self.navigationController?.popViewController(animated: true)
+        }
+        
     }
 
     @IBAction func saveThePicture(_ sender: UIButton) {
@@ -279,7 +289,6 @@ extension FilterViewController {
 extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         basicFilter.filterName = filters[indexPath.row]
-        basicFilter.preFilteredImage = initialImage
         
         filteredImageView.image = basicFilter.filteredImage
         filterItemsCollectionView.cellForItem(at: indexPath)?.alpha = 0.5
@@ -301,7 +310,6 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "filterItems", for: indexPath)
         basicFilter.wouldDelegateExecute = false
         basicFilter.filterName = filters[indexPath.row]
-        basicFilter.preFilteredImage = initialImage
         cell.backgroundView = UIImageView(image: basicFilter.filteredImage)
         return cell
     }

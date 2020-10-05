@@ -371,38 +371,81 @@
                                 <rect key="frame" x="0.0" y="453" width="375" height="194"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="eyn-T1-41q">
-                                        <rect key="frame" x="10.5" y="0.0" width="354" height="35"/>
+                                        <rect key="frame" x="22" y="0.0" width="331" height="40"/>
                                         <subviews>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="yJQ-nU-oIe">
-                                                <rect key="frame" x="0.0" y="0.0" width="173" height="36"/>
-                                                <segments>
-                                                    <segment title="원본"/>
-                                                    <segment title="필터이미지"/>
-                                                </segments>
-                                                <connections>
-                                                    <action selector="imageViewZIndexChange:" destination="amm-Fi-6dl" eventType="valueChanged" id="BRx-N2-f7m"/>
-                                                </connections>
-                                            </segmentedControl>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="btt-M6-XQr">
-                                                <rect key="frame" x="181" y="0.0" width="173" height="36"/>
-                                                <segments>
-                                                    <segment title="구분표시"/>
-                                                    <segment title="구분표시안함"/>
-                                                </segments>
-                                                <connections>
-                                                    <action selector="imageViewLabelHidden:" destination="amm-Fi-6dl" eventType="valueChanged" id="AQK-Oh-q5V"/>
-                                                </connections>
-                                            </segmentedControl>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="pGN-tM-nOR">
+                                                <rect key="frame" x="0.0" y="0.0" width="105" height="40"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="원본 위치" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dKK-w6-SIe">
+                                                        <rect key="frame" x="0.0" y="0.0" width="105" height="20"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="yJQ-nU-oIe">
+                                                        <rect key="frame" x="0.0" y="20" width="105" height="21"/>
+                                                        <segments>
+                                                            <segment title="위"/>
+                                                            <segment title="아래"/>
+                                                        </segments>
+                                                        <connections>
+                                                            <action selector="imageViewZIndexChange:" destination="amm-Fi-6dl" eventType="valueChanged" id="BRx-N2-f7m"/>
+                                                        </connections>
+                                                    </segmentedControl>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="234-4u-5Fe">
+                                                <rect key="frame" x="113" y="0.0" width="105" height="40"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="구분 표시" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFM-HP-tn7">
+                                                        <rect key="frame" x="0.0" y="0.0" width="105" height="20"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="btt-M6-XQr">
+                                                        <rect key="frame" x="0.0" y="20" width="105" height="21"/>
+                                                        <segments>
+                                                            <segment title="활성"/>
+                                                            <segment title="비활성"/>
+                                                        </segments>
+                                                        <connections>
+                                                            <action selector="imageViewLabelHidden:" destination="amm-Fi-6dl" eventType="valueChanged" id="AQK-Oh-q5V"/>
+                                                        </connections>
+                                                    </segmentedControl>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="udk-u3-lMi">
+                                                <rect key="frame" x="226" y="0.0" width="105" height="40"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="필터 조합" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h7R-1z-LPO">
+                                                        <rect key="frame" x="0.0" y="0.0" width="105" height="20"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Oxf-iB-16W">
+                                                        <rect key="frame" x="0.0" y="20" width="105" height="21"/>
+                                                        <segments>
+                                                            <segment title="활성"/>
+                                                            <segment title="비활성"/>
+                                                        </segments>
+                                                        <connections>
+                                                            <action selector="filterCombinationActivate:" destination="amm-Fi-6dl" eventType="valueChanged" id="DqU-zQ-qKb"/>
+                                                        </connections>
+                                                    </segmentedControl>
+                                                </subviews>
+                                            </stackView>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="35" id="IPG-6f-V7g"/>
+                                            <constraint firstAttribute="height" constant="40" id="IPG-6f-V7g"/>
                                         </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="9" translatesAutoresizingMaskIntoConstraints="NO" id="xSe-8d-jzL">
-                                        <rect key="frame" x="0.0" y="51" width="375" height="52"/>
+                                        <rect key="frame" x="0.0" y="56" width="375" height="47"/>
                                         <subviews>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BnI-QW-qSa">
-                                                <rect key="frame" x="0.0" y="0.0" width="314" height="52"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="319" height="47"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="NU0-fP-Kse">
                                                     <size key="itemSize" width="68" height="31"/>
@@ -412,7 +455,7 @@
                                                 </collectionViewFlowLayout>
                                                 <cells>
                                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="filterItems" id="K6z-wN-zL9">
-                                                        <rect key="frame" x="0.0" y="1" width="50" height="50"/>
+                                                        <rect key="frame" x="0.0" y="-1.5" width="50" height="50"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="nt1-fs-vb8">
                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
@@ -423,7 +466,7 @@
                                                 </cells>
                                             </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lf6-Yc-uMy">
-                                                <rect key="frame" x="323" y="1.5" width="52" height="48.5"/>
+                                                <rect key="frame" x="328" y="1.5" width="47" height="43.5"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="lf6-Yc-uMy" secondAttribute="height" id="cYG-3H-CXb"/>
                                                 </constraints>
@@ -940,6 +983,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="x11-pV-KSr"/>
         <segue reference="vTA-xU-5LS"/>
     </inferredMetricsTieBreakers>
     <resources>
