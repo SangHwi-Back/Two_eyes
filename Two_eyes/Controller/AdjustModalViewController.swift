@@ -16,7 +16,7 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
     let adjustMasterStackView = UIStackView()
     private let adjustItemsStackView = UIStackView()
     private let doneButton = UIButton()
-    private let adjustKey: [String] = Constants.filterViewAdjustKeys
+    private var adjustKeys: [FilterAdjustKey]
     
     private let coordinator: FilterViewCoordinator?
     
@@ -33,8 +33,9 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
         frameAdjust()
     }
     
-    init(coordinator: FilterViewCoordinator) {
+    init(coordinator: FilterViewCoordinator, adjustKeys: [FilterAdjustKey]) {
         self.coordinator = coordinator
+        self.adjustKeys = adjustKeys
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -101,16 +102,17 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
     }
     
     private func registerAdjust() {
-        for i in 0..<adjustKey.count {
+        for i in adjustKeys.indices {
             if let itemsStackView = adjustItemsStackView.copy() as? UIStackView,
                 let stackLabel = modalLabel.copy() as? UILabel,
                 let stackSlider = slider.copy() as? UISlider {
                 
-                stackLabel.text = adjustKey[i]
+                stackLabel.text = adjustKeys[i].rawValue
                 stackLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: self.view.frame.size.width * 0.3).isActive = true
+                
                 stackSlider.tag = i
                 stackSlider.isEnabled = true
-                stackSlider.addTarget(self, action: #selector(adjustValue), for: .valueChanged)
+                stackSlider.addTarget(self, action: #selector(adjustValue(sender:)), for: .valueChanged)
                 
                 itemsStackView.addArrangedSubview(stackLabel)
                 itemsStackView.addArrangedSubview(stackSlider)
@@ -132,12 +134,20 @@ class AdjustModalViewController: UIViewController, UIScrollViewDelegate, UIViewC
     
     @objc private func adjustValue(sender: UISlider) {
         DispatchQueue.main.async {
-            self.coordinator?.modalMasterView?.adjustValue(sender: sender, self.adjustKey[sender.tag])
+            self.coordinator?.modalMasterView?.adjustValue(sender: sender, self.adjustKeys[sender.tag])
         }
     }
     
     @objc func dismissAction() {
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    func adjustValueToZero() {
+        if self.adjustMasterStackView.subviews is [UIStackView] {
+            for itemsStackView in self.adjustMasterStackView.subviews {
+                (itemsStackView.subviews.filter {$0 is UISlider}.first as? UISlider)?.value = 0
+            }
+        }
     }
 }
 

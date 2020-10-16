@@ -14,7 +14,7 @@ import UIKit
 
 class FilterViewCoordinator {
     var modalMasterView: FilterViewController?
-    var modalView: AdjustModalViewController?
+    var modalView: AdjustModalViewController!
     var canvasView: UIView?
     var canvasSize: CGSize?
     

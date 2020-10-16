@@ -38,7 +38,7 @@ class Constants {
     static let filterViewControllerIdentifier = "FilterViewController"
     
     //MARK: - Filter View
-    static let filterViewFilters = ["none", "CIColorMonochrome", "CISepiaTone", "CIVignette"
+    static let filterViewFilters = ["none", "CIColorMonochrome", "CISepiaTone", "CIVignette", "CIPhotoEffectTonal"
     ]
     static let filterViewAdjustKeys = ["blur", "brightness", "contrast", "opacity"
     ]

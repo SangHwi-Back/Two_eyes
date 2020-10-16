@@ -10,193 +10,268 @@ import Foundation
 import UIKit
 
 protocol BasicFilterTemplageDelegate {
-    func filterChange(as image: UIImage?, for filter: String)
-    func adjustingValueChange(as image: UIImage?, using adjustKey: String, for adjustVal: Float)
+    func afterFilterChanged(as image: CIImage, for filterKey: String)
+    func afterAdjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float)
+}
+
+enum FilterAdjustKey: String, Hashable {
+    static func == (lhs: FilterAdjustKey, rhs: FilterAdjustKey) -> Bool {
+        return lhs.desc == rhs.desc
+    }
+    
+    case blur = "Blur"
+    case brightness = "Brightness"
+    case sepia = "Sepia"
+    case vignette = "Vignette"
+    case contrast = "Contrast"
+    case addBlue = "Blue"
+    case addGreen = "Green"
+    case addRed = "Red"
+    case opacity = "Opacity"
+    
+    var desc: String {
+        get {
+            switch self {
+            case .blur:
+                return "CIGaussianBlur"
+            case .brightness:
+                return "CIExposureAdjust"
+            case .sepia:
+                return "CISepiaTone"
+            case .vignette:
+                return "CIVignette"
+            case .contrast:
+                return "CIToneCurve"
+            case .addBlue, .addGreen, .addRed, .opacity:
+                return "CIColorMatrix"
+            }
+        }
+    }
+    
+    func allCases() -> [FilterAdjustKey] {
+        return [.blur, .brightness, .sepia, .vignette, .contrast, .addBlue, .addGreen, .addRed, .opacity]
+    }
 }
 
 class BasicFilterTemplate {
     var delegate: BasicFilterTemplageDelegate?
-    var wouldDelegateExecute: Bool = true
+    var wouldDelegateExecute: Bool = false // 뷰 구성 초기에는 델리게이트 메소드를 실행할 필요가 없기 때문에 실행할지 말지를 관리하는 flag값이 필요함.
     var filterContext: CIContext = CIContext()
+    var filterViewAdjustKey: [FilterAdjustKey]!
     
-    init(image: UIImage) {
-        self.contrastFilter.setValuesForKeys([
-            "inputPoint0":CIVector(x: 0.0, y: 0.0),
-            "inputPoint1":CIVector(x:0.25, y:0.25),
-            "inputPoint2":CIVector(x:0.5, y:0.5),
-            "inputPoint3":CIVector(x:0.75, y:0.75),
-            "inputPoint4":CIVector(x:1, y:1)
-        ])
+    init(image: CIImage) {
         self.filteredImage = image
-        self.preFilteredImage = image
-        self.preAdjustedImage = image
+        self.filterAdjustedImage = image
+        self.filterViewAdjustKey = FilterAdjustKey.blur.allCases()
     }
     
     /*
      * preFilteredImage = filteredImage에 Filter효과를 주기 위한 변수이다.
-     *                    UIImage를 부여하면 Filter된 filteredImage:UIImage?에서 결과를 확인할 수 있다.
-     *                    그러므로 반드시 filterName에 필터 이름을 부여해야 한다.
-     * preAdjustingImage = filteredImage에 각종 Attribute를 adjust하여 새로운 이미지를 추출하기 위한 변수이다.
-     *                     UIImage를 부여하면 미리 부여된 adjustKey와 adjustValue를 이용하여 이미지를 수정한다.
-     *                     filteredImage:UIImage?에서 결과를 확인할 수 있다.
-     *                     그러므로 반드시 adjustKey와 adjustValue에 값을 부여해놓아야 한다.
+     *                    이 클래스에서 처리되는 모든 이미지는 CIImage로서,
+     *                    Delegate 함수인 afterFilterChange(as:,for:) 메소드에서 UIImage 등으로 변경해주어야 한다.
+     * preAdjustingImage = filteredImage에 각종 Attribute를 adjust하여 새로운 이미지를 추출하기 위한 변수이다
+     *                     이 클래스에서 처리되는 모든 이미지는 CIImage이고, self.filteredImage 를 처리한다.
+     *                     preFilteredImage와 마찬가지로 Delegate 함수인
+     *                     afterAdjustingValueChange(as:,using:,for:) 메소드에서 UIImage 등으로 변경해주어야 한다.
      */
     
-    var preFilteredImage: UIImage {
+    var needToFilterCIImage: CIImage {
         get {
             return filteredImage
         }
         set(newVal) {
             filteredImage = filterChange(as: newVal, for: filterName)
-            if(wouldDelegateExecute) {
-                delegate?.filterChange(as: filteredImage, for: filterName)
-            }
         }
     }
     var filterName: String = ""
-    var preAdjustedImage: UIImage {
+    var needToAdjustCIImage: CIImage {
         get {
-            return filteredImage
+            return filterAdjustedImage
         }
         set(newVal) {
-            filteredImage = adjustingValueChange(as: newVal, using: adjustKey, for: adjustValue)
-            if(wouldDelegateExecute) {
-                delegate?.adjustingValueChange(as: newVal, using: adjustKey, for: adjustValue)
+            adjustingValueChange(as: newVal, using: adjustKey, for: adjustValue)
+        }
+    }
+    var filteredImage: CIImage
+    var filterAdjustedImage: CIImage
+    
+    var adjustKey: FilterAdjustKey = .blur
+    var adjustValue: Float = 0.0
+    //sepia default value and vignette radius value is 0.0
+    private(set) var ciFilterNormalKeyValuePair: [FilterAdjustKey: Float] = [
+        .blur: 0.0,
+        .brightness: 0.0,
+        .sepia: 0.0,
+        .vignette: 0.0
+    ]
+    
+    private(set) var contrastFilterValues: [String: CIVector] = [
+        "inputPoint0": CIVector(x: 0.0, y: 0.0),
+        "inputPoint1": CIVector(x:0.25, y:0.25),
+        "inputPoint2": CIVector(x:0.5, y:0.5),
+        "inputPoint3": CIVector(x:0.75, y:0.75),
+        "inputPoint4": CIVector(x:1, y:1)
+    ]
+    private(set) var colorFilterValues: [CGFloat] = [0,0,0,0]
+    var combinationActivated: Bool = false {
+        didSet {
+            if combinationActivated {
+                self.adjustValue = 0.0
+                self.ciFilterNormalKeyValuePair = self.ciFilterNormalKeyValuePair.mapValues ({_ in 0.0})
             }
         }
     }
-    var filteredImage: UIImage
-    
-    var adjustKey: String = ""
-    var adjustValue: Float = 0.0
-    var blurAdjustVal: Float = 0.0
-    var brightnessAdjustVal: Float = 0.0
-    var contrastAdjustVal: Float = 0.0
-    var opacityAdjustVal: Float = 0.0
-    
-    var combinationActivated: Bool = false
-    
-    let blurFilter = CIFilter(name: "CIGaussianBlur")!
-    let brightnessFilter = CIFilter(name: "CIExposureAdjust")!
-    var contrastFilter = CIFilter(name: "CIToneCurve")!
-    let grayscaleFilter = CIFilter(name: "CIPhotoEffectTonal")!
 }
 
 extension BasicFilterTemplate {
-    //filter를 바꿀때마다 이미지에 필터를 적용해준다.
-    func filterChange(as image: UIImage, for filter: String) -> UIImage {
-        guard filter != "none" && filter != "" else { return image }
+    // filter를 바꿀때마다 이미지에 필터를 적용해준다.
+    // CIFilter는 mutable. 새로 생성해주는 것이 옳다. 고 한다.
+    // View Controller 로부터 받는 image는 UIImage에서 변경 성공한 CIImage이다.
+    func filterChange(as image: CIImage, for filterName: String) -> CIImage {
+        defer {
+            if wouldDelegateExecute {
+                delegate?.afterFilterChanged(as: filteredImage, for: filterName)
+            }
+        }
         
-        if let ciImage = CIImage(image: image.fixOrientation()), let ciFilter = CIFilter(name: filter) {
-            ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
-            ciFilter.setValue(1.0, forKey: kCIInputIntensityKey)
-            if let filterOutput = ciFilter.outputImage {
-                return UIImage(ciImage: filterOutput)
+        if let safeCIFilter = CIFilter(name: filterName) {
+            safeCIFilter.setValue(image, forKey: kCIInputImageKey)
+            if let safeOutputImage = safeCIFilter.outputImage {
+                return safeOutputImage
             } else {
-                print("filteredImage에 적용할 새로운 이미지를 만들지 못했음.")
                 return image
             }
-        }else{
-            print("preFilteredImage에 이미지가 적용되지 않았음.")
+        } else {
             return image
         }
     }
     
-    func adjustingValueChange(as image: UIImage, using adjustKey: String, for adjustVal: Float) -> UIImage {
-        guard adjustKey != "" else { return image }
+    /*
+     1. 현재 변경되는 UISlider의 키 값을 이용하여 filteredImage에 필터를 적용한다.
+     2. 나머지 필터들 중 이미 적용되어 값이 0.0 보다 클 경우 필터를 추가하여 적용한다.(applyingFilter(_:, parameters:))
+     3. CIImage를 반환한다.
+     */
+    func adjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float) {
+        defer {
+            if wouldDelegateExecute {
+                delegate?.afterAdjustingValueChange(as: self.filterAdjustedImage, using: adjustKey, for: adjustValue)
+            }
+        }
         
-        switch adjustKey {
-            case "blur", "brightness":
-                return contextValueChanged(using: adjustVal, image: image, forKey: adjustKey)
-            case "contrast":
-                return contrastChange(using: adjustVal, image: image)
-            case "grayScale":
-                return grayScaleChange(image)
-            case "opacity":
-                return opacityChange(using: adjustVal, image: image) ?? image
+        let tupleInfo = getFilterTupleInfo(adjustKey, value: adjustVal)
+//        if adjustKey == .blur, let affineFilter = CIFilter(name: "CIAffineClamp") {
+//            affineFilter.setValue(self.filteredImage, forKey: kCIInputImageKey)
+//            tupleInfo.0.setValue(affineFilter.outputImage, forKey: kCIInputImageKey)
+//        } else {
+//            tupleInfo.0.setValue(self.filteredImage, forKey: kCIInputImageKey)
+//        }
+        tupleInfo.0.setValue(self.filteredImage, forKey: kCIInputImageKey)
+        var changedImage: CIImage = tupleInfo.0.outputImage!
+        
+        // 객체에 저장된 Filter Attribute 값을 업데이트합니다.
+        if ciFilterNormalKeyValuePair.contains(where: {$0.key == adjustKey}) {
+            ciFilterNormalKeyValuePair[adjustKey] = adjustVal
+        } else if adjustKey == .contrast {
+            switch adjustVal {
+            case 0.00..<0.25:
+                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint0")
+            case 0.25..<0.50:
+                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint1")
+            case 0.50..<0.75:
+                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint2")
+            case 0.75..<1.00:
+                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint3")
             default:
-                return image
+                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint4")
+            }
+        } else if adjustKey == .blur || adjustKey == .addGreen || adjustKey == .addRed || adjustKey == .opacity {
+            switch adjustKey {
+            case .addBlue:
+                colorFilterValues[0] = CGFloat(adjustVal)
+            case .addGreen:
+                colorFilterValues[1] = CGFloat(adjustVal)
+            case .addRed:
+                colorFilterValues[2] = CGFloat(adjustVal)
+            default:
+                colorFilterValues[3] = CGFloat(adjustVal)
+            }
+            
+            changedImage = changedImage.applyingFilter(tupleInfo.1, parameters: tupleInfo.2)
         }
+        
+        // 객체에 저장된 Filter Attribute 값을 이용하여 필터에 이미지를 차례대로 적용한다.
+        for dict in ciFilterNormalKeyValuePair {
+            if dict.value > 0.0 && dict.key != adjustKey {
+                let restTupleInfo = getFilterTupleInfo(dict.key, value: dict.value)
+//                if dict.key == .blur {
+//                    // Initialize CIGaussianBlur Filter Value
+//                    changedImage = changedImage.applyingFilter("CIAffineClamp", parameters: [kCIInputImageKey: changedImage])
+//                }
+                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+            }
+        }
+        
+        //contrastFilterValues
+        for dict in contrastFilterValues {
+            if dict.value.x > 0.0 {
+                let restTupleInfo = getFilterTupleInfo(.contrast, value: Float(dict.value.x))
+                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+            }
+        }
+        
+        //colorFilterValues
+        for i in 0...3 {
+            if colorFilterValues[i] > 0 {
+                let restTupleInfo = getFilterTupleInfo(.addRed, value: 0)
+                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+                break
+            }
+        }
+        
+        self.filterAdjustedImage = changedImage
     }
     
-    func getFilter(_ str : String) -> CIFilter? {
-        switch str {
-        case "blur":
-            return self.blurFilter
-        case "brightness":
-            return self.brightnessFilter
-        case "contrast":
-            return self.contrastFilter
-        case "grayScale":
-            return self.grayscaleFilter
-        default:
-            return nil
-        }
-    }
-    
-    func contextValueChanged(using adjustVal: Float, image: UIImage, forKey: String) -> UIImage {
-        guard let filter = getFilter(forKey) else { return image }
-        filter.setValue(image, forKey: kCIInputImageKey)
-        
-        if forKey == "blur" {
-            self.blurAdjustVal = adjustVal
-            self.filterContext.setValue(adjustVal, forKey: kCIInputRadiusKey)
-        } else if forKey == "brightness" {
-            self.brightnessAdjustVal = adjustVal
-            self.filterContext.setValue(adjustVal, forKey: kCIInputEVKey)
-        }
-        
-        if let result = filter.outputImage, let cgImage = self.filterContext.createCGImage(result, from: result.extent) {
-            return UIImage(cgImage: cgImage)
-        } else {
-            return image
-        }
-    }
-
-    func contrastChange(using adjustVal: Float, image: UIImage) -> UIImage {
-        self.contrastAdjustVal = adjustVal
-        self.contrastFilter.setDefaults()
-        self.contrastFilter.setValue(image, forKey: kCIInputImageKey)
-        
-        var key = ""
-        let value = CIVector(x:CGFloat(adjustVal), y:CGFloat(adjustVal))
-        
-        switch contrastAdjustVal {
-        case 0.00..<0.25:
-            key = "inputPoint0"
-        case 0.25..<0.50:
-            key = "inputPoint1"
-        case 0.50..<0.75:
-            key = "inputPoint2"
-        case 0.75..<1.00:
-            key = "inputPoint3"
-        default:
-            key = "inputPoint4"
-        }
-        
-        self.contrastFilter.setValue(value, forKey: key)
-        if let contrastImage = contrastFilter.outputImage {
-            return UIImage(ciImage: contrastImage)
-        } else {
-            return image
+    /*
+     Get Filter's Informations(CIFilter?, String key, Dictionary? parameters) as a Tuple.
+     Optional is meaning there is nothing exact key in this function. return (nil, "", nil)
+     */
+    func getFilterTupleInfo(_ key: FilterAdjustKey, value: Float) -> (CIFilter, String, [String: Any]) {
+        switch key {
+        case .blur:
+            return (CIFilter(name: "CIGaussianBlur")!, "CIGaussianBlur", [kCIInputRadiusKey: ciFilterNormalKeyValuePair[key]!])
+        case .brightness:
+            return (CIFilter(name: "CIExposureAdjust")!, "CIExposureAdjust", [kCIInputEVKey: ciFilterNormalKeyValuePair[key]!])
+        case .contrast:
+            switch value {
+            case 0.00..<0.25:
+                return (CIFilter(name: "CIToneCurve")!, "CIToneCurve", ["inputPoint0": contrastFilterValues["inputPoint0"]!])
+            case 0.25..<0.50:
+                return (CIFilter(name: "CIToneCurve")!, "CIToneCurve", ["inputPoint1": contrastFilterValues["inputPoint1"]!])
+            case 0.50..<0.75:
+                return (CIFilter(name: "CIToneCurve")!, "CIToneCurve", ["inputPoint2": contrastFilterValues["inputPoint2"]!])
+            case 0.75..<1.00:
+                return (CIFilter(name: "CIToneCurve")!, "CIToneCurve", ["inputPoint3": contrastFilterValues["inputPoint3"]!])
+            default:
+                return (CIFilter(name: "CIToneCurve")!, "CIToneCurve", ["inputPoint4": contrastFilterValues["inputPoint4"]!])
+            }
+        case .sepia:
+            return (CIFilter(name: "CISepiaTone")!, "CISepiaTone", [kCIInputIntensityKey: ciFilterNormalKeyValuePair[key]!])
+        case .vignette:
+            return (CIFilter(name: "CIVignette")!, "CIVignette", [kCIInputRadiusKey: ciFilterNormalKeyValuePair[key]!, kCIInputIntensityKey: ciFilterNormalKeyValuePair[key]!])
+        case .addBlue, .addGreen, .addRed, .opacity:
+            return (CIFilter(name: "CIColorMatrix")!, "CIColorMatrix", ["inputAVector": CIVector(values: colorFilterValues, count: 4)])
         }
     }
 
-    func grayScaleChange(_ image: UIImage) -> UIImage {
-        self.grayscaleFilter.setValue(image, forKey: kCIInputImageKey)
-        if let filterOutput = grayscaleFilter.outputImage {
-            return UIImage(ciImage: filterOutput)
-        }else{
-            return image
-        }
-    }
-
-    func opacityChange(using adjustVal: Float, image: UIImage) -> UIImage? {
-        self.opacityAdjustVal = adjustVal
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        image.draw(at: CGPoint.zero, blendMode: .normal, alpha: CGFloat(self.opacityAdjustVal))
-        return UIGraphicsGetImageFromCurrentImageContext()
-    }
+//    private func grayScaleChange(image: CIImage, forKey: String) -> CIImage {
+//        guard let safeCIFilter = CIFilter(name: forKey) else { return image }
+//        safeCIFilter.setValue(image, forKey: kCIInputImageKey)
+//        if let safeImage = safeCIFilter.outputImage {
+//            return safeImage
+//        }else{
+//            return image
+//        }
+//    }
 }
 
 extension UIImage {

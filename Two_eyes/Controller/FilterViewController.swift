@@ -13,8 +13,8 @@ import PhotosUI
 class FilterViewController: UIViewController, UIViewControllerTransitioningDelegate {
     
     //MARK: - Outlet 연결
-    var capturedViewLabel = UILabel()
-    var filteredViewLabel = UILabel()
+    private var capturedViewLabel = UILabel()
+    private var filteredViewLabel = UILabel()
     
     @IBOutlet weak var filteredImageView: UIImageView!
     @IBOutlet weak var capturedImageView: UIImageView!
@@ -37,7 +37,9 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     var currentAsset: PHAsset?
     var imageManager: PHCachingImageManager?
-    var initialImage: UIImage?
+    var initialImage: UIImage!
+    var initialCIImage: CIImage!
+    var filteredImage: UIImage?
     
     private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
     
@@ -49,19 +51,21 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         
         self.filterItemsCollectionView.delegate = self
         self.filterItemsCollectionView.dataSource = self
-        self.filterItemsCollectionView.allowsSelection = true
         
         registerPhoto()
         self.basicFilter.delegate = self
         coordinatorSetting()
-        
+        self.capturedImageView.image = self.initialImage
+        self.filteredImageView.image = self.initialImage
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         filteredViewLabel.text = "필터이미지"
+        filteredViewLabel.textAlignment = .center
         filteredViewLabel.textColor = .white
         capturedViewLabel.text = "원본"
+        capturedViewLabel.textAlignment = .center
         capturedViewLabel.textColor = .white
         
         // Gesture source Start
@@ -71,8 +75,8 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         self.filteredImageView.addSubview(filteredViewLabel)
         self.capturedImageView.addSubview(capturedViewLabel)
         
-        filteredViewLabel.bounds = filteredImageView.frame
-        capturedViewLabel.bounds = capturedImageView.frame
+        filteredViewLabel.frame = filteredImageView.frame
+        capturedViewLabel.frame = capturedImageView.frame
         
         self.capturedImageView.layer.zPosition = 1
         self.filteredImageView.layer.zPosition = 2
@@ -103,10 +107,11 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
         coordinator.modalMasterView = self
         
         //modal(Detail)View
-        coordinator.modalView = AdjustModalViewController(coordinator: coordinator)
-        coordinator.modalView?.modalPresentationStyle = .custom
-        coordinator.modalView?.isModalInPresentation = true
-        coordinator.modalView?.transitioningDelegate = self
+//        coordinator.modalView = AdjustModalViewController(coordinator: coordinator)
+        coordinator.modalView = AdjustModalViewController(coordinator: coordinator, adjustKeys: self.basicFilter.filterViewAdjustKey)
+        coordinator.modalView.modalPresentationStyle = .custom
+        coordinator.modalView.isModalInPresentation = true
+        coordinator.modalView.transitioningDelegate = self
         coordinator.canvasSize = self.canvasView.bounds.size
         
         //canvasView : missing. no need.
@@ -142,6 +147,8 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     @IBAction func filterCombinationActivate(_ sender: UISegmentedControl) {
         self.basicFilter.combinationActivated = (sender.selectedSegmentIndex == 0)
+        self.filteredImageView.image = self.initialImage // initialize filteredImageView
+        self.coordinator.modalView.adjustValueToZero()
     }
     
     @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
@@ -163,14 +170,12 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     @IBAction func adjustScreenPopup(_ sender: UIButton) {
         self.view.addGestureRecognizer(modalBackgroundTapGestureRecognizer)
-        if let customModalView = coordinator.modalView {
-            present(customModalView, animated: true, completion: nil)
-        }
+        present(coordinator.modalView, animated: true, completion: nil)
     }
     
     @IBAction func modalBackgroundTapAction(_ sender: UITapGestureRecognizer) {
         self.view.removeGestureRecognizer(modalBackgroundTapGestureRecognizer)
-        self.coordinator.modalView?.dismissAction()
+        self.coordinator.modalView.dismissAction()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -233,31 +238,25 @@ class CustomView: UIPresentationController {
 //MARK: - Filtering methods
 extension FilterViewController {
     func registerPhoto() {
-        var tempImage: UIImage?
+        var tempImage: UIImage? = initialImage != nil ? initialImage : nil
         
-        if initialImage != nil {
-            tempImage = initialImage!
-        }
-        
-        if let imageManager = self.imageManager, let currentAsset = self.currentAsset {
-            imageManager.requestImage(for: currentAsset,
-                                      targetSize: capturedImageView.frame.size,
-                                      contentMode: .aspectFit,
-                                      options: nil) { (image, _) in
+        if let safeImageManager = self.imageManager, let safeCurrentAsset = self.currentAsset {
+            safeImageManager.requestImage(for: safeCurrentAsset,
+                                          targetSize: .zero,
+                                          contentMode: .aspectFill,
+                                          options: nil) { (image, _) in
                 tempImage = image
             }
         }
         
         if let safeImage = tempImage {
-            capturedImageView.image = safeImage
-            filteredImageView.image = safeImage
-            self.basicFilter = BasicFilterTemplate(image: safeImage)
-            self.basicFilter.filterName = filters[0]
+            self.initialCIImage = CIImage(image: safeImage)
             self.initialImage = safeImage
+            self.basicFilter = BasicFilterTemplate(image: self.initialCIImage)
+            self.basicFilter.filterName = filters[0]
         } else {
-            self.navigationController?.popViewController(animated: true)
+            self.dismiss(animated: true, completion: nil)
         }
-        
     }
 
     @IBAction func saveThePicture(_ sender: UIButton) {
@@ -273,14 +272,15 @@ extension FilterViewController {
     }
     
     
-    func adjustValue(sender: UISlider, _ key: String) {
-        let center = self.filteredImageView.center
-        basicFilter.adjustKey = key
-        basicFilter.adjustValue = sender.value
+    func adjustValue(sender: UISlider, _ key: FilterAdjustKey ) {
+        self.basicFilter.adjustKey = key
+        self.basicFilter.adjustValue = sender.value
         DispatchQueue.main.async {
-            self.basicFilter.preAdjustedImage = self.initialImage!
-            self.filteredImageView.image = self.basicFilter.filteredImage
-            self.filteredImageView.center = center
+            if let filteredImage = self.filteredImage {
+                self.basicFilter.needToAdjustCIImage = CIImage(image: filteredImage) ?? self.initialCIImage
+            } else {
+                self.basicFilter.needToAdjustCIImage = self.initialCIImage
+            }
         }
     }
 }
@@ -288,10 +288,14 @@ extension FilterViewController {
 //MARK: - UICollectionView Methods
 extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        basicFilter.filterName = filters[indexPath.row]
-        
-        filteredImageView.image = basicFilter.filteredImage
-        filterItemsCollectionView.cellForItem(at: indexPath)?.alpha = 0.5
+        self.basicFilter.filterName = self.filters[indexPath.row]
+        self.basicFilter.needToFilterCIImage = self.initialCIImage
+        DispatchQueue.main.async {
+            self.filteredImageView.image =
+                self.filteredImage == nil ? self.initialImage : self.filteredImage!
+            collectionView.cellForItem(at: indexPath)?.alpha = 0.5
+        }
+        self.coordinator.modalView.adjustValueToZero()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -308,25 +312,26 @@ extension FilterViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "filterItems", for: indexPath)
-        basicFilter.wouldDelegateExecute = false
-        basicFilter.filterName = filters[indexPath.row]
-        cell.backgroundView = UIImageView(image: basicFilter.filteredImage)
+        self.basicFilter.wouldDelegateExecute = false
+        self.basicFilter.filterName = filters[indexPath.row]
+        self.basicFilter.needToFilterCIImage = self.initialCIImage
+        cell.backgroundView = UIImageView(image: UIImage(ciImage: self.basicFilter.filteredImage))
         return cell
     }
 }
 
-extension FilterViewController {
-    func copyView(viewForCopy: UIView) -> UIView? {
-        viewForCopy.isHidden = false
-        let viewCopy = viewForCopy.snapshotView(afterScreenUpdates: true)
-        viewForCopy.isHidden = true
-        return viewCopy
-    }
-}
-
 extension FilterViewController: BasicFilterTemplageDelegate {
-    func filterChange(as image: UIImage?, for filter: String) { }
-    func adjustingValueChange(as image: UIImage?, using adjustKey: String, for adjustVal: Float) { }
+    func afterFilterChanged(as image: CIImage, for filterKey: String) {
+        let processedImage = UIImage(cgImage: self.basicFilter.filterContext.createCGImage(image, from: image.extent)!)
+        self.filteredImageView.image = processedImage
+        self.filteredImage = processedImage
+    }
+    
+    func afterAdjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float) {
+        let processedImage = UIImage(cgImage: self.basicFilter.filterContext.createCGImage(image, from: image.extent)!)
+        self.filteredImageView.image = processedImage
+        self.filteredImage = processedImage
+    }
 }
 
 extension FilterViewController: UITextFieldDelegate {
@@ -386,5 +391,4 @@ extension UIImageView {
             return view.center.y + translation.y
         }
     }
-    
 }

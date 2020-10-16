@@ -27,9 +27,11 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     private var currentAssetFetchOptions: PHFetchOptions?
     
     fileprivate let imageManager = PHCachingImageManager()
+    fileprivate let photoSettings = AVCapturePhotoSettings()
     fileprivate var currentCameraInput: AVCaptureInput?
     fileprivate var currentCameraType: AVCaptureDevice.DeviceType?
     private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
+    private weak var destinationVC: FilterViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +64,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         
         capturePhotoOutput.isHighResolutionCaptureEnabled = true
         captureSession.addOutput(capturePhotoOutput)
+        photoSettings.flashMode = .auto
         
         let captureMetadataOutput = AVCaptureMetadataOutput()
         captureSession.addOutput(captureMetadataOutput)
@@ -113,19 +116,17 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     //MARK: - Buttons action methods
     @IBAction func currentPhoto(_ sender: UIButton) {
-        if currentPictureRequested {
-            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
-                destinationVC.currentAsset = self.currentAsset
-                destinationVC.imageManager = self.imageManager
+        if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
+//            self.destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController
+            destinationVC.currentAsset = self.currentAsset
+            destinationVC.imageManager = self.imageManager
+            if currentPictureRequested {
                 self.navigationController?.pushViewController(destinationVC, animated: true)
             }
         }
     }
     @IBAction func takePhoto(_ sender: UIButton) {
-        let photoSettings = AVCapturePhotoSettings()
-        photoSettings.isHighResolutionPhotoEnabled = true // 저장된 갚으로 대체할 것
-        photoSettings.flashMode = .auto
-        capturePhotoOutput.capturePhoto(with: photoSettings, delegate: self)
+        capturePhotoOutput.capturePhoto(with: self.photoSettings, delegate: self)
     }
     @IBAction func reverseCamera(_ sender: UIButton) {
         captureSession.beginConfiguration()
@@ -168,6 +169,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)
             if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
                 destinationVC.initialImage = capturedImage
+                destinationVC.initialCIImage = CIImage(image: capturedImage)
                 destinationVC.imageManager = self.imageManager
                 self.navigationController?.pushViewController(destinationVC, animated: true)
             }
