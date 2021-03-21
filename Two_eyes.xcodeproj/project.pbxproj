@@ -44,6 +44,7 @@
 		1B9F1EE124D16AAF00C055A1 /* CameraCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE024D16AAF00C055A1 /* CameraCollectionViewCell.swift */; };
 		1B9F1EE324D1876100C055A1 /* FilterSettingViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE224D1876100C055A1 /* FilterSettingViewCell.swift */; };
 		1B9F1EE524D18F9F00C055A1 /* TwoEyesFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */; };
+		1BA99C192605DD0C0043804A /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA99C182605DD0C0043804A /* UIViewController+Extension.swift */; };
 		1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */; };
 		1BAE36C624D54E650079DF8E /* FilterViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */; };
 		1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2814124ED17B0004ABD2C /* ThemeManager.swift */; };
@@ -89,6 +90,7 @@
 		1B9F1EE024D16AAF00C055A1 /* CameraCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCollectionViewCell.swift; sourceTree = "<group>"; };
 		1B9F1EE224D1876100C055A1 /* FilterSettingViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSettingViewCell.swift; sourceTree = "<group>"; };
 		1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoEyesFileManager.swift; sourceTree = "<group>"; };
+		1BA99C182605DD0C0043804A /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
 		1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustModalViewController.swift; sourceTree = "<group>"; };
 		1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewCoordinator.swift; sourceTree = "<group>"; };
 		1BC2814124ED17B0004ABD2C /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 			children = (
 				1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */,
 				1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */,
+				1BA99C182605DD0C0043804A /* UIViewController+Extension.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -362,6 +365,7 @@
 				1B9F1EE324D1876100C055A1 /* FilterSettingViewCell.swift in Sources */,
 				1B1FC8B0246CD35B008C0647 /* SignUpViewController.swift in Sources */,
 				1B9F1EE124D16AAF00C055A1 /* CameraCollectionViewCell.swift in Sources */,
+				1BA99C192605DD0C0043804A /* UIViewController+Extension.swift in Sources */,
 				1B4C343524EF699400ADCDC8 /* MainSettingViewController.swift in Sources */,
 				1B9F1ED824D15B4100C055A1 /* CameraSettingViewController.swift in Sources */,
 				1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */,

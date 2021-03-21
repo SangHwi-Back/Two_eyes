@@ -41,8 +41,6 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     var initialCIImage: CIImage!
     var filteredImage: UIImage?
     
-    private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
-    
     //MARK: - Methods executed in view life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,12 +88,7 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
-        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
-        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        self.admitTheme()
     }
     
     deinit {

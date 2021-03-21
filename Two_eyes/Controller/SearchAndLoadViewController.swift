@@ -90,11 +90,7 @@ class SearchAndLoadViewController: UIViewController {
         
         albumCollectionView.reloadData()
         
-        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
-        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
-        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        self.admitTheme()
         self.albumSearchBar.alpha = 0.5
     }
     
