@@ -20,13 +20,8 @@ class SettingsTableViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
-        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
-        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
-        
-        self.tableView.reloadData()
+        setTheme()
+        tableView.reloadData()
     }
 
     // MARK: - Table view data source

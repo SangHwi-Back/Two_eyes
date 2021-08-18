@@ -78,7 +78,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.admitTheme()
+        setTheme()
         
         registerNewPhoto()
     }
@@ -111,7 +111,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     //MARK: - Buttons action methods
     @IBAction func currentPhoto(_ sender: UIButton) {
-        if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController {
+        if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterMainViewController") as? FilterMainViewController {
 //            self.destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterViewController
             destinationVC.currentAsset = self.currentAsset
             destinationVC.imageManager = self.imageManager

@@ -57,12 +57,7 @@ class MainSettingViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.navigationController?.navigationBar.isTranslucent = (themeManager.getNavtabBackgroundColor() == UIColor.systemBackground ? true : false)
-        self.navigationController?.navigationBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: themeManager.getBodyTextColor()]
-        self.tabBarController?.tabBar.barTintColor = themeManager.getNavtabBackgroundColor()
-        self.view.backgroundColor = themeManager.getThemeBackgroundColor()
+        setTheme()
     }
     
     @IBAction func logoutInAction(_ sender: UIButton) {

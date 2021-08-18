@@ -89,7 +89,7 @@ class BasicFilterTemplate {
             return filterAdjustedImage
         }
         set(newVal) {
-            adjustingValueChange(as: newVal, using: adjustKey, for: adjustValue)
+            adjustingValueChange(as: newVal, for: adjustValue)
         }
     }
     var filteredImage: CIImage
@@ -121,6 +121,16 @@ class BasicFilterTemplate {
             }
         }
     }
+    
+    func admitFilter(to ciImage: CIImage, filtername: String, isAdjust: Bool = true) {
+        filterName = filtername
+        if isAdjust {
+            needToAdjustCIImage = ciImage
+        } else {
+            needToFilterCIImage = ciImage
+        }
+        
+    }
 }
 
 extension BasicFilterTemplate {
@@ -151,84 +161,78 @@ extension BasicFilterTemplate {
      2. 나머지 필터들 중 이미 적용되어 값이 0.0 보다 클 경우 필터를 추가하여 적용한다.(applyingFilter(_:, parameters:))
      3. CIImage를 반환한다.
      */
-    func adjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float) {
-        defer {
+    func adjustingValueChange(as image: CIImage, for adjustVal: Float) {
+        
+        DispatchQueue.main.async { [self] in
+            let tupleInfo = getFilterTupleInfo(adjustKey, value: adjustVal)
+            
+            tupleInfo.0.setValue(filteredImage, forKey: kCIInputImageKey)
+            var changedImage: CIImage = tupleInfo.0.outputImage!
+            
+            // 객체에 저장된 Filter Attribute 값을 업데이트합니다.
+            if ciFilterNormalKeyValuePair.contains(where: {$0.key == adjustKey}) {
+                ciFilterNormalKeyValuePair[adjustKey] = adjustVal
+            } else if adjustKey == .contrast {
+                
+                switch adjustVal {
+                case 0.00..<0.25:
+                    self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint0")
+                case 0.25..<0.50:
+                    self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint1")
+                case 0.50..<0.75:
+                    self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint2")
+                case 0.75..<1.00:
+                    self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint3")
+                default:
+                    self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint4")
+                }
+                
+            } else if [.blur, .addGreen, .addRed, .opacity, .blur].contains(adjustKey) {
+                switch adjustKey {
+                case .addBlue:
+                    colorFilterValues[0] = CGFloat(adjustVal)
+                case .addGreen:
+                    colorFilterValues[1] = CGFloat(adjustVal)
+                case .addRed:
+                    colorFilterValues[2] = CGFloat(adjustVal)
+                default:
+                    colorFilterValues[3] = CGFloat(adjustVal)
+                }
+                
+                changedImage = changedImage.applyingFilter(tupleInfo.1, parameters: tupleInfo.2)
+            }
+            
+            // 객체에 저장된 Filter Attribute 값을 이용하여 필터에 이미지를 차례대로 적용한다.
+            for dict in ciFilterNormalKeyValuePair {
+                if dict.value > 0.0 && dict.key != adjustKey {
+                    let restTupleInfo = getFilterTupleInfo(dict.key, value: dict.value)
+                    changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+                }
+            }
+            
+            //contrastFilterValues
+            for dict in contrastFilterValues {
+                if dict.value.x > 0.0 {
+                    let restTupleInfo = getFilterTupleInfo(.contrast, value: Float(dict.value.x))
+                    changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+                }
+            }
+            
+            //colorFilterValues
+            for i in 0...3 {
+                if colorFilterValues[i] > 0 {
+                    let restTupleInfo = getFilterTupleInfo(.addRed, value: 0)
+                    changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
+                    break
+                }
+            }
+            
+            filterAdjustedImage = changedImage
+            
             if wouldDelegateExecute {
                 delegate?.afterAdjustingValueChange(as: self.filterAdjustedImage, using: adjustKey, for: adjustValue)
             }
         }
-        
-        let tupleInfo = getFilterTupleInfo(adjustKey, value: adjustVal)
-//        if adjustKey == .blur, let affineFilter = CIFilter(name: "CIAffineClamp") {
-//            affineFilter.setValue(self.filteredImage, forKey: kCIInputImageKey)
-//            tupleInfo.0.setValue(affineFilter.outputImage, forKey: kCIInputImageKey)
-//        } else {
-//            tupleInfo.0.setValue(self.filteredImage, forKey: kCIInputImageKey)
-//        }
-        tupleInfo.0.setValue(self.filteredImage, forKey: kCIInputImageKey)
-        var changedImage: CIImage = tupleInfo.0.outputImage!
-        
-        // 객체에 저장된 Filter Attribute 값을 업데이트합니다.
-        if ciFilterNormalKeyValuePair.contains(where: {$0.key == adjustKey}) {
-            ciFilterNormalKeyValuePair[adjustKey] = adjustVal
-        } else if adjustKey == .contrast {
-            switch adjustVal {
-            case 0.00..<0.25:
-                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint0")
-            case 0.25..<0.50:
-                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint1")
-            case 0.50..<0.75:
-                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint2")
-            case 0.75..<1.00:
-                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint3")
-            default:
-                self.contrastFilterValues.updateValue(CIVector(x: CGFloat(adjustVal), y: CGFloat(adjustVal)), forKey: "inputPoint4")
-            }
-        } else if adjustKey == .blur || adjustKey == .addGreen || adjustKey == .addRed || adjustKey == .opacity {
-            switch adjustKey {
-            case .addBlue:
-                colorFilterValues[0] = CGFloat(adjustVal)
-            case .addGreen:
-                colorFilterValues[1] = CGFloat(adjustVal)
-            case .addRed:
-                colorFilterValues[2] = CGFloat(adjustVal)
-            default:
-                colorFilterValues[3] = CGFloat(adjustVal)
-            }
-            
-            changedImage = changedImage.applyingFilter(tupleInfo.1, parameters: tupleInfo.2)
-        }
-        
-        // 객체에 저장된 Filter Attribute 값을 이용하여 필터에 이미지를 차례대로 적용한다.
-        for dict in ciFilterNormalKeyValuePair {
-            if dict.value > 0.0 && dict.key != adjustKey {
-                let restTupleInfo = getFilterTupleInfo(dict.key, value: dict.value)
-//                if dict.key == .blur {
-//                    // Initialize CIGaussianBlur Filter Value
-//                    changedImage = changedImage.applyingFilter("CIAffineClamp", parameters: [kCIInputImageKey: changedImage])
-//                }
-                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
-            }
-        }
-        
-        //contrastFilterValues
-        for dict in contrastFilterValues {
-            if dict.value.x > 0.0 {
-                let restTupleInfo = getFilterTupleInfo(.contrast, value: Float(dict.value.x))
-                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
-            }
-        }
-        
-        //colorFilterValues
-        for i in 0...3 {
-            if colorFilterValues[i] > 0 {
-                let restTupleInfo = getFilterTupleInfo(.addRed, value: 0)
-                changedImage = changedImage.applyingFilter(restTupleInfo.1, parameters: restTupleInfo.2)
-                break
-            }
-        }
-        
-        self.filterAdjustedImage = changedImage
     }
     
     /*

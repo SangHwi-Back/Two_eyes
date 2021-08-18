@@ -15,7 +15,7 @@ import PhotosUI
 import CoreML
 import Vision
 
-class SearchAndLoadViewController: UIViewController {
+class SearchAndLoadViewController: UIViewController, UITextFieldDelegate {
 
     //MARK: - Outlet, var, let declaration
     @IBOutlet var albumSearchBar: UISearchBar!
@@ -24,7 +24,11 @@ class SearchAndLoadViewController: UIViewController {
     @IBOutlet var cancelButton: UIButton!
     
     // MARK: Properties
-    private var allPhotos: PHFetchResult<PHAsset>!
+    private var allPhotos: PHFetchResult<PHAsset>! {
+        didSet {
+            albumCollectionView.reloadData()
+        }
+    }
     private var smartAlbums: PHFetchResult<PHAssetCollection>!
     private var photosCollection: PHAssetCollection!
     private var userCollections: PHFetchResult<PHCollection>!
@@ -43,19 +47,28 @@ class SearchAndLoadViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isToolbarHidden = true
+        PHPhotoLibrary.shared().register(self)
+        
+        thumbnailSize = CGSize(width: self.view.frame.width / 3 - 20, height: (self.view.frame.width / 3 - 20) * 1.2)
+        collectionViewFlowLayout.itemSize = thumbnailSize
         
         albumSearchBar.delegate = self
         resetCachedAssets()
-        PHPhotoLibrary.shared().register(self)
-        cancelButton.layer.cornerRadius = 10
-        cancelButton.layer.masksToBounds = true
-        
-        albumCollectionView.delegate = self
-        albumCollectionView.dataSource = self
         
         textRecognitionRequest.recognitionLevel = .fast
         textRecognitionRequest.revision = VNRecognizeTextRequestRevision1
         textRecognitionRequest.usesLanguageCorrection = false
+        
+        cellImageOptions.resizeMode = .exact
+        
+        let allPhotosOptions = PHFetchOptions()
+        allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        allPhotos = PHAsset.fetchAssets(with: allPhotosOptions) //Photo Library load
+        
+//        albumCollectionView.reloadData()
+        
+        setTheme()
+        self.albumSearchBar.alpha = 0.5
     }
     
     deinit {
@@ -66,50 +79,19 @@ class SearchAndLoadViewController: UIViewController {
         self.albumSearchBar.resignFirstResponder()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        collectionViewFlowLayout.itemSize = thumbnailSize
-    }
-    
-    /**
-     뷰가 나타나기 전 이미지 썸네일 크기를 설정한다. ( ViewWillLayoutSubView 보다 먼저 호출 )
-     */
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        thumbnailSize = CGSize(
-            width: self.view.frame.width / 3 - 20,
-            height: (self.view.frame.width / 3 - 20) * 1.2)
-        
-        cellImageOptions.normalizedCropRect.size = thumbnailSize
-        cellImageOptions.resizeMode = .exact
-        
-        let allPhotosOptions = PHFetchOptions()
-        allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        allPhotos = PHAsset.fetchAssets(with: allPhotosOptions) //Photo Library load
-        
-        albumCollectionView.reloadData()
-        
-        self.admitTheme()
-        self.albumSearchBar.alpha = 0.5
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         updateCachedAssets()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let destination = segue.destination as? SearchAndLoadDetailViewController else {
-            fatalError("fatalError occured at destinationVC segue")
+        
+        if let dest = segue.destination as? SearchAndLoadDetailViewController, let cell = sender as? UICollectionViewCell, let indexPath = albumCollectionView.indexPath(for: cell) {
+            
+            dest.asset = allPhotos.object(at: indexPath.item)
+            dest.imageManager = self.imageManager
+            dest.assetCollection = photosCollection
         }
-        guard let cell = sender as? UICollectionViewCell else {
-            fatalError("fatalError occured at collectionViewCell segue")
-        }
-        let indexPath = albumCollectionView.indexPath(for: cell)!
-        destination.asset = allPhotos.object(at: indexPath.item)
-        destination.imageManager = self.imageManager
-        destination.assetCollection = photosCollection
     }
     
     //MARK: - Load album images with cache
@@ -152,9 +134,9 @@ class SearchAndLoadViewController: UIViewController {
         
         //PHImageManager의 Cache를 조정한다. 지워질 Assets에 대해서는 Cache를 없애고, 추가될 Assets에 대해서는 반대로 한다.
         imageManager.startCachingImages(for: addedAssets,
-                                        targetSize: thumbnailSize, contentMode: .aspectFill, options: cellImageOptions)
+                                        targetSize: collectionViewFlowLayout.itemSize, contentMode: .aspectFill, options: cellImageOptions)
         imageManager.stopCachingImages(for: removedAssets,
-                                       targetSize: thumbnailSize, contentMode: .aspectFill, options: cellImageOptions)
+                                       targetSize: collectionViewFlowLayout.itemSize, contentMode: .aspectFill, options: cellImageOptions)
         
         previousPreheatRect = preheatRect
     }
@@ -218,7 +200,7 @@ extension SearchAndLoadViewController: UICollectionViewDataSource {
         cell.representAssetIdentifier = asset.localIdentifier
         imageManager.requestImage(for: asset,
                                   targetSize: thumbnailSize,
-                                  contentMode: .aspectFill,
+                                  contentMode: .aspectFit,
                                   options: cellImageOptions) { (image, _) in
             if cell.representAssetIdentifier == asset.localIdentifier {
                 cell.thumbnailImage = image
@@ -237,33 +219,18 @@ extension SearchAndLoadViewController: UISearchBarDelegate {
         albumCollectionView.reloadData()
     }
 
-    //이미지 불러오기 시작, ML작업 시작
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        resetCachedAssets()
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        self.resetCachedAssets()
+        return true
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        allPhotos.enumerateObjects { (asset, inx, isStop) in
-            asset.requestContentEditingInput(with: nil) { (input, info) in
-                if let url = input?.fullSizeImageURL {
-                    let instRequestHandler = VNImageRequestHandler(url: url, options: [:])
-                    try? instRequestHandler.perform([self.textRecognitionRequest]) // 오류가 났어!!
-                    
-                    guard let visionResult = self.textRecognitionRequest.results as? [VNRecognizedTextObservation] else {
-                        return
-                    }
-                    
-                    for result in visionResult {
-                        guard let candidate = result.topCandidates(1).first else {
-                            continue
-                        }
-                        if let searchText = searchBar.searchTextField.text,
-                            candidate.string.range(of: searchText)?.isEmpty ?? false {
-                        }
-                    }
-                }
-            }
-        }
+        
+        guard let searchText = searchBar.searchTextField.text else { return }
+        
+        let allPhotosOptions = PHFetchOptions()
+        allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        allPhotos = PHAsset.fetchAssets(withLocalIdentifiers: [searchText], options: allPhotosOptions)
     }
     
     //이미지 불러오기 종료, ML작업 종료
@@ -274,8 +241,6 @@ extension SearchAndLoadViewController: PHPhotoLibraryChangeObserver {
     func photoLibraryDidChange(_ changeInstance: PHChange) {
         print("PHPhotoLibraryChangeObserver")
     }
-    
-    
 }
 
 private extension UICollectionView {

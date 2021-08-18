@@ -10,7 +10,7 @@ import UIKit
 
 extension UIViewController {
     
-    func admitTheme() {
+    func setTheme() {
         
         let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
         
