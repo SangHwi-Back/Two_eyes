@@ -9,14 +9,22 @@
 import UIKit
 import Photos
 
+protocol FilterMainViewControllerTransitionDelegate {
+    func performFilterSegue(identifier: String)
+}
+
 class FilterMainViewController: UIViewController {
 
     @IBOutlet weak var filterCollectionView: UICollectionView!
-    @IBOutlet var filterCollectionViewTapGesture: UITapGestureRecognizer!
     @IBOutlet weak var filterImageViewA: UIImageView!
+    @IBOutlet var filterImageViewAPanGestureRecognizer: UIPanGestureRecognizer!
     @IBOutlet weak var filterImageViewB: UIImageView!
+    @IBOutlet var filterImageViewBPanGestureRecognizer: UIPanGestureRecognizer!
     @IBOutlet weak var initializeButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    
+    @IBOutlet weak var canvasView: UIView!
+    
     
     var currentAsset: PHAsset!
     var imageManager: PHImageManager!
@@ -29,10 +37,63 @@ class FilterMainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        getInitialImage()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.basicFilter.delegate = nil
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is FilterAdjustViewController {
+            
+        }
+    }
+    
+    @IBAction func initializeButtonTouchUpInside(_ sender: UIButton) {
+        getInitialImage()
+    }
+    
+    @IBAction func saveButtonTouchUpInside(_ sender: UIButton) {
+        UIGraphicsBeginImageContextWithOptions(self.canvasView.frame.size, false, 0.0)
+        self.canvasView.layer.render(in: UIGraphicsGetCurrentContext()!)
+        
+        if let image = UIGraphicsGetImageFromCurrentImageContext() {
+            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        }
+        
+        UIGraphicsEndImageContext()
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    @IBAction func filterImageViewPanGestureAction(_ sender: UIPanGestureRecognizer) {
+        sendAction(recognizer: sender)
+    }
+    
+    @IBAction func filterImageViewPinchGestureAction(_ sender: UIPinchGestureRecognizer) {
+        sendAction(recognizer: sender)
+    }
+    
+    private func sendAction(recognizer: UIGestureRecognizer) {
+        
+        guard recognizer.view is UIImageView else {
+            return
+        }
+        
+        if let rec = recognizer as? UIPanGestureRecognizer {
+            (recognizer.view as! UIImageView)
+                .actionPanGesture(recognize: rec, in: self.canvasView)
+        } else if let rec = recognizer as? UIPinchGestureRecognizer {
+            (recognizer.view as! UIImageView)
+                .actionPinchGesture(recognize: rec, in: self.canvasView)
+        }
+    }
+    
+    func getInitialImage() {
         
         imageManager.requestImage(for: currentAsset, targetSize: filterImageViewA.frame.size, contentMode: .aspectFit, options: nil) { [self] image, _ in
             
-            if let image = image, let ciImage = CIImage(image: initialImage) {
+            if let image = image, let ciImage = CIImage(image: image) {
                 
                 initialImage = image
                 basicFilter = BasicFilterTemplate(image: ciImage)
@@ -47,39 +108,39 @@ class FilterMainViewController: UIViewController {
             }
         }
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        self.basicFilter.delegate = nil
-    }
-    
-    @objc func tapFilterCollectionViewCell(_ sender: Any?) {
-        performSegue(withIdentifier: "FilterAdjustViewController", sender: sender)
-    }
-    
-    @IBAction func initializeButtonTouchUpInside(_ sender: UIButton) {
-    }
-    
-    @IBAction func saveButtonTouchUpInside(_ sender: UIButton) {
-    }
 }
 
 extension FilterMainViewController: UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        7
+        filterNames.count + 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.cellForItem(at: indexPath)!
-        
-        filterCollectionViewTapGesture.addTarget(cell, action: #selector(tapFilterCollectionViewCell(_:)))
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath)!
-        filterCollectionViewTapGesture.removeTarget(cell, action: #selector(tapFilterCollectionViewCell(_:)))
+        let inx = indexPath.row
+        if inx == 0 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath) as? FilterMainHeaderCollectionViewCell else {
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath)
+            }
+            cell.delegate = self
+            
+            return cell
+        } else if inx == 7 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath) as? FilterMainFooterCollectionViewCell else {
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath)
+            }
+            cell.delegate = self
+            
+            return cell
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath) as? FilterMainCollectionViewCell else {
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath)
+            }
+            cell.delegate = self
+            
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -97,21 +158,6 @@ extension FilterMainViewController: UICollectionViewDelegate {
 }
 
 extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        var id = ""
-        
-        if kind == UICollectionView.elementKindSectionFooter {
-            id = "FilterMainHeaderCollectionView"
-        } else if kind == UICollectionView.elementKindSectionHeader {
-            id = "FilterMainFooterCollectionView"
-        }
-        
-        let supplementaryElement = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath)
-        
-        return supplementaryElement
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
@@ -122,6 +168,12 @@ extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
         
         let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
         return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
+    }
+}
+
+extension FilterMainViewController: FilterMainViewControllerTransitionDelegate {
+    func performFilterSegue(identifier: String) {
+        performSegue(withIdentifier: identifier, sender: self)
     }
 }
 

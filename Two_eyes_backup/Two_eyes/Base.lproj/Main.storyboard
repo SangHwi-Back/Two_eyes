@@ -1005,17 +1005,27 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wft-ok-vau">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="400"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CKi-2i-p1X">
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CKi-2i-p1X">
                                         <rect key="frame" x="16" y="16" width="262.5" height="262.5"/>
+                                        <gestureRecognizers/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="CKi-2i-p1X" secondAttribute="height" multiplier="1:1" id="d81-Hn-c4e"/>
                                         </constraints>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="1SP-9O-D9a" appends="YES" id="xDD-j2-zbf"/>
+                                            <outletCollection property="gestureRecognizers" destination="Km4-Bi-F7J" appends="YES" id="RMR-ny-dGo"/>
+                                        </connections>
                                     </imageView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XrD-aI-bff">
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XrD-aI-bff">
                                         <rect key="frame" x="96.5" y="121.5" width="262.5" height="262.5"/>
+                                        <gestureRecognizers/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="XrD-aI-bff" secondAttribute="height" multiplier="1:1" id="cQV-Zb-Jiy"/>
                                         </constraints>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="nlP-40-Tp0" appends="YES" id="5Nl-vL-CTL"/>
+                                            <outletCollection property="gestureRecognizers" destination="foF-C1-qa5" appends="YES" id="uFG-gk-sDM"/>
+                                        </connections>
                                     </imageView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -1065,7 +1075,7 @@
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <collectionViewLayout key="collectionViewLayout" id="X0a-iF-geJ" customClass="CarouselLayout" customModule="Two_eyes" customModuleProvider="target"/>
                                         <cells>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Ywj-la-I1z" customClass="FilterMainHeaderCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="FilterMainHeaderCollectionViewCell" id="Ywj-la-I1z" customClass="FilterMainHeaderCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="w2F-I3-Q5f">
@@ -1073,7 +1083,7 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionViewCellContentView>
                                             </collectionViewCell>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="" id="2d6-7W-6Zt" customClass="FilterMainCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterMainCollectionViewCell" id="2d6-7W-6Zt" customClass="FilterMainCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
                                                 <rect key="frame" x="65" y="0.0" width="50" height="50"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="J75-YY-wpP">
@@ -1083,6 +1093,7 @@
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="grid" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="NbO-La-7U0">
                                                             <rect key="frame" x="0.0" y="1" width="50" height="48"/>
                                                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <gestureRecognizers/>
                                                         </imageView>
                                                     </subviews>
                                                     <constraints>
@@ -1093,7 +1104,7 @@
                                                     </constraints>
                                                 </collectionViewCellContentView>
                                             </collectionViewCell>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="B0g-Ts-JaO" customClass="FilterMainFooterCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="FilterMainFooterCollectionViewCell" id="B0g-Ts-JaO" customClass="FilterMainFooterCollectionViewCell" customModule="Two_eyes" customModuleProvider="target">
                                                 <rect key="frame" x="130" y="0.0" width="50" height="50"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="IpK-se-RUC">
@@ -1137,17 +1148,38 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="canvasView" destination="wft-ok-vau" id="phP-9R-pEu"/>
                         <outlet property="filterCollectionView" destination="BfE-eg-hJq" id="RqE-4w-8o2"/>
-                        <outlet property="filterCollectionViewTapGesture" destination="Yp4-qM-iic" id="AhL-wd-jNs"/>
                         <outlet property="filterImageViewA" destination="CKi-2i-p1X" id="zx4-w1-u1j"/>
+                        <outlet property="filterImageViewAPanGestureRecognizer" destination="1SP-9O-D9a" id="YDh-Q9-8EL"/>
                         <outlet property="filterImageViewB" destination="XrD-aI-bff" id="rQb-kO-Wba"/>
+                        <outlet property="filterImageViewBPanGestureRecognizer" destination="nlP-40-Tp0" id="dEM-AO-ihG"/>
                         <outlet property="initializeButton" destination="xBM-Eg-GNd" id="2R0-NU-QXh"/>
                         <outlet property="saveButton" destination="pf5-bI-LNK" id="ehB-bO-3aJ"/>
-                        <segue destination="Akt-xa-k3F" kind="show" identifier="FilterAdjustViewController" id="pOY-MY-Evc"/>
+                        <segue destination="Akt-xa-k3F" kind="modal" identifier="FilterAdjustViewController" modalTransitionStyle="coverVertical" id="pOY-MY-Evc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tmu-dO-kkJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer numberOfTapsRequired="2" numberOfTouchesRequired="0" id="Yp4-qM-iic"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="1SP-9O-D9a">
+                    <connections>
+                        <action selector="filterImageViewPanGestureAction:" destination="Vga-1c-PV1" id="3Eh-8J-FV1"/>
+                    </connections>
+                </panGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="nlP-40-Tp0">
+                    <connections>
+                        <action selector="filterImageViewPanGestureAction:" destination="Vga-1c-PV1" id="sLD-NR-Daj"/>
+                    </connections>
+                </panGestureRecognizer>
+                <pinchGestureRecognizer id="Km4-Bi-F7J">
+                    <connections>
+                        <action selector="filterImageViewPinchGestureAction:" destination="Vga-1c-PV1" id="smw-N4-IMB"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <pinchGestureRecognizer id="foF-C1-qa5">
+                    <connections>
+                        <action selector="filterImageViewPinchGestureAction:" destination="Vga-1c-PV1" id="DMS-2u-aJF"/>
+                    </connections>
+                </pinchGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="3869.5999999999999" y="798.35082458770626"/>
         </scene>

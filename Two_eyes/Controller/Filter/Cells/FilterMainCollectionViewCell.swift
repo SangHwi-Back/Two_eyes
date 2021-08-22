@@ -10,4 +10,17 @@ import UIKit
 
 class FilterMainCollectionViewCell: UICollectionViewCell {
     
+    var delegate: FilterMainViewControllerTransitionDelegate?
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        let tapGesture = FilterTapGesutre(target: self, action: #selector(moveToModalViewSelector(_:)), tapRequired: 2)
+        
+        self.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func moveToModalViewSelector(_ sender: UITapGestureRecognizer?) {
+        delegate?.performFilterSegue(identifier: "FilterAdjustViewController")
+    }
 }

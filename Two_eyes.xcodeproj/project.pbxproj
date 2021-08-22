@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		05916AE8133BB714ED1FD526 /* Pods_Two_eyes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */; };
+		1B0B3A2A26D2D87700DA5B4A /* FilterGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0B3A2926D2D87600DA5B4A /* FilterGestureRecognizer.swift */; };
 		1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC887246CD026008C0647 /* AppDelegate.swift */; };
 		1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC889246CD026008C0647 /* SceneDelegate.swift */; };
 		1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC890246CD026008C0647 /* ApplicationTheme.xcdatamodeld */; };
@@ -60,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		1725C44C0ABCA6191D4F43A7 /* Pods-Two_eyes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Two_eyes.release.xcconfig"; path = "Target Support Files/Pods-Two_eyes/Pods-Two_eyes.release.xcconfig"; sourceTree = "<group>"; };
+		1B0B3A2926D2D87600DA5B4A /* FilterGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGestureRecognizer.swift; sourceTree = "<group>"; };
 		1B1FC884246CD026008C0647 /* Two_eyes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Two_eyes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B1FC887246CD026008C0647 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1B1FC889246CD026008C0647 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 				1B1FC8A7246CD35B008C0647 /* FilterViewController.swift */,
 				1BAE36C324D54AFA0079DF8E /* AdjustModalViewController.swift */,
 				1BF2B63526CBF24200F3162E /* FilterMainViewController.swift */,
+				1B0B3A2926D2D87600DA5B4A /* FilterGestureRecognizer.swift */,
 				1B2BC8A426CCA603007A5E2E /* FilterAdjustViewController.swift */,
 				1B2BC8AC26CCB821007A5E2E /* Cells */,
 			);
@@ -495,6 +498,7 @@
 				1B1FC8B2246CD35B008C0647 /* ConfirmSignUpViewController.swift in Sources */,
 				1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */,
 				1B9F1ECB24CD54B500C055A1 /* Constants.swift in Sources */,
+				1B0B3A2A26D2D87700DA5B4A /* FilterGestureRecognizer.swift in Sources */,
 				1BF2B63626CBF24200F3162E /* FilterMainViewController.swift in Sources */,
 				1B2BC8AB26CCB81A007A5E2E /* FilterMainFooterCollectionViewCell.swift in Sources */,
 			);
