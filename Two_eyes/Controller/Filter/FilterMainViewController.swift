@@ -113,38 +113,54 @@ class FilterMainViewController: UIViewController {
 extension FilterMainViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        filterNames.count + 2
+        filterNames.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        DispatchQueue.main.async {
+            (collectionView.collectionViewLayout as? CarouselLayout)?.setupLayout()
+        }
         
         let inx = indexPath.row
         if inx == 0 {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath) as? FilterMainHeaderCollectionViewCell else {
                 return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath)
             }
+            
             cell.delegate = self
+            cell.filteredImageView.image = initialImage
             
             return cell
         } else if inx == 7 {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath) as? FilterMainFooterCollectionViewCell else {
                 return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath)
             }
+            
             cell.delegate = self
+            basicFilter.filterName = filterNames[inx-1]
+            
+            if let image = CIImage(image: initialImage) {
+                
+                basicFilter.needToFilterCIImage = image
+                cell.filteredImageView.image = UIImage(ciImage: basicFilter.filteredImage)
+            }
             
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath) as? FilterMainCollectionViewCell else {
                 return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath)
             }
+            
             cell.delegate = self
+            cell.filteredImageView.image = initialImage
             
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let criterion = collectionView.frame.size.height
+        let criterion = collectionView.frame.size.height * 0.7
         return CGSize(width: criterion, height: criterion)
     }
     
@@ -158,17 +174,17 @@ extension FilterMainViewController: UICollectionViewDelegate {
 }
 
 extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        
-        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
-        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        
-        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
-        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
-    }
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+//
+//        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
+//        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+//
+//        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
+//        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
+//    }
 }
 
 extension FilterMainViewController: FilterMainViewControllerTransitionDelegate {

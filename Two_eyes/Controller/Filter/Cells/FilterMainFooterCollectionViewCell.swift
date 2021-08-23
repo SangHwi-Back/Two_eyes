@@ -11,6 +11,7 @@ import UIKit
 class FilterMainFooterCollectionViewCell: UICollectionViewCell {
     var delegate: FilterMainViewControllerTransitionDelegate?
     
+    @IBOutlet weak var filteredImageView: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
         

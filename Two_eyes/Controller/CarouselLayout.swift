@@ -22,28 +22,32 @@ class CarouselLayout: UICollectionViewFlowLayout {
         super.prepare()
         
         if isSetup == false {
-            setupLayout(); isSetup.toggle()
+            setupLayout()
+            isSetup.toggle()
         }
     }
     
-    private func setupLayout() {
+    func setupLayout() {
         
-        guard let collectionView = self.collectionView else {
+        guard collectionView != nil else {
             return
         }
         
-        let viewSize = collectionView.bounds.size
-        let insetX = (viewSize.width - self.itemSize.width) / 2
-        let insetY = (viewSize.height - self.itemSize.height) / 2
-        
-        self.sectionInset = UIEdgeInsets(top: insetY, left: insetX, bottom: insetY, right: insetX)
-        
-        let itemWidth = self.itemSize.width
+        let itemWidth = itemSize.width
         
         let scaledItemOffset = (itemWidth - itemWidth * self.sideItemScale) / 2
-        self.minimumLineSpacing = spacing - scaledItemOffset
+        minimumLineSpacing = spacing - scaledItemOffset
+        scrollDirection = .horizontal
         
-        self.scrollDirection = .horizontal
+        let insetX = itemSize.width
+        let insetY = itemSize.height / 5
+        
+        sectionInset = UIEdgeInsets(
+            top: insetY,
+            left: (insetX + minimumLineSpacing) * 3,
+            bottom: insetY,
+            right: (insetX + minimumLineSpacing) * 3
+        )
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -51,12 +55,11 @@ class CarouselLayout: UICollectionViewFlowLayout {
     }
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        guard let superAttributes = super.layoutAttributesForElements(in: rect),
-              let attributes = NSArray(array: superAttributes, copyItems: true) as? [UICollectionViewLayoutAttributes] else {
+        guard let superAttributes = super.layoutAttributesForElements(in: rect) else {
             return nil
         }
         
-        return attributes.map({ self.transformLayoutAttributes(attribute: $0) })
+        return superAttributes.map({ self.transformLayoutAttributes(attribute: $0) })
     }
     
     private func transformLayoutAttributes(attribute: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -73,12 +76,13 @@ class CarouselLayout: UICollectionViewFlowLayout {
         let distance = min(abs(collectionCenter - center), maxDistance)
         
         let ratio = (maxDistance - distance) / maxDistance
-        
-        let alpha = admitRatio(ratio, value: self.sideItemAlpha)
-        let scale = admitRatio(ratio, value: self.sideItemScale)
-        
-        attribute.alpha = alpha
-        attribute.setTransform3D(collectionView, scale: scale)
+        let scale = ratio * (1-0.7) + 0.7
+        attribute.transform = CGAffineTransform(scaleX: scale, y: scale)
+//        let alpha = admitRatio(ratio, value: self.sideItemAlpha)
+//        let scale = admitRatio(ratio, value: self.sideItemScale)
+//
+//        attribute.alpha = alpha
+//        attribute.setTransform3D(collectionView, scale: scale)
         
         return attribute
     }
