@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import Photos
 
 class FilterMainFooterCollectionViewCell: UICollectionViewCell, FilterViewCell {
     
     static var reuseIdentifier: String = "FilterMainFooterCollectionViewCell"
     var delegate: FilterMainViewControllerTransitionDelegate?
+    var asset: PHAsset?
+    var filterName: String?
     
     @IBOutlet weak var filteredImageView: UIImageView!
     override func awakeFromNib() {

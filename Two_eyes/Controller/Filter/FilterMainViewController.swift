@@ -15,6 +15,8 @@ protocol FilterMainViewControllerTransitionDelegate {
 
 protocol FilterViewCell {
     static var reuseIdentifier: String { get }
+    var asset: PHAsset? { get set }
+    var filterName: String? { get set }
 }
 
 class FilterMainViewController: UIViewController {
@@ -129,6 +131,8 @@ extension FilterMainViewController: UICollectionViewDataSource {
         let cell: FilterMainCollectionViewCell = collectionView.dequeReusableCell(for: indexPath)
         
         cell.delegate = self
+        cell.asset = self.currentAsset
+        cell.filterName = filterNames[0]
         
         if indexPath.row == 0 || indexPath.row+1 == collectionView.numberOfItems(inSection: 0) {
             cell.filteredImageView.image = initialImage
@@ -140,6 +144,7 @@ extension FilterMainViewController: UICollectionViewDataSource {
             basicFilter.filterName = filterNames[indexPath.row - 1]
             basicFilter.needToFilterCIImage = image
             cell.filteredImageView.image = UIImage(ciImage: basicFilter.filteredImage)
+            cell.filterName = filterNames[indexPath.row - 1]
         }
         
         collectionView.contentSize.width += (collectionView.frame.width / 2 + 5.0)
@@ -158,7 +163,46 @@ extension FilterMainViewController: UICollectionViewDataSource {
 }
 
 extension FilterMainViewController: UICollectionViewDelegate {
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath)
+        switch indexPath.row {
+        case 0, collectionView.numberOfItems(inSection: 0):
+            
+            if let cell = (cell as? FilterMainHeaderCollectionViewCell), let asset = cell.asset {
+                
+                DispatchQueue.main.async { [self] in
+                    
+                    imageManager.requestImage(for: asset, targetSize: filterImageViewB.frame.size, contentMode: .aspectFill, options: nil) { requestedImage, _ in
+                        
+                        if let requestedImage = requestedImage, let filterName = cell.filterName, let image = CIImage(image: requestedImage) {
+                            
+                            self.basicFilter.filterName = filterName
+                            self.basicFilter.needToFilterCIImage = image
+                            self.filterImageViewB.image = UIImage(ciImage: self.basicFilter.filteredImage)
+                        }
+                    }
+                }
+            }
+            
+        default:
+            
+            if let cell = (cell as? FilterMainCollectionViewCell), let asset = cell.asset {
+                
+                DispatchQueue.main.async { [self] in
+                    
+                    imageManager.requestImage(for: asset, targetSize: filterImageViewB.frame.size, contentMode: .aspectFill, options: nil) { requestedImage, _ in
+                        
+                        if let requestedImage = requestedImage, let filterName = cell.filterName, let image = CIImage(image: requestedImage) {
+                            
+                            self.basicFilter.filterName = filterName
+                            self.basicFilter.needToFilterCIImage = image
+                            self.filterImageViewB.image = UIImage(ciImage: self.basicFilter.filteredImage)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension FilterMainViewController: UICollectionViewDelegateFlowLayout {

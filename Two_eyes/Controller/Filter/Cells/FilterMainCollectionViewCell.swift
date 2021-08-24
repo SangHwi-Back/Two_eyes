@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import Photos
 
 class FilterMainCollectionViewCell: UICollectionViewCell, FilterViewCell {
     
     static var reuseIdentifier: String = "FilterMainCollectionViewCell"
     var delegate: FilterMainViewControllerTransitionDelegate?
+    var asset: PHAsset?
+    var filterName: String?
     
     @IBOutlet weak var filteredImageView: UIImageView!
     
