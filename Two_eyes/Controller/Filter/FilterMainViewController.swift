@@ -13,6 +13,10 @@ protocol FilterMainViewControllerTransitionDelegate {
     func performFilterSegue(identifier: String)
 }
 
+protocol FilterViewCell {
+    static var reuseIdentifier: String { get }
+}
+
 class FilterMainViewController: UIViewController {
 
     @IBOutlet weak var filterCollectionView: UICollectionView!
@@ -113,7 +117,7 @@ class FilterMainViewController: UIViewController {
 extension FilterMainViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        filterNames.count
+        filterNames.count + 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -122,45 +126,29 @@ extension FilterMainViewController: UICollectionViewDataSource {
             (collectionView.collectionViewLayout as? CarouselLayout)?.setupLayout()
         }
         
-        let inx = indexPath.row
-        if inx == 0 {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath) as? FilterMainHeaderCollectionViewCell else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainHeaderCollectionViewCell", for: indexPath)
-            }
-            
-            cell.delegate = self
+        let cell: FilterMainCollectionViewCell = collectionView.dequeReusableCell(for: indexPath)
+        
+        cell.delegate = self
+        
+        if indexPath.row == 0 || indexPath.row+1 == collectionView.numberOfItems(inSection: 0) {
             cell.filteredImageView.image = initialImage
-            
-            return cell
-        } else if inx == 7 {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath) as? FilterMainFooterCollectionViewCell else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainFooterCollectionViewCell", for: indexPath)
-            }
-            
-            cell.delegate = self
-            basicFilter.filterName = filterNames[inx-1]
-            
-            if let image = CIImage(image: initialImage) {
-                
-                basicFilter.needToFilterCIImage = image
-                cell.filteredImageView.image = UIImage(ciImage: basicFilter.filteredImage)
-            }
-            
-            return cell
-        } else {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath) as? FilterMainCollectionViewCell else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: "FilterMainCollectionViewCell", for: indexPath)
-            }
-            
-            cell.delegate = self
-            cell.filteredImageView.image = initialImage
-            
             return cell
         }
+        
+        if let image = CIImage(image: initialImage) {
+            
+            basicFilter.filterName = filterNames[indexPath.row - 1]
+            basicFilter.needToFilterCIImage = image
+            cell.filteredImageView.image = UIImage(ciImage: basicFilter.filteredImage)
+        }
+        
+        collectionView.contentSize.width += (collectionView.frame.width / 2 + 5.0)
+        
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let criterion = collectionView.frame.size.height * 0.7
+        let criterion = collectionView.frame.size.height
         return CGSize(width: criterion, height: criterion)
     }
     
@@ -174,17 +162,17 @@ extension FilterMainViewController: UICollectionViewDelegate {
 }
 
 extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-//
-//        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
-//        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-//
-//        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
-//        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
-//    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+
+        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
+        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+
+        let size = collectionView.cellForItem(at: IndexPath(row: 0, section: 0))?.frame.size
+        return CGSize(width: (size?.width ?? 50) / 2, height: (size?.height ?? 50) / 2)
+    }
 }
 
 extension FilterMainViewController: FilterMainViewControllerTransitionDelegate {
@@ -202,5 +190,16 @@ extension FilterMainViewController: BasicFilterTemplageDelegate {
     func afterAdjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float) {
         guard let cgImage = image.cgImage else { return }
         filterImageViewB.image = UIImage(cgImage: cgImage)
+    }
+}
+
+private extension UICollectionView {
+    
+    func dequeReusableCell<T: FilterViewCell>(for indexPath: IndexPath) -> T {
+        guard let cell = self.dequeueReusableCell(withReuseIdentifier: T.reuseIdentifier, for: indexPath) as? T else {
+            fatalError()
+        }
+        
+        return cell
     }
 }

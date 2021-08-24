@@ -8,8 +8,9 @@
 
 import UIKit
 
-class FilterMainCollectionViewCell: UICollectionViewCell {
+class FilterMainCollectionViewCell: UICollectionViewCell, FilterViewCell {
     
+    static var reuseIdentifier: String = "FilterMainCollectionViewCell"
     var delegate: FilterMainViewControllerTransitionDelegate?
     
     @IBOutlet weak var filteredImageView: UIImageView!

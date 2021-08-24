@@ -39,15 +39,10 @@ class CarouselLayout: UICollectionViewFlowLayout {
         minimumLineSpacing = spacing - scaledItemOffset
         scrollDirection = .horizontal
         
-        let insetX = itemSize.width
-        let insetY = itemSize.height / 5
+        let insetX = abs((collectionView!.frame.width / 2) - itemWidth / 2)
+        let insetY = CGFloat(0)
         
-        sectionInset = UIEdgeInsets(
-            top: insetY,
-            left: (insetX + minimumLineSpacing) * 3,
-            bottom: insetY,
-            right: (insetX + minimumLineSpacing) * 3
-        )
+        sectionInset = UIEdgeInsets(top: insetY, left: insetX, bottom: insetY, right: insetX)
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -78,11 +73,7 @@ class CarouselLayout: UICollectionViewFlowLayout {
         let ratio = (maxDistance - distance) / maxDistance
         let scale = ratio * (1-0.7) + 0.7
         attribute.transform = CGAffineTransform(scaleX: scale, y: scale)
-//        let alpha = admitRatio(ratio, value: self.sideItemAlpha)
-//        let scale = admitRatio(ratio, value: self.sideItemScale)
-//
-//        attribute.alpha = alpha
-//        attribute.setTransform3D(collectionView, scale: scale)
+        attribute.setTransform3D(collectionView, scale: scale)
         
         return attribute
     }
