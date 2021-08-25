@@ -16,7 +16,8 @@ class FilterMainHeaderCollectionViewCell: UICollectionViewCell, FilterViewCell {
     var asset: PHAsset?
     var filterName: String?
     
-    @IBOutlet weak var filteredImageView: UIImageView!
+    @IBOutlet weak var filteredImageView: FilterImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         

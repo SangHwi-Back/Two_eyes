@@ -1005,7 +1005,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wft-ok-vau">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="400"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CKi-2i-p1X">
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CKi-2i-p1X" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
                                         <rect key="frame" x="16" y="16" width="262.5" height="262.5"/>
                                         <gestureRecognizers/>
                                         <constraints>
@@ -1016,7 +1016,7 @@
                                             <outletCollection property="gestureRecognizers" destination="Km4-Bi-F7J" appends="YES" id="RMR-ny-dGo"/>
                                         </connections>
                                     </imageView>
-                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XrD-aI-bff">
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XrD-aI-bff" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
                                         <rect key="frame" x="96.5" y="121.5" width="262.5" height="262.5"/>
                                         <gestureRecognizers/>
                                         <constraints>
@@ -1098,7 +1098,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="rwF-n2-ezZ">
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="rwF-n2-ezZ" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                         </imageView>
                                                     </subviews>
@@ -1120,7 +1120,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="grid" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="NbO-La-7U0">
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="grid" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="NbO-La-7U0" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
                                                             <rect key="frame" x="0.0" y="1" width="50" height="48"/>
                                                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <gestureRecognizers/>
@@ -1144,7 +1144,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="15V-8u-pDV">
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="15V-8u-pDV" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                         </imageView>
                                                     </subviews>

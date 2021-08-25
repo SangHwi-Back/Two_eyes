@@ -138,20 +138,20 @@ class FilterViewController: UIViewController, UIViewControllerTransitioningDeleg
     }
     
     @IBAction func filteredImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        self.filteredImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
+//        self.filteredImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func capturedImagePinchAction(_ sender: UIPinchGestureRecognizer) {
-        self.capturedImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
+//        self.capturedImageView.actionPinchGesture(recognize: sender, in: self.canvasView)
     }
     
     
     @IBAction func filteredImagePanAction(_ sender: UIPanGestureRecognizer) {
-        self.filteredImageView.actionPanGesture(recognize: sender, in: self.canvasView)
+//        self.filteredImageView.actionPanGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func capturedImagePanAction(_ sender: UIPanGestureRecognizer) {
-        self.capturedImageView.actionPanGesture(recognize: sender, in: self.canvasView)
+//        self.capturedImageView.actionPanGesture(recognize: sender, in: self.canvasView)
     }
     
     @IBAction func adjustScreenPopup(_ sender: UIButton) {

@@ -8,8 +8,8 @@
 
 import UIKit
 
-extension UIImageView {
-    func actionPanGesture(recognize gesture: UIPanGestureRecognizer, in canvas: UIView) {
+extension FilterImageView {
+    func actionPanGesture(recognize gesture: UIPanGestureRecognizer, in canvas: UIView, completionHandler: (()->Void)? = nil) {
         
         DispatchQueue.main.async { [self] in
             
@@ -20,10 +20,12 @@ extension UIImageView {
             )
             
             gesture.setTranslation(CGPoint.zero, in: self) //initialize
+            
+            completionHandler?()
         }
     }
     
-    func actionPinchGesture(recognize gesture: UIPinchGestureRecognizer, in canvas: UIView) {
+    func actionPinchGesture(recognize gesture: UIPinchGestureRecognizer, in canvas: UIView, completionHandler: (()->Void)? = nil) {
         
         DispatchQueue.main.async {
             
@@ -32,6 +34,8 @@ extension UIImageView {
             }
             
             gesture.scale = 1.0 //initialize
+            
+            completionHandler?()
         }
     }
     

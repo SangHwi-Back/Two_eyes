@@ -162,7 +162,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         
         if let capturedImage = UIImage.init(data: imageData, scale: 1.0) {
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)
-            if let destinationVC = self.storyboard?.instantiateViewController(identifier: Constants.filterViewControllerIdentifier) as? FilterMainViewController {
+            if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterMainViewController") as? FilterMainViewController {
                 
                 destinationVC.initialImage = capturedImage
                 destinationVC.currentAsset = currentAsset

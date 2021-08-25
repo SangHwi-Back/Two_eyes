@@ -83,7 +83,7 @@ class BasicFilterTemplate {
             filteredImage = filterChange(as: newVal, for: filterName)
         }
     }
-    var filterName: String = ""
+    var filterName: String = "none"
     var needToAdjustCIImage: CIImage {
         get {
             return filterAdjustedImage

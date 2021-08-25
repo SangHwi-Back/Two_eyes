@@ -22,27 +22,38 @@ protocol FilterViewCell {
 class FilterMainViewController: UIViewController {
 
     @IBOutlet weak var filterCollectionView: UICollectionView!
-    @IBOutlet weak var filterImageViewA: UIImageView!
+    @IBOutlet weak var filterImageViewA: FilterImageView!
     @IBOutlet var filterImageViewAPanGestureRecognizer: UIPanGestureRecognizer!
-    @IBOutlet weak var filterImageViewB: UIImageView!
+    @IBOutlet weak var filterImageViewB: FilterImageView!
     @IBOutlet var filterImageViewBPanGestureRecognizer: UIPanGestureRecognizer!
     @IBOutlet weak var initializeButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     
     @IBOutlet weak var canvasView: UIView!
     
-    
     var currentAsset: PHAsset!
     var imageManager: PHImageManager!
     var initialImage: UIImage!
     
     private var basicFilter: BasicFilterTemplate!
+    private var imageViewModel: FilterImageViewModel!
     
     // Constant
     private let filterNames = Constants.filterViewFilters
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if initialImage == nil {
+            
+            imageManager.requestImage(for: currentAsset, targetSize: filterImageViewB.frame.size, contentMode: .aspectFit, options: nil) { [self] result, _ in
+                imageViewModel = FilterImageViewModel(asset: currentAsset, manager: imageManager, image: CIImage(image: result!)!)
+            }
+            
+        } else {
+            imageViewModel = FilterImageViewModel(asset: currentAsset, manager: imageManager, image: CIImage(image: initialImage)!)
+        }
+        
         getInitialImage()
     }
     
@@ -73,45 +84,42 @@ class FilterMainViewController: UIViewController {
     }
     
     @IBAction func filterImageViewPanGestureAction(_ sender: UIPanGestureRecognizer) {
-        sendAction(recognizer: sender)
+        DispatchQueue.global().async { [self] in
+            if let gestureView = sender.view as? FilterImageView {
+                gestureView.actionPanGesture(recognize: sender, in: canvasView) {
+                    admitRequestedAssetImage(targetView: gestureView)
+                }
+            }
+        }
     }
     
     @IBAction func filterImageViewPinchGestureAction(_ sender: UIPinchGestureRecognizer) {
-        sendAction(recognizer: sender)
-    }
-    
-    private func sendAction(recognizer: UIGestureRecognizer) {
-        
-        guard recognizer.view is UIImageView else {
-            return
-        }
-        
-        if let rec = recognizer as? UIPanGestureRecognizer {
-            (recognizer.view as! UIImageView)
-                .actionPanGesture(recognize: rec, in: self.canvasView)
-        } else if let rec = recognizer as? UIPinchGestureRecognizer {
-            (recognizer.view as! UIImageView)
-                .actionPinchGesture(recognize: rec, in: self.canvasView)
+        DispatchQueue.global().async { [self] in
+            if let gestureView = sender.view as? FilterImageView {
+                gestureView.actionPinchGesture(recognize: sender, in: canvasView) {
+                    admitRequestedAssetImage(targetView: gestureView)
+                }
+            }
         }
     }
     
     func getInitialImage() {
-        
-        imageManager.requestImage(for: currentAsset, targetSize: filterImageViewA.frame.size, contentMode: .aspectFit, options: nil) { [self] image, _ in
-            
-            if let image = image, let ciImage = CIImage(image: image) {
-                
-                initialImage = image
-                basicFilter = BasicFilterTemplate(image: ciImage)
-                basicFilter.filterName = filterNames.first!
-                basicFilter.delegate = self
-                
-                filterImageViewA.image = UIImage(ciImage: basicFilter.filteredImage)
-                filterImageViewB.image = UIImage(ciImage: basicFilter.filteredImage)
-                
-            } else {
-                fatalError("paramImage NIL!!!")
-            }
+        admitRequestedAssetImage(targetView: filterImageViewA)
+        admitRequestedAssetImage(targetView: filterImageViewB)
+    }
+    
+    func admitRequestedAssetImage(targetView: FilterImageView) {
+        imageViewModel.requestAssetImage(size: targetView.frame.size) { image in
+            DispatchQueue.main.async { targetView.image = image }
+        }
+    }
+    
+    func admitRequestedFilteredImage(targetView: FilterImageView) {
+        imageViewModel.requestFilteredImage(
+            size: filterImageViewB.frame.size,
+            filterName: targetView.filterName)
+        { image in
+            DispatchQueue.main.async { targetView.image = image }
         }
     }
 }
@@ -124,30 +132,16 @@ extension FilterMainViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        DispatchQueue.main.async {
-            (collectionView.collectionViewLayout as? CarouselLayout)?.setupLayout()
-        }
-        
         let cell: FilterMainCollectionViewCell = collectionView.dequeReusableCell(for: indexPath)
+        let filterNameIndex = indexPath.row == 0 || indexPath.row == collectionView.numberOfItems(inSection: 0) - 1 ? 0 : indexPath.row - 1
+        
+        collectionView.contentSize.width += (collectionView.frame.width / 2 + 5.0)
         
         cell.delegate = self
         cell.asset = self.currentAsset
-        cell.filterName = filterNames[0]
+        cell.filteredImageView.filterName = filterNames[filterNameIndex]
         
-        if indexPath.row == 0 || indexPath.row+1 == collectionView.numberOfItems(inSection: 0) {
-            cell.filteredImageView.image = initialImage
-            return cell
-        }
-        
-        if let image = CIImage(image: initialImage) {
-            
-            basicFilter.filterName = filterNames[indexPath.row - 1]
-            basicFilter.needToFilterCIImage = image
-            cell.filteredImageView.image = UIImage(ciImage: basicFilter.filteredImage)
-            cell.filterName = filterNames[indexPath.row - 1]
-        }
-        
-        collectionView.contentSize.width += (collectionView.frame.width / 2 + 5.0)
+        admitRequestedFilteredImage(targetView: cell.filteredImageView)
         
         return cell
     }
@@ -164,43 +158,21 @@ extension FilterMainViewController: UICollectionViewDataSource {
 
 extension FilterMainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        var cellImageView: FilterImageView?
         let cell = collectionView.cellForItem(at: indexPath)
+        
         switch indexPath.row {
-        case 0, collectionView.numberOfItems(inSection: 0):
-            
-            if let cell = (cell as? FilterMainHeaderCollectionViewCell), let asset = cell.asset {
-                
-                DispatchQueue.main.async { [self] in
-                    
-                    imageManager.requestImage(for: asset, targetSize: filterImageViewB.frame.size, contentMode: .aspectFill, options: nil) { requestedImage, _ in
-                        
-                        if let requestedImage = requestedImage, let filterName = cell.filterName, let image = CIImage(image: requestedImage) {
-                            
-                            self.basicFilter.filterName = filterName
-                            self.basicFilter.needToFilterCIImage = image
-                            self.filterImageViewB.image = UIImage(ciImage: self.basicFilter.filteredImage)
-                        }
-                    }
-                }
-            }
-            
+        case 0:
+            cellImageView = (cell as? FilterMainHeaderCollectionViewCell)?.filteredImageView; break;
+        case collectionView.numberOfItems(inSection: 0):
+            cellImageView = (cell as? FilterMainFooterCollectionViewCell)?.filteredImageView; break;
         default:
-            
-            if let cell = (cell as? FilterMainCollectionViewCell), let asset = cell.asset {
-                
-                DispatchQueue.main.async { [self] in
-                    
-                    imageManager.requestImage(for: asset, targetSize: filterImageViewB.frame.size, contentMode: .aspectFill, options: nil) { requestedImage, _ in
-                        
-                        if let requestedImage = requestedImage, let filterName = cell.filterName, let image = CIImage(image: requestedImage) {
-                            
-                            self.basicFilter.filterName = filterName
-                            self.basicFilter.needToFilterCIImage = image
-                            self.filterImageViewB.image = UIImage(ciImage: self.basicFilter.filteredImage)
-                        }
-                    }
-                }
-            }
+            cellImageView = (cell as? FilterMainCollectionViewCell)?.filteredImageView
+        }
+        
+        if let target = cellImageView {
+            admitRequestedFilteredImage(targetView: target)
         }
     }
 }
@@ -222,18 +194,6 @@ extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
 extension FilterMainViewController: FilterMainViewControllerTransitionDelegate {
     func performFilterSegue(identifier: String) {
         performSegue(withIdentifier: identifier, sender: self)
-    }
-}
-
-extension FilterMainViewController: BasicFilterTemplageDelegate {
-    func afterFilterChanged(as image: CIImage, for filterKey: String) {
-        guard let cgImage = image.cgImage else { return }
-        filterImageViewB.image = UIImage(cgImage: cgImage)
-    }
-    
-    func afterAdjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float) {
-        guard let cgImage = image.cgImage else { return }
-        filterImageViewB.image = UIImage(cgImage: cgImage)
     }
 }
 
