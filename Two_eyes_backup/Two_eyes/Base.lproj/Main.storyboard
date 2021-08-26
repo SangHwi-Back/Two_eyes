@@ -1120,9 +1120,8 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="grid" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="NbO-La-7U0" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
-                                                            <rect key="frame" x="0.0" y="1" width="50" height="48"/>
-                                                            <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NbO-La-7U0" customClass="FilterImageView" customModule="Two_eyes" customModuleProvider="target">
+                                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                             <gestureRecognizers/>
                                                         </imageView>
                                                     </subviews>
@@ -1326,7 +1325,6 @@
         <image name="camera" catalog="system" width="128" height="94"/>
         <image name="camera.fill" catalog="system" width="128" height="94"/>
         <image name="gear" catalog="system" width="128" height="119"/>
-        <image name="grid" catalog="system" width="128" height="112"/>
         <image name="heart" catalog="system" width="128" height="109"/>
         <image name="link" catalog="system" width="128" height="122"/>
         <image name="magnifyingglass" catalog="system" width="128" height="115"/>

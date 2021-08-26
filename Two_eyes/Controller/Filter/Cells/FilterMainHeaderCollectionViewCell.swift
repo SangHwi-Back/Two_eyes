@@ -12,7 +12,7 @@ import Photos
 class FilterMainHeaderCollectionViewCell: UICollectionViewCell, FilterViewCell {
     
     static var reuseIdentifier: String = "FilterMainHeaderCollectionViewCell"
-    var delegate: FilterMainViewControllerTransitionDelegate?
+    var delegate: FilterMainViewTransitionDelegate?
     var asset: PHAsset?
     var filterName: String?
     

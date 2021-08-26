@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-protocol FilterMainViewControllerTransitionDelegate {
+protocol FilterMainViewTransitionDelegate {
     func performFilterSegue(identifier: String)
 }
 
@@ -39,7 +39,7 @@ class FilterMainViewController: UIViewController {
     private var imageViewModel: FilterImageViewModel!
     
     // Constant
-    private let filterNames = Constants.filterViewFilters
+    private let filterNames = Constants.filterViewFilters.filter({$0 != "none"})
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -116,7 +116,7 @@ class FilterMainViewController: UIViewController {
     
     func admitRequestedFilteredImage(targetView: FilterImageView) {
         imageViewModel.requestFilteredImage(
-            size: filterImageViewB.frame.size,
+            size: targetView.frame.size,
             filterName: targetView.filterName)
         { image in
             DispatchQueue.main.async { targetView.image = image }
@@ -191,7 +191,7 @@ extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension FilterMainViewController: FilterMainViewControllerTransitionDelegate {
+extension FilterMainViewController: FilterMainViewTransitionDelegate {
     func performFilterSegue(identifier: String) {
         performSegue(withIdentifier: identifier, sender: self)
     }
