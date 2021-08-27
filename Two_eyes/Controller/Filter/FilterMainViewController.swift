@@ -10,7 +10,7 @@ import UIKit
 import Photos
 
 protocol FilterMainViewTransitionDelegate {
-    func performFilterSegue(identifier: String)
+    func performFilterSegue(identifier: String, sender: Any)
 }
 
 protocol FilterViewCell {
@@ -57,13 +57,13 @@ class FilterMainViewController: UIViewController {
         getInitialImage()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        self.basicFilter.delegate = nil
-    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.destination is FilterAdjustViewController {
+        if let dest = segue.destination as? FilterAdjustViewController {
+            dest.imageViewModel = self.imageViewModel
             
+            if let cell = sender as? FilterViewCell {
+                dest.filterName = cell.filterName ?? "none"
+            }
         }
     }
     
@@ -140,6 +140,7 @@ extension FilterMainViewController: UICollectionViewDataSource {
         cell.delegate = self
         cell.asset = self.currentAsset
         cell.filteredImageView.filterName = filterNames[filterNameIndex]
+        cell.filterName = filterNames[filterNameIndex]
         
         admitRequestedFilteredImage(targetView: cell.filteredImageView)
         
@@ -192,8 +193,8 @@ extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension FilterMainViewController: FilterMainViewTransitionDelegate {
-    func performFilterSegue(identifier: String) {
-        performSegue(withIdentifier: identifier, sender: self)
+    func performFilterSegue(identifier: String, sender: Any) {
+        performSegue(withIdentifier: identifier, sender: sender)
     }
 }
 

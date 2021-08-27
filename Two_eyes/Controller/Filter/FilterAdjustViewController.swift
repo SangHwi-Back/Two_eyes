@@ -7,24 +7,86 @@
 //
 
 import UIKit
+import Photos
 
 class FilterAdjustViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+    
+    @IBOutlet weak var adjustImageView: UIImageView!
+    @IBOutlet weak var adjustTableView: UITableView!
+    
+    var imageViewModel: FilterImageViewModel!
+    var filterName = "none"
+    
+    var adjustInfos: [String: CGFloat]! = Dictionary(uniqueKeysWithValues: Constants.filterViewAdjustKeys.map{($0, 0.0)})
+    var adjustkeys = Constants.filterViewAdjustKeys
+    var maxLabelWidth: CGFloat = 0.0 {
+        didSet {
+            DispatchQueue.main.async {
+                (self.adjustTableView.visibleCells as? [FilterAdjustTableViewCell])?.forEach({ cell in
+                    cell.labelWidth.constant = self.maxLabelWidth
+                })
+            }
+        }
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        if imageViewModel == nil {
+            self.navigationController?.popViewController(animated: true)
+        }
+        
+        var imageSize = adjustImageView.frame.size
+        imageSize.width -= 32
+        imageSize.height -= 32
+        
+        imageViewModel.requestFilteredImage(size: imageSize, filterName: filterName) { image in
+            DispatchQueue.main.async { [self] in
+                adjustImageView.image = image
+            }
+        }
     }
-    */
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        let alert = UIAlertController(title: "경고", message: "내부 오류가 발생하였습니다.", preferredStyle: .alert)
+        let confirmAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+        alert.addAction(confirmAction)
+        
+        self.navigationController?.pushViewController(alert, animated: true)
+    }
+}
 
+extension FilterAdjustViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        adjustInfos.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FilterAdjustTableViewCell") as! FilterAdjustTableViewCell
+        
+//        if indexPath.row+1 == tableView.numberOfRows(inSection: 0) {
+//            tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+//        } else {
+//            tableView.scrollToRow(at: IndexPath(row: indexPath.row+1, section: 0), at: .bottom, animated: false)
+//        }
+        
+//        if indexPath.row+1 != tableView.numberOfRows(inSection: 0) {
+//            tableView.scrollToRow(at: IndexPath(row: indexPath.row+1, section: 0), at: .bottom, animated: false)
+//        }
+        
+        cell.nameLabel.text = adjustkeys[indexPath.row]
+        cell.valueSlider.value = Float(adjustInfos[adjustkeys[indexPath.row]] ?? 0.0)
+        
+        if maxLabelWidth < cell.nameLabel.frame.width {
+            maxLabelWidth = cell.nameLabel.frame.width
+        }
+        
+        return cell
+    }
+}
+
+extension FilterAdjustViewController: UITableViewDelegate {
+    
 }

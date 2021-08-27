@@ -27,6 +27,6 @@ class FilterMainCollectionViewCell: UICollectionViewCell, FilterViewCell {
     }
     
     @objc func moveToModalViewSelector(_ sender: UITapGestureRecognizer?) {
-        delegate?.performFilterSegue(identifier: "FilterAdjustViewController")
+        delegate?.performFilterSegue(identifier: "FilterAdjustViewController", sender: self)
     }
 }

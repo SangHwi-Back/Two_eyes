@@ -1203,7 +1203,7 @@
                         <outlet property="filterImageViewBPanGestureRecognizer" destination="nlP-40-Tp0" id="dEM-AO-ihG"/>
                         <outlet property="initializeButton" destination="xBM-Eg-GNd" id="2R0-NU-QXh"/>
                         <outlet property="saveButton" destination="pf5-bI-LNK" id="ehB-bO-3aJ"/>
-                        <segue destination="Akt-xa-k3F" kind="modal" identifier="FilterAdjustViewController" modalTransitionStyle="coverVertical" id="pOY-MY-Evc"/>
+                        <segue destination="Akt-xa-k3F" kind="modal" identifier="FilterAdjustViewController" modalPresentationStyle="pageSheet" id="pOY-MY-Evc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tmu-dO-kkJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1250,8 +1250,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="link" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="TCY-dy-lev">
-                                        <rect key="frame" x="0.0" y="9.5" width="375" height="324.5"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TCY-dy-lev">
+                                        <rect key="frame" x="0.0" y="10" width="375" height="323.5"/>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tv2-W4-6Ho">
                                         <rect key="frame" x="0.0" y="333.5" width="375" height="10"/>
@@ -1264,15 +1264,45 @@
                                         <rect key="frame" x="0.0" y="343.5" width="375" height="253.5"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <prototypes>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="REe-3c-raX">
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FilterAdjustTableViewCell" id="REe-3c-raX" customClass="FilterAdjustTableViewCell" customModule="Two_eyes" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="24.5" width="375" height="43.5"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="REe-3c-raX" id="sD5-wo-HuD">
                                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kDo-rI-hTO">
+                                                            <rect key="frame" x="6" y="11.5" width="30" height="21"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="30" id="2Le-3Z-bOp"/>
+                                                            </constraints>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Jf2-A4-aEH">
+                                                            <rect key="frame" x="50" y="7" width="321" height="31"/>
+                                                        </slider>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="Jf2-A4-aEH" firstAttribute="leading" secondItem="kDo-rI-hTO" secondAttribute="trailing" constant="16" id="3nh-yd-Tlf"/>
+                                                        <constraint firstAttribute="trailing" secondItem="Jf2-A4-aEH" secondAttribute="trailing" constant="6" id="OJh-dl-ghn"/>
+                                                        <constraint firstItem="kDo-rI-hTO" firstAttribute="leading" secondItem="sD5-wo-HuD" secondAttribute="leading" constant="6" id="UsI-I9-vnz"/>
+                                                        <constraint firstItem="kDo-rI-hTO" firstAttribute="centerY" secondItem="sD5-wo-HuD" secondAttribute="centerY" id="eSt-zx-Vck"/>
+                                                        <constraint firstItem="Jf2-A4-aEH" firstAttribute="centerY" secondItem="sD5-wo-HuD" secondAttribute="centerY" id="mMy-TA-D6b"/>
+                                                    </constraints>
                                                 </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="labelWidth" destination="2Le-3Z-bOp" id="BbL-QX-rj8"/>
+                                                    <outlet property="nameLabel" destination="kDo-rI-hTO" id="iAG-Jy-zH1"/>
+                                                    <outlet property="valueSlider" destination="Jf2-A4-aEH" id="IrL-nF-bD9"/>
+                                                </connections>
                                             </tableViewCell>
                                         </prototypes>
+                                        <connections>
+                                            <outlet property="dataSource" destination="Akt-xa-k3F" id="bpa-Xv-0jk"/>
+                                            <outlet property="delegate" destination="Akt-xa-k3F" id="F4v-kt-x4y"/>
+                                        </connections>
                                     </tableView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ztx-hU-H7F">
                                         <rect key="frame" x="10" y="597" width="355" height="50"/>
@@ -1310,6 +1340,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="yqn-a0-Ajo"/>
+                    <connections>
+                        <outlet property="adjustImageView" destination="TCY-dy-lev" id="y83-9U-HIf"/>
+                        <outlet property="adjustTableView" destination="d6N-r2-Dis" id="shJ-X0-MwT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="T3o-It-bxS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -1326,7 +1360,6 @@
         <image name="camera.fill" catalog="system" width="128" height="94"/>
         <image name="gear" catalog="system" width="128" height="119"/>
         <image name="heart" catalog="system" width="128" height="109"/>
-        <image name="link" catalog="system" width="128" height="122"/>
         <image name="magnifyingglass" catalog="system" width="128" height="115"/>
         <image name="mainImage" width="208.5" height="127"/>
         <image name="play" catalog="system" width="120" height="128"/>

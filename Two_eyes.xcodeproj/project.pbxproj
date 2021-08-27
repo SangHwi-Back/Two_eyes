@@ -9,8 +9,9 @@
 /* Begin PBXBuildFile section */
 		05916AE8133BB714ED1FD526 /* Pods_Two_eyes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD479DCCE40449A31530A0 /* Pods_Two_eyes.framework */; };
 		1B0B3A2A26D2D87700DA5B4A /* FilterGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0B3A2926D2D87600DA5B4A /* FilterGestureRecognizer.swift */; };
-		1B0B3A2C26D59CF100DA5B4A /* FilterViewImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0B3A2B26D59CF100DA5B4A /* FilterViewImageModel.swift */; };
+		1B0B3A2C26D59CF100DA5B4A /* FilterImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0B3A2B26D59CF100DA5B4A /* FilterImageViewModel.swift */; };
 		1B0B3A3026D5AE7600DA5B4A /* FilterImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0B3A2F26D5AE7600DA5B4A /* FilterImageView.swift */; };
+		1B1BF76C26D745A500D66A76 /* FilterAdjustTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1BF76B26D745A500D66A76 /* FilterAdjustTableViewCell.swift */; };
 		1B1FC888246CD026008C0647 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC887246CD026008C0647 /* AppDelegate.swift */; };
 		1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC889246CD026008C0647 /* SceneDelegate.swift */; };
 		1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B1FC890246CD026008C0647 /* ApplicationTheme.xcdatamodeld */; };
@@ -64,8 +65,9 @@
 /* Begin PBXFileReference section */
 		1725C44C0ABCA6191D4F43A7 /* Pods-Two_eyes.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Two_eyes.release.xcconfig"; path = "Target Support Files/Pods-Two_eyes/Pods-Two_eyes.release.xcconfig"; sourceTree = "<group>"; };
 		1B0B3A2926D2D87600DA5B4A /* FilterGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterGestureRecognizer.swift; sourceTree = "<group>"; };
-		1B0B3A2B26D59CF100DA5B4A /* FilterViewImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewImageModel.swift; sourceTree = "<group>"; };
+		1B0B3A2B26D59CF100DA5B4A /* FilterImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterImageViewModel.swift; sourceTree = "<group>"; };
 		1B0B3A2F26D5AE7600DA5B4A /* FilterImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterImageView.swift; sourceTree = "<group>"; };
+		1B1BF76B26D745A500D66A76 /* FilterAdjustTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterAdjustTableViewCell.swift; sourceTree = "<group>"; };
 		1B1FC884246CD026008C0647 /* Two_eyes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Two_eyes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B1FC887246CD026008C0647 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1B1FC889246CD026008C0647 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -193,7 +195,7 @@
 				1B9F1ECA24CD54B500C055A1 /* Constants.swift */,
 				1BAE36C524D54E650079DF8E /* FilterViewCoordinator.swift */,
 				1B9F1EE424D18F9F00C055A1 /* TwoEyesFileManager.swift */,
-				1B0B3A2B26D59CF100DA5B4A /* FilterViewImageModel.swift */,
+				1B0B3A2B26D59CF100DA5B4A /* FilterImageViewModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -204,6 +206,7 @@
 				1B2BC8A626CCB804007A5E2E /* FilterMainCollectionViewCell.swift */,
 				1B2BC8A826CCB813007A5E2E /* FilterMainHeaderCollectionViewCell.swift */,
 				1B2BC8AA26CCB81A007A5E2E /* FilterMainFooterCollectionViewCell.swift */,
+				1B1BF76B26D745A500D66A76 /* FilterAdjustTableViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -489,7 +492,7 @@
 				1BAE36C424D54AFA0079DF8E /* AdjustModalViewController.swift in Sources */,
 				1B0B3A3026D5AE7600DA5B4A /* FilterImageView.swift in Sources */,
 				1B4C343D24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift in Sources */,
-				1B0B3A2C26D59CF100DA5B4A /* FilterViewImageModel.swift in Sources */,
+				1B0B3A2C26D59CF100DA5B4A /* FilterImageViewModel.swift in Sources */,
 				1B1FC8C2246CD387008C0647 /* SearchSettings.swift in Sources */,
 				1BC2814224ED17B0004ABD2C /* ThemeManager.swift in Sources */,
 				1B1FC8AF246CD35B008C0647 /* SettingsTableViewController.swift in Sources */,
@@ -506,6 +509,7 @@
 				1B1FC8B2246CD35B008C0647 /* ConfirmSignUpViewController.swift in Sources */,
 				1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */,
 				1B9F1ECB24CD54B500C055A1 /* Constants.swift in Sources */,
+				1B1BF76C26D745A500D66A76 /* FilterAdjustTableViewCell.swift in Sources */,
 				1B0B3A2A26D2D87700DA5B4A /* FilterGestureRecognizer.swift in Sources */,
 				1BF2B63626CBF24200F3162E /* FilterMainViewController.swift in Sources */,
 				1B2BC8AB26CCB81A007A5E2E /* FilterMainFooterCollectionViewCell.swift in Sources */,
