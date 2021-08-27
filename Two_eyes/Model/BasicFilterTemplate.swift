@@ -14,7 +14,7 @@ protocol BasicFilterTemplageDelegate {
     func afterAdjustingValueChange(as image: CIImage, using adjustKey: FilterAdjustKey, for adjustVal: Float)
 }
 
-enum FilterAdjustKey: String, Hashable {
+enum FilterAdjustKey: String, Hashable, CaseIterable {
     static func == (lhs: FilterAdjustKey, rhs: FilterAdjustKey) -> Bool {
         return lhs.desc == rhs.desc
     }
@@ -47,10 +47,6 @@ enum FilterAdjustKey: String, Hashable {
             }
         }
     }
-    
-    func allCases() -> [FilterAdjustKey] {
-        return [.blur, .brightness, .sepia, .vignette, .contrast, .addBlue, .addGreen, .addRed, .opacity]
-    }
 }
 
 class BasicFilterTemplate {
@@ -62,7 +58,7 @@ class BasicFilterTemplate {
     init(image: CIImage) {
         self.filteredImage = image
         self.filterAdjustedImage = image
-        self.filterViewAdjustKey = FilterAdjustKey.blur.allCases()
+        self.filterViewAdjustKey = FilterAdjustKey.allCases
     }
     
     /*
@@ -161,7 +157,7 @@ extension BasicFilterTemplate {
      2. 나머지 필터들 중 이미 적용되어 값이 0.0 보다 클 경우 필터를 추가하여 적용한다.(applyingFilter(_:, parameters:))
      3. CIImage를 반환한다.
      */
-    func adjustingValueChange(as image: CIImage, for adjustVal: Float) {
+    func adjustingValueChange(as image: CIImage, for adjustVal: Float, completionHandler: ((CIImage?)->Void)?=nil) {
         
         DispatchQueue.main.async { [self] in
             let tupleInfo = getFilterTupleInfo(adjustKey, value: adjustVal)
@@ -228,7 +224,7 @@ extension BasicFilterTemplate {
             }
             
             filterAdjustedImage = changedImage
-            
+            completionHandler?(filterAdjustedImage)
             if wouldDelegateExecute {
                 delegate?.afterAdjustingValueChange(as: self.filterAdjustedImage, using: adjustKey, for: adjustValue)
             }

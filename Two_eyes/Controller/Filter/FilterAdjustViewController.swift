@@ -9,25 +9,23 @@
 import UIKit
 import Photos
 
+protocol FilterAdjustDelegate {
+    func valueSliderChanged(key: FilterAdjustKey, value: Float)
+}
+
 class FilterAdjustViewController: UIViewController {
     
     @IBOutlet weak var adjustImageView: UIImageView!
     @IBOutlet weak var adjustTableView: UITableView!
     
+    var initiallyRequestedImage: UIImage?
     var imageViewModel: FilterImageViewModel!
     var filterName = "none"
     
-    var adjustInfos: [String: CGFloat]! = Dictionary(uniqueKeysWithValues: Constants.filterViewAdjustKeys.map{($0, 0.0)})
-    var adjustkeys = Constants.filterViewAdjustKeys
-    var maxLabelWidth: CGFloat = 0.0 {
-        didSet {
-            DispatchQueue.main.async {
-                (self.adjustTableView.visibleCells as? [FilterAdjustTableViewCell])?.forEach({ cell in
-                    cell.labelWidth.constant = self.maxLabelWidth
-                })
-            }
-        }
-    }
+    var adjustInfos: [FilterAdjustKey: CGFloat] = Dictionary(FilterAdjustKey.allCases.compactMap { $0 }.map { ($0, 0.0) }, uniquingKeysWith: { first, _ in return first })
+
+    var adjustKeys = FilterAdjustKey.allCases
+    var maxLabelWidth: CGFloat = 0.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +41,7 @@ class FilterAdjustViewController: UIViewController {
         imageViewModel.requestFilteredImage(size: imageSize, filterName: filterName) { image in
             DispatchQueue.main.async { [self] in
                 adjustImageView.image = image
+                initiallyRequestedImage = image
             }
         }
     }
@@ -55,6 +54,14 @@ class FilterAdjustViewController: UIViewController {
         
         self.navigationController?.pushViewController(alert, animated: true)
     }
+    
+    func updateAllVisibleCells() {
+        DispatchQueue.main.async {
+            (self.adjustTableView.visibleCells as? [FilterAdjustTableViewCell])?.forEach({ cell in
+                cell.labelWidth.constant = self.maxLabelWidth
+            })
+        }
+    }
 }
 
 extension FilterAdjustViewController: UITableViewDataSource {
@@ -66,27 +73,36 @@ extension FilterAdjustViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilterAdjustTableViewCell") as! FilterAdjustTableViewCell
         
-//        if indexPath.row+1 == tableView.numberOfRows(inSection: 0) {
-//            tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
-//        } else {
-//            tableView.scrollToRow(at: IndexPath(row: indexPath.row+1, section: 0), at: .bottom, animated: false)
-//        }
+        cell.adjustKey = adjustKeys[indexPath.row]
+        cell.valueSlider.value = Float(adjustInfos[adjustKeys[indexPath.row]] ?? 0.0)
+        cell.delegate = self
         
-//        if indexPath.row+1 != tableView.numberOfRows(inSection: 0) {
-//            tableView.scrollToRow(at: IndexPath(row: indexPath.row+1, section: 0), at: .bottom, animated: false)
-//        }
-        
-        cell.nameLabel.text = adjustkeys[indexPath.row]
-        cell.valueSlider.value = Float(adjustInfos[adjustkeys[indexPath.row]] ?? 0.0)
-        
+        cell.setNeedsDisplay()
+        cell.layoutIfNeeded()
         if maxLabelWidth < cell.nameLabel.frame.width {
             maxLabelWidth = cell.nameLabel.frame.width
         }
+        updateAllVisibleCells()
         
         return cell
     }
 }
 
 extension FilterAdjustViewController: UITableViewDelegate {
-    
+}
+
+extension FilterAdjustViewController: FilterAdjustDelegate {
+    func valueSliderChanged(key: FilterAdjustKey, value: Float) {
+        guard let image = initiallyRequestedImage else { return }
+        DispatchQueue.global().async {
+            self.imageViewModel
+                .adjustingFilteredImage(
+                    key: key, value: value, image: image
+                ) { image in
+                    DispatchQueue.main.async {
+                        self.adjustImageView.image = image
+                    }
+                }
+        }
+    }
 }

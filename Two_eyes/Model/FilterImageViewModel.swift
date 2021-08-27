@@ -16,6 +16,7 @@ class FilterImageViewModel {
     var initialAsset: PHAsset
     var imageManager: PHImageManager
     var basicFilter: BasicFilterTemplate
+    var filterImageSize: CGSize?
     
     init(asset: PHAsset, manager: PHImageManager, image: CIImage) {
         self.initialImage = image
@@ -46,7 +47,15 @@ class FilterImageViewModel {
             }
         }
     }
+    
+    func adjustingFilteredImage(key: FilterAdjustKey, value: Float, image: UIImage, completionHandler: @escaping (UIImage?)->Void) {
+        
+        if let ciImage = image.ciImage {
+            self.basicFilter.adjustingValueChange(as: ciImage, for: value) { image in
+                if let ciImage = image {
+                    completionHandler(UIImage(ciImage: ciImage))
+                }
+            }
+        }
+    }
 }
-
-
-

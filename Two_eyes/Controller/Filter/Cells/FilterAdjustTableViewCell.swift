@@ -14,6 +14,15 @@ class FilterAdjustTableViewCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var valueSlider: UISlider!
     
+    var adjustKey: FilterAdjustKey? {
+        didSet {
+            self.nameLabel.text = adjustKey?.rawValue
+        }
+    }
+    var imageViewSize: CGSize = CGSize(width: 0, height: 0)
+    
+    var delegate: FilterAdjustDelegate?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -24,5 +33,9 @@ class FilterAdjustTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
-
+    @IBAction func valueSliderChanged(_ sender: UISlider) {
+        guard let key = self.adjustKey else { return }
+        print(key, sender.value)
+        delegate?.valueSliderChanged(key: key, value: sender.value)
+    }
 }
