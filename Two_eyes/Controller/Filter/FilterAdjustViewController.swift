@@ -92,9 +92,14 @@ extension FilterAdjustViewController: UITableViewDelegate {
 }
 
 extension FilterAdjustViewController: FilterAdjustDelegate {
+    
     func valueSliderChanged(key: FilterAdjustKey, value: Float) {
+        
         guard let image = initiallyRequestedImage else { return }
-        DispatchQueue.global().async {
+        
+        adjustInfos[key] = CGFloat(value)
+        
+//        DispatchQueue.global().async {
             self.imageViewModel
                 .adjustingFilteredImage(
                     key: key, value: value, image: image
@@ -103,6 +108,6 @@ extension FilterAdjustViewController: FilterAdjustDelegate {
                         self.adjustImageView.image = image
                     }
                 }
-        }
+//        }
     }
 }

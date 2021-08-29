@@ -35,7 +35,7 @@ class FilterAdjustTableViewCell: UITableViewCell {
     }
     @IBAction func valueSliderChanged(_ sender: UISlider) {
         guard let key = self.adjustKey else { return }
-        print(key, sender.value)
+        sender.value = round(sender.value / 0.1) * 0.1
         delegate?.valueSliderChanged(key: key, value: sender.value)
     }
 }
