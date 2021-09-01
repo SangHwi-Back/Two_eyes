@@ -13,6 +13,10 @@ protocol FilterMainViewTransitionDelegate {
     func performFilterSegue(identifier: String, sender: Any)
 }
 
+protocol FilterAdjustViewDelegate {
+    func afterDismissViewController(resultImage: UIImage?)
+}
+
 protocol FilterViewCell {
     static var reuseIdentifier: String { get }
     var asset: PHAsset? { get set }
@@ -60,6 +64,7 @@ class FilterMainViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dest = segue.destination as? FilterAdjustViewController {
             dest.imageViewModel = self.imageViewModel
+            dest.delegate = self
             
             if let cell = sender as? FilterViewCell {
                 dest.filterName = cell.filterName ?? "none"
@@ -195,6 +200,13 @@ extension FilterMainViewController: UICollectionViewDelegateFlowLayout {
 extension FilterMainViewController: FilterMainViewTransitionDelegate {
     func performFilterSegue(identifier: String, sender: Any) {
         performSegue(withIdentifier: identifier, sender: sender)
+    }
+}
+
+extension FilterMainViewController: FilterAdjustViewDelegate {
+    func afterDismissViewController(resultImage: UIImage?) {
+        self.filterImageViewB.image = resultImage
+        FlashMessage(self, message: "수정한 이미지를 적용하였습니다.").show()
     }
 }
 

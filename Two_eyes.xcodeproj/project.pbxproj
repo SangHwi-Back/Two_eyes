@@ -41,6 +41,8 @@
 		1B4C343624EF699400ADCDC8 /* MainSettingViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B4C343424EF699400ADCDC8 /* MainSettingViewCell.xib */; };
 		1B4C343B24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */; };
 		1B4C343D24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */; };
+		1B740CDB26DFBF100047E30F /* Flash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B740CDA26DFBF100047E30F /* Flash.swift */; };
+		1B740CDD26DFC0C10047E30F /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B740CDC26DFC0C10047E30F /* UIColor+Extension.swift */; };
 		1B96C81E2612760D0084C646 /* UIButton+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B96C81D2612760D0084C646 /* UIButton+Extension.swift */; };
 		1B96C835261278890084C646 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B96C834261278890084C646 /* UIView+Extension.swift */; };
 		1B9F1ECB24CD54B500C055A1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F1ECA24CD54B500C055A1 /* Constants.swift */; };
@@ -99,6 +101,8 @@
 		1B4C343424EF699400ADCDC8 /* MainSettingViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainSettingViewCell.xib; sourceTree = "<group>"; };
 		1B4C343A24EFA55E00ADCDC8 /* ApplicationTheme+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ApplicationTheme+CoreDataProperties.swift"; path = "/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataProperties.swift"; sourceTree = "<absolute>"; };
 		1B4C343C24EFA56300ADCDC8 /* ApplicationTheme+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ApplicationTheme+CoreDataClass.swift"; path = "/Users/sanghwiback/Desktop/Developer/Two_eyes/Two_eyes/Model/ApplicationTheme+CoreDataClass.swift"; sourceTree = "<absolute>"; };
+		1B740CDA26DFBF100047E30F /* Flash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flash.swift; sourceTree = "<group>"; };
+		1B740CDC26DFC0C10047E30F /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		1B96C81D2612760D0084C646 /* UIButton+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extension.swift"; sourceTree = "<group>"; };
 		1B96C834261278890084C646 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		1B9F1ECA24CD54B500C055A1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -219,6 +223,7 @@
 				1BA99C182605DD0C0043804A /* UIViewController+Extension.swift */,
 				1B96C81D2612760D0084C646 /* UIButton+Extension.swift */,
 				1B96C834261278890084C646 /* UIView+Extension.swift */,
+				1B740CDC26DFC0C10047E30F /* UIColor+Extension.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -240,6 +245,7 @@
 			children = (
 				1B1FC8A0246CD32D008C0647 /* Main.storyboard */,
 				1B9F1ECC24CEC65300C055A1 /* Settings.storyboard */,
+				1B740CDA26DFBF100047E30F /* Flash.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -486,6 +492,7 @@
 				1B9F1EE124D16AAF00C055A1 /* CameraCollectionViewCell.swift in Sources */,
 				1BA99C192605DD0C0043804A /* UIViewController+Extension.swift in Sources */,
 				1B4C343524EF699400ADCDC8 /* MainSettingViewController.swift in Sources */,
+				1B740CDB26DFBF100047E30F /* Flash.swift in Sources */,
 				1B9F1ED824D15B4100C055A1 /* CameraSettingViewController.swift in Sources */,
 				1BF2B63826CBF4FC00F3162E /* CarouselLayout.swift in Sources */,
 				1B1FC892246CD026008C0647 /* ApplicationTheme.xcdatamodeld in Sources */,
@@ -508,6 +515,7 @@
 				1B1FC8B3246CD35B008C0647 /* SignInViewController.swift in Sources */,
 				1B1FC8B2246CD35B008C0647 /* ConfirmSignUpViewController.swift in Sources */,
 				1B1FC88A246CD026008C0647 /* SceneDelegate.swift in Sources */,
+				1B740CDD26DFC0C10047E30F /* UIColor+Extension.swift in Sources */,
 				1B9F1ECB24CD54B500C055A1 /* Constants.swift in Sources */,
 				1B1BF76C26D745A500D66A76 /* FilterAdjustTableViewCell.swift in Sources */,
 				1B0B3A2A26D2D87700DA5B4A /* FilterGestureRecognizer.swift in Sources */,

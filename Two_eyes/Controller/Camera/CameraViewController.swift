@@ -121,7 +121,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
         }
     }
     @IBAction func takePhoto(_ sender: UIButton) {
-        capturePhotoOutput.capturePhoto(with: self.photoSettings, delegate: self)
+        capturePhotoOutput.capturePhoto(with: AVCapturePhotoSettings(from: self.photoSettings), delegate: self)
     }
     @IBAction func reverseCamera(_ sender: UIButton) {
         captureSession.beginConfiguration()
@@ -160,7 +160,9 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard error == nil, let imageData = photo.fileDataRepresentation() else { return }
         
-        if let capturedImage = UIImage.init(data: imageData, scale: 1.0) {
+        registerNewPhoto()
+        
+        if let capturedImage = UIImage(data: imageData, scale: 1.0) {
             UIImageWriteToSavedPhotosAlbum(capturedImage, nil, nil, nil)
             if let destinationVC = self.storyboard?.instantiateViewController(identifier: "FilterMainViewController") as? FilterMainViewController {
                 
@@ -175,8 +177,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 
 extension CameraViewController: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-        let metadataObj = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
-        if metadataObj.type == AVMetadataObject.ObjectType.qr, metadataObj.stringValue != nil {
+        if let metadataObj = metadataObjects.first as? AVMetadataMachineReadableCodeObject, metadataObj.type == AVMetadataObject.ObjectType.qr, metadataObj.stringValue != nil {
             debugPrint(metadataObj.stringValue!)
         }
     }

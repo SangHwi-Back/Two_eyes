@@ -18,6 +18,8 @@ class FilterAdjustViewController: UIViewController {
     @IBOutlet weak var adjustImageView: UIImageView!
     @IBOutlet weak var adjustTableView: UITableView!
     
+    var delegate: FilterAdjustViewDelegate?
+    
     var initiallyRequestedImage: UIImage?
     var imageViewModel: FilterImageViewModel!
     var filterName = "none"
@@ -60,6 +62,13 @@ class FilterAdjustViewController: UIViewController {
             (self.adjustTableView.visibleCells as? [FilterAdjustTableViewCell])?.forEach({ cell in
                 cell.labelWidth.constant = self.maxLabelWidth
             })
+        }
+    }
+    
+    @IBAction func saveButtonTouchUpInside(_ sender: UIButton) {
+        dismiss(animated: true) {
+            let ciImage = self.imageViewModel.basicFilter.filteredImage
+            self.delegate?.afterDismissViewController(resultImage: UIImage(ciImage: ciImage))
         }
     }
 }
