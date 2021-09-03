@@ -49,8 +49,11 @@ class SearchAndLoadViewController: UIViewController, UITextFieldDelegate {
         navigationController?.isToolbarHidden = true
         PHPhotoLibrary.shared().register(self)
         
-        thumbnailSize = CGSize(width: self.view.frame.width / 3 - 20, height: (self.view.frame.width / 3 - 20) * 1.2)
+        let sizeVal = (self.view.frame.width / 3 - 20)
+        thumbnailSize = CGSize(width: sizeVal, height: sizeVal)
         collectionViewFlowLayout.itemSize = thumbnailSize
+        
+        albumCollectionView.collectionViewLayout = collectionViewFlowLayout
         
         albumSearchBar.delegate = self
         resetCachedAssets()

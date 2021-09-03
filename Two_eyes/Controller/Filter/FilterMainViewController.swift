@@ -92,7 +92,11 @@ class FilterMainViewController: UIViewController {
         DispatchQueue.global().async { [self] in
             if let gestureView = sender.view as? FilterImageView {
                 gestureView.actionPanGesture(recognize: sender, in: canvasView) {
-                    admitRequestedAssetImage(targetView: gestureView)
+                    if gestureView.filterName != "none" {
+                        admitRequestedFilteredImage(targetView: gestureView, filterName: gestureView.filterName)
+                    } else {
+                        admitRequestedAssetImage(targetView: gestureView)
+                    }
                 }
             }
         }
@@ -102,7 +106,11 @@ class FilterMainViewController: UIViewController {
         DispatchQueue.global().async { [self] in
             if let gestureView = sender.view as? FilterImageView {
                 gestureView.actionPinchGesture(recognize: sender, in: canvasView) {
-                    admitRequestedAssetImage(targetView: gestureView)
+                    if gestureView.filterName != "none" {
+                        admitRequestedFilteredImage(targetView: gestureView, filterName: gestureView.filterName)
+                    } else {
+                        admitRequestedAssetImage(targetView: gestureView)
+                    }
                 }
             }
         }
@@ -119,12 +127,14 @@ class FilterMainViewController: UIViewController {
         }
     }
     
-    func admitRequestedFilteredImage(targetView: FilterImageView) {
+    func admitRequestedFilteredImage(targetView: FilterImageView, filterName: String? = nil) {
         imageViewModel.requestFilteredImage(
             size: targetView.frame.size,
-            filterName: targetView.filterName)
+            filterName: filterName != nil ? filterName! : targetView.filterName)
         { image in
-            DispatchQueue.main.async { targetView.image = image }
+            DispatchQueue.main.async {
+                targetView.image = image
+            }
         }
     }
 }
@@ -165,20 +175,14 @@ extension FilterMainViewController: UICollectionViewDataSource {
 extension FilterMainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        var cellImageView: FilterImageView?
         let cell = collectionView.cellForItem(at: indexPath)
         
-        switch indexPath.row {
-        case 0:
-            cellImageView = (cell as? FilterMainHeaderCollectionViewCell)?.filteredImageView; break;
-        case collectionView.numberOfItems(inSection: 0):
-            cellImageView = (cell as? FilterMainFooterCollectionViewCell)?.filteredImageView; break;
-        default:
-            cellImageView = (cell as? FilterMainCollectionViewCell)?.filteredImageView
-        }
-        
-        if let target = cellImageView {
-            admitRequestedFilteredImage(targetView: target)
+        if let target = (cell as? FilterMainCollectionViewCell)?.filteredImageView {
+            filterImageViewB.filterName = target.filterName
+            self.admitRequestedFilteredImage(
+                targetView: filterImageViewB,
+                filterName: target.filterName
+            )
         }
     }
 }
