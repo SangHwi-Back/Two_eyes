@@ -53,6 +53,22 @@ class SignInViewController: UIViewController {
         }
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let delegate = UIApplication.shared.delegate as? AppDelegate
+        delegate?.themeModel?.setDefaultThemeInfo(themeInfo: [
+            ThemeInfoModelColors.rootBackgroundViewColor.rawValue: self.view.backgroundColor!,
+            ThemeInfoModelColors.navigationBackgroundColor.rawValue: self.view.backgroundColor!,
+            ThemeInfoModelColors.buttonBackgroundColor.rawValue: UIColor.clear,
+            ThemeInfoModelColors.buttonTintColor.rawValue: signUpButton.tintColor,
+            ThemeInfoModelColors.labelTintColor.rawValue: IDEmailLabel.tintColor,
+            ThemeInfoModelColors.textFieldTintColor.rawValue: IDEmailField.tintColor,
+            ThemeInfoModelColors.collectionViewBackgroundColor.rawValue: self.view.backgroundColor!,
+            ThemeInfoModelColors.searchBarBackgroundColor.rawValue: self.view.backgroundColor!
+        ])
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

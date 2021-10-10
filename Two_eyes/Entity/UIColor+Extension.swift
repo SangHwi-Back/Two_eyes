@@ -9,14 +9,21 @@
 import UIKit
 
 extension UIColor {
-    public convenience init?(hex: String) {
+    public convenience init?(hex: String?) {
+        
+        guard hex != nil && hex?.replacingOccurrences(of: " ", with: "") != "" else {
+            self.init(white: 0.0, alpha: 0.0) // clear color.
+            return nil
+        }
+        
         let r, g, b, a: CGFloat
+        let hexString = hex!
 
-        if hex.hasPrefix("#") {
-            let start = hex.index(hex.startIndex, offsetBy: 1)
-            let hexColor = String(hex[start...])
+        if hexString.hasPrefix("#") {
+            let start = hexString.index(hexString.startIndex, offsetBy: 1)
+            let hexColor = String(hexString[start...])
 
-            if hexColor.count == 8 {
+            if hexColor.count == 6 {
                 let scanner = Scanner(string: hexColor)
                 var hexNumber: UInt64 = 0
 
@@ -33,5 +40,23 @@ extension UIColor {
         }
 
         return nil
+    }
+    
+    func toRGBString() -> String {
+        let ciColor = CIColor(color: self)
+        return "\(ciColor.red).\(ciColor.blue).\(ciColor.green)"
+    }
+}
+
+extension Optional where Wrapped == UIColor {
+    
+    func toRGBString() -> String {
+        
+        guard self != nil else {
+            return ""
+        }
+        
+        let ciColor = CIColor(color: self!)
+        return "\(ciColor.red).\(ciColor.blue).\(ciColor.green)"
     }
 }

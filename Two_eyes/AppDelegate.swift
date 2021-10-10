@@ -9,12 +9,15 @@
 import UIKit
 import CoreData
 import Firebase
+import FirebaseDatabase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
 
     var window: UIWindow?
     private(set) var themeManager: ThemeManager?
+    private(set) var themeModel: ThemeInfoModel?
+    private(set) var databaseRef: DatabaseReference?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -37,6 +40,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         themeManager = ThemeManager()
         themeManager!.getThemes()
         themeManager!.applyTheme()
+        
+        themeModel = ThemeInfoModel()
+        
+        databaseRef = Database.database().reference()
         
         return true
     }

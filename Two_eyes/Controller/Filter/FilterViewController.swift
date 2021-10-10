@@ -277,14 +277,14 @@ extension FilterViewController {
 //        basicFilter.wouldDelegateExecute = true
         basicFilter.admitFilter(to: initialCIImage, filtername: basicFilter.adjustKey.rawValue)
         
-        DispatchQueue.main.async { [self] in
+//        DispatchQueue.main.async { [self] in
             
 //            if let filteredImage = self.filteredImage {
 //                self.basicFilter.needToAdjustCIImage = CIImage(image: filteredImage) ?? self.initialCIImage
 //            } else {
 //                self.basicFilter.needToAdjustCIImage = self.initialCIImage
 //            }
-        }
+//        }
     }
 }
 

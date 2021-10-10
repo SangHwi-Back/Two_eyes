@@ -10,33 +10,13 @@ import UIKit
 
 class FilterSettingViewController: UITableViewController, SettingInterfaceBasicProtocol {
     var settingName: String = ""
-    var cellReuseIdentifier: String? {
-        get{
-            Constants.settingsCellReuseIdentifier[settingName]
-        }
-    }
-    var cellTitles: [String] {
-        get{
-            Constants.settingsCellTitles[settingName] ?? []
-        }
-    }
+    var cellTitleArray: [String] = ["사진 필터 화면에서 원본 사진 보이기", "미세조정 값 추가 혹은 제거"]
+    var cellTypeArray: [String] = ["Switch", "Switch"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let cellReuseIdentifier = cellReuseIdentifier {
-            tableView.register(UINib(nibName: "FilterSettingViewCell", bundle: nil), forCellReuseIdentifier: cellReuseIdentifier)
-        }
-    }
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        navigationItem.title = nil
-        navigationItem.hidesBackButton = true
     }
     
-    @objc func movePrev() {
-        self.navigationController?.popViewController(animated: true)
-    }
-
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -44,20 +24,30 @@ class FilterSettingViewController: UITableViewController, SettingInterfaceBasicP
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cellTitles.count
+        return cellTitleArray.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier ?? "", for: indexPath) as? FilterSettingViewCell else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier ?? "", for: indexPath)
-            cell.textLabel?.text = cellTitles[indexPath.row]
+        
+        let typeOfCell = cellTypeArray[indexPath.row]
+        
+        if typeOfCell.lowercased() == "slider" {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: FilterSettingSliderViewCell.cellIdentifier, for: indexPath) as? FilterSettingSliderViewCell else {
+                return tableView.dequeueReusableCell(withIdentifier: "FilterSettingSwitchViewCell", for: indexPath)
+            }
+            
+            cell.contentsLabel.text = cellTitleArray[indexPath.row]
+            
+            return cell
+        } else {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: FilterSettingSwitchViewCell.cellIdentifier, for: indexPath) as? FilterSettingSwitchViewCell else {
+                return tableView.dequeueReusableCell(withIdentifier: "FilterSettingSwitchViewCell", for: indexPath)
+            }
+            
+            cell.contentsLabel.text = cellTitleArray[indexPath.row]
+            
             return cell
         }
-        
-        cell.filterSettingLabel.text = cellTitles[indexPath.row]
-        cell.filterSettingSlider.isHidden = true
-        
-        return cell
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {}

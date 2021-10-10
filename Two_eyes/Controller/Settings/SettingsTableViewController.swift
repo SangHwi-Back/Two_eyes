@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 protocol SettingInterfaceBasicProtocol {
     var settingName: String { get set }
@@ -22,8 +23,23 @@ class SettingsTableViewController: UITableViewController {
         
         setTheme()
         tableView.reloadData()
+        navigationItem.title = nil
+        navigationItem.hidesBackButton = true
     }
-
+    @IBAction func logoutButtonTouchUpInside(_ sender: UIButton) {
+        let scenedelegate = self.view.window?.windowScene?.delegate as! SceneDelegate
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let mainVC = mainStoryboard.instantiateViewController(identifier: "initialView")
+        
+        do {
+            try Auth.auth().signOut()
+            scenedelegate.window?.rootViewController = mainVC
+            scenedelegate.window?.makeKeyAndVisible()
+        } catch {
+            print(error)
+        }
+    }
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -78,15 +94,20 @@ class SettingsTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dest = segue.destination as? FilterSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
+            self.navigationController?.title = "필터 설정"
         }
         
         if let dest = segue.destination as? CameraSettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
+            self.navigationController?.title = "카메라 설정"
         }
         
         if let dest = segue.destination as? PhotoLibrarySettingViewController {
             dest.settingName = segue.identifier?.getKey ?? ""
+            self.navigationController?.title = "사진 검색 설정"
         }
+        
+        navigationItem.hidesBackButton = false
     }
 
 }

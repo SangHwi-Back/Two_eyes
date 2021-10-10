@@ -8,14 +8,14 @@
 
 import UIKit
 
-protocol BroadCastingTabBarControllerDelegate: class {
+protocol BroadCastingTabBarControllerDelegate {
     func addInitialImage(_ capturedImage: UIImage?)
 }
 
 class BroadCastingTabBarController: UITabBarController {
     
     var capturedImage: UIImage?
-    weak var broadCastingDelegate: BroadCastingTabBarControllerDelegate?
+    var broadCastingDelegate: BroadCastingTabBarControllerDelegate?
     private let themeManager = (UIApplication.shared.delegate as! AppDelegate).themeManager!
 
     override func viewDidLoad() {
@@ -45,6 +45,7 @@ class BroadCastingTabBarController: UITabBarController {
                 navigationItem.title = "Search"
             case "Camera&Filter":
                 tabBarController?.selectedIndex = 2
+                (self.selectedViewController as? CameraViewController)?.currentPictureRequested = true
                 navigationItem.title = "Camera&Filter"
             case "Settings":
                 tabBarController?.selectedIndex = 0

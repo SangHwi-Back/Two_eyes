@@ -116,7 +116,15 @@ class BasicFilterTemplate {
         } else {
             needToFilterCIImage = ciImage
         }
-        
+    }
+    
+    func filterInitiate() {
+        filterName = "none"
+        adjustKey = .blur
+        adjustValue = 0.0
+        contrastFilterValues.removeAll()
+        colorFilterValues.removeAll()
+        ciFilterNormalKeyValuePair.removeAll()
     }
 }
 

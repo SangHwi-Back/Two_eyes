@@ -119,22 +119,22 @@ class FilterMainViewController: UIViewController {
     func getInitialImage() {
         admitRequestedAssetImage(targetView: filterImageViewA)
         admitRequestedAssetImage(targetView: filterImageViewB)
+        filterImageViewA.filterName = "none"
+        filterImageViewB.filterName = "none"
+        imageViewModel.initiate()
     }
     
     func admitRequestedAssetImage(targetView: FilterImageView) {
-        imageViewModel.requestAssetImage(size: targetView.frame.size) { image in
+        imageViewModel
+            .requestAssetImage(size: targetView.frame.size) { image in
             DispatchQueue.main.async { targetView.image = image }
         }
     }
     
     func admitRequestedFilteredImage(targetView: FilterImageView, filterName: String? = nil) {
-        imageViewModel.requestFilteredImage(
-            size: targetView.frame.size,
-            filterName: filterName != nil ? filterName! : targetView.filterName)
-        { image in
-            DispatchQueue.main.async {
-                targetView.image = image
-            }
+        imageViewModel
+            .requestFilteredImage(size: targetView.frame.size, filterName: filterName ?? targetView.filterName) { image in
+            DispatchQueue.main.async { targetView.image = image }
         }
     }
 }

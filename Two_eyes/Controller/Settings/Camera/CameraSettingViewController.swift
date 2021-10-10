@@ -31,16 +31,6 @@ class CameraSettingViewController: UICollectionViewController, SettingInterfaceB
         }
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        navigationItem.title = nil
-        navigationItem.hidesBackButton = true
-    }
-    
-    @objc func movePrev() {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
     //MARK: - UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {

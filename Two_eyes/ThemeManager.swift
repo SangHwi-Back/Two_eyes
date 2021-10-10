@@ -10,18 +10,18 @@
 import UIKit
 import CoreData
 
-extension String {
-    var toUIColor: UIColor {
-        let rgb = Array(self.split(separator: ".").map{String($0)})
-        return UIColor(displayP3Red: CGFloat(Int(rgb[0])!) / 255, green: CGFloat(Int(rgb[1])!) / 255, blue: CGFloat(Int(rgb[2])!) / 255, alpha: 1)
-    }
-}
-
-struct Theme {
-    var bodyText_Color: String
-    var buttonText_Color: String
-    var button_Color: String
-    var nav_tabBar_Color: String
+struct ThemeInfo: Codable {
+    var rootBackgroundViewColor: String?
+    var navigationBackgroundColor: String?
+    var buttonBackgroundColor: String?
+    var buttonTintColor: String?
+    var buttonTextColor: String?
+    var labelTintColor: String?
+    var textFieldTintColor: String?
+    var bodyTextColor: String?
+    var collectionViewBackgroundColor: String?
+    var searchBarBackgroundColor: String?
+    var contents: String?
     var themeName: String
 }
 

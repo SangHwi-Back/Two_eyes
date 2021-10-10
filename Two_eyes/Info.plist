@@ -15,17 +15,19 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FirebaseAppDelegateProxyEnabledFirebaseAppDelegateProxyEnabled</key>
+	<string>No</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera Usage Description</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo Library Usage Description</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Photo Library Additions Usage Description</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library Usage Description</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -69,7 +71,5 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-	<key>FirebaseAppDelegateProxyEnabledFirebaseAppDelegateProxyEnabled</key>
-	<string>No</string>
 </dict>
 </plist>

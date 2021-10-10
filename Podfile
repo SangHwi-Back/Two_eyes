@@ -10,4 +10,5 @@ target 'Two_eyes' do
   pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
   pod 'Firebase/Messaging'
+  pod 'Firebase/Database'
 end

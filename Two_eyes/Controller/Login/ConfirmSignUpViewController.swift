@@ -8,7 +8,7 @@
 
 import UIKit
 import FirebaseAuth
-import FirebaseInstanceID
+//import FirebaseInstanceID
 import FirebaseMessaging
 
 class ConfirmSignUpViewController: UIViewController {
@@ -58,16 +58,25 @@ class ConfirmSignUpViewController: UIViewController {
         }
         
         // Do any additional setup after loading the view.
-        InstanceID.instanceID().instanceID { (result, error) in
-            if error != nil {
+        let handler = Auth.auth().addStateDidChangeListener { auth, user in
+            if let _ = user {
                 self.present(SignInViewController(), animated: true) {
                     self.alertController.addAction(self.alertAction!)
                     self.present(self.alertController, animated: true, completion: nil)
                 }
-            } else if let result = result {
-                self.remoteToken.text = String(result.token.prefix(10))
             }
         }
+        Auth.auth().removeStateDidChangeListener(handler)
+//        InstanceID.instanceID().instanceID { (result, error) in
+//            if error != nil {
+//                self.present(SignInViewController(), animated: true) {
+//                    self.alertController.addAction(self.alertAction!)
+//                    self.present(self.alertController, animated: true, completion: nil)
+//                }
+//            } else if let result = result {
+//                self.remoteToken.text = String(result.token.prefix(10))
+//            }
+//        }
         
         for label in allLabels {
             label.numberOfLines = 1

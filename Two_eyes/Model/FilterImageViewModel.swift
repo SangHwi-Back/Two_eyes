@@ -25,6 +25,10 @@ class FilterImageViewModel {
         self.basicFilter = BasicFilterTemplate(image: image)
     }
     
+    func initiate() {
+        basicFilter.filterInitiate()
+    }
+    
     func requestAssetImage(size: CGSize, asset: PHAsset? = nil, mode: PHImageContentMode = .aspectFit, completionHandler: @escaping (UIImage?)->Void) {
         
         let imageAsset = asset ?? initialAsset

@@ -21,7 +21,7 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     private var capturePhotoOutput: AVCapturePhotoOutput = AVCapturePhotoOutput()
     
-    private var currentPictureRequested: Bool = false
+    var currentPictureRequested: Bool = false
     private var capturedImage: UIImage?
     private var currentAsset: PHAsset?
     private var currentAssetFetchOptions: PHFetchOptions?
@@ -34,6 +34,8 @@ class CameraViewController: UIViewController, PHPhotoLibraryChangeObserver {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if currentPictureRequested { return }
         
         if let captureDevice = AVCaptureDevice.default(for: AVMediaType.video) {
             currentCameraType = captureDevice.deviceType
