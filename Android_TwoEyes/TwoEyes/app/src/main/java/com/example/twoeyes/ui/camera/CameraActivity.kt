@@ -11,17 +11,21 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.twoeyes.R
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.launch
 
 class CameraActivity : AppCompatActivity() {
-    // 이미지 데이터 리스트 (Bitmap 또는 Uri 저장)
-    private val imageList = mutableListOf<Any>()
+    private val viewModel: CameraViewModel by viewModels()
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: PictureAdapter
     // Android 13 이상: READ_MEDIA_IMAGES 사용
@@ -46,8 +50,17 @@ class CameraActivity : AppCompatActivity() {
 
         // ViewPager2 초기화
         viewPager = findViewById(R.id.picture_view_pager)
-        pagerAdapter = PictureAdapter(this, imageList)
+        pagerAdapter = PictureAdapter(this, viewModel.items.value)
         viewPager.adapter = pagerAdapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.items.collect { itemList ->
+                    pagerAdapter.updateList(itemList)
+                    viewPager.currentItem = itemList.size - 1
+                }
+            }
+        }
 
         findViewById<MaterialButton>(R.id.button_back)
             .setOnClickListener { finish() }
@@ -75,11 +88,9 @@ class CameraActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             result.data?.extras?.getParcelable("data")
 
-        if (result.resultCode == RESULT_OK && imageBitmap != null) {
-            imageList.add(imageBitmap)
-            pagerAdapter.notifyItemInserted(imageList.size - 1)
-            viewPager.currentItem = imageList.size - 1
-        } else
+        if (result.resultCode == RESULT_OK && imageBitmap != null)
+            viewModel.addItem(imageBitmap)
+        else
             showToast("Failed to get image")
     }
     // 앨범에서 이미지 선택
@@ -87,11 +98,9 @@ class CameraActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val uri = result.data?.data
-        if (result.resultCode == RESULT_OK && uri != null) {
-            imageList.add(uri)
-            pagerAdapter.notifyItemInserted(imageList.size - 1)
-            viewPager.currentItem = imageList.size - 1
-        } else
+        if (result.resultCode == RESULT_OK && uri != null)
+            viewModel.addItem(uri)
+        else
             showToast("Failed to get image URI")
     }
     // 카메라 권한 요청
