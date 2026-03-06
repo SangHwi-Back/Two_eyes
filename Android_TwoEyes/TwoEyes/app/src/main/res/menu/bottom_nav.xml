@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/feed"
+        android:id="@+id/feed_fragment"
+        android:icon="@drawable/outline_account_tree_24"/>
+    <item android:title="@string/upload"
+        android:id="@+id/upload_fragment"
+        android:icon="@drawable/outline_add_a_photo_24"/>
+</menu>

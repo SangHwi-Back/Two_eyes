@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CameraCollectionViewEmptyCell" customModule="PhotoApp" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="" id="gTV-IL-0wX" customClass="CameraCollectionViewEmptyCell" customModule="PhotoApp" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="376" height="304"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="376" height="304"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U9B-qr-2m4">
+                        <rect key="frame" x="113.00000000000001" y="247.33333333333334" width="150.33333333333337" height="40.666666666666657"/>
+                        <string key="text">Add pictures
+Push below buttons</string>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dCA-N8-MQH">
+                        <rect key="frame" x="123" y="103.00000000000001" width="130" height="128.33333333333331"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="dCA-N8-MQH" secondAttribute="height" multiplier="1:1" id="GzG-TW-ca4"/>
+                        </constraints>
+                        <imageReference key="image" image="xmark.octagon.fill" catalog="system" renderingMode="original"/>
+                    </imageView>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="dCA-N8-MQH" firstAttribute="centerX" secondItem="ZTg-uK-7eu" secondAttribute="centerX" id="0aH-4f-33S"/>
+                <constraint firstItem="U9B-qr-2m4" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="OEv-tl-xjX"/>
+                <constraint firstAttribute="bottom" secondItem="U9B-qr-2m4" secondAttribute="bottom" constant="16" id="ihS-Lk-BFl"/>
+                <constraint firstItem="U9B-qr-2m4" firstAttribute="top" secondItem="dCA-N8-MQH" secondAttribute="bottom" constant="15.333333333333329" id="qIl-M5-UDe"/>
+                <constraint firstItem="ZTg-uK-7eu" firstAttribute="top" secondItem="dCA-N8-MQH" secondAttribute="top" constant="16" id="tpM-WX-j89"/>
+            </constraints>
+            <size key="customSize" width="376" height="304"/>
+            <point key="canvasLocation" x="387.78625954198469" y="216.19718309859155"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="xmark.octagon.fill" catalog="system" width="128" height="112"/>
+    </resources>
+</document>

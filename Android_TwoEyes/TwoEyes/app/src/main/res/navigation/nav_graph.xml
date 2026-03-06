@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/feed_fragment"
+    android:id="@+id/nav_graph">
+    <fragment android:id="@+id/feed_fragment" android:name="com.example.twoeyes.ui.feed.FeedFragment" />
+    <fragment android:id="@+id/upload_fragment" android:name="com.example.twoeyes.ui.upload.UploadFragment" />
+    <fragment android:id="@+id/settings_fragment" android:name="com.example.twoeyes.ui.settings.SettingsFragment" />
+</navigation>

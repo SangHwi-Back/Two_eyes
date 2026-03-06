@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="CameraViewHeaderCell" customModule="PhotoApp" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="322" height="132"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="322" height="132"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Lfn-9Q-qGa">
+                        <rect key="frame" x="16" y="0.0" width="290" height="132"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uwK-vf-ed7">
+                                <rect key="frame" x="242" y="0.0" width="48" height="132"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="48" id="CmH-MF-mnJ"/>
+                                </constraints>
+                                <buttonConfiguration key="configuration" style="plain" image="xmark.app.fill" catalog="system"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Picture From..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mib-m2-yED">
+                                <rect key="frame" x="0.0" y="0.0" width="242" height="132"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Mib-m2-yED" firstAttribute="leading" secondItem="Lfn-9Q-qGa" secondAttribute="leading" id="3wN-hs-Q2H"/>
+                            <constraint firstItem="Mib-m2-yED" firstAttribute="height" secondItem="uwK-vf-ed7" secondAttribute="height" id="4uq-1h-MXx"/>
+                            <constraint firstAttribute="trailing" secondItem="uwK-vf-ed7" secondAttribute="trailing" id="Aan-5q-EpK"/>
+                            <constraint firstItem="Mib-m2-yED" firstAttribute="top" secondItem="Lfn-9Q-qGa" secondAttribute="top" id="Ozx-Oz-YLc"/>
+                            <constraint firstAttribute="bottom" secondItem="uwK-vf-ed7" secondAttribute="bottom" id="Ufh-w6-ymQ"/>
+                            <constraint firstItem="uwK-vf-ed7" firstAttribute="leading" secondItem="Mib-m2-yED" secondAttribute="trailing" id="w1T-Kk-xVc"/>
+                            <constraint firstItem="uwK-vf-ed7" firstAttribute="top" secondItem="Lfn-9Q-qGa" secondAttribute="top" id="yxw-YI-fB3"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="Lfn-9Q-qGa" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="I3V-uU-4iq"/>
+                <constraint firstAttribute="trailing" secondItem="Lfn-9Q-qGa" secondAttribute="trailing" constant="16" id="gnZ-1G-MC9"/>
+                <constraint firstAttribute="bottom" secondItem="Lfn-9Q-qGa" secondAttribute="bottom" id="p4W-o9-hfs"/>
+                <constraint firstItem="Lfn-9Q-qGa" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="16" id="zWE-0X-Ezg"/>
+            </constraints>
+            <size key="customSize" width="322" height="132"/>
+            <point key="canvasLocation" x="305.34351145038164" y="182.3943661971831"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="xmark.app.fill" catalog="system" width="128" height="114"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
