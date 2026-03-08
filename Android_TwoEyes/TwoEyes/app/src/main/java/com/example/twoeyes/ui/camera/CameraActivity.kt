@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,15 +21,17 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.twoeyes.R
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 
 class CameraActivity : AppCompatActivity() {
     private val viewModel: CameraViewModel by viewModels()
-    private lateinit var viewPager: ViewPager2
-    private lateinit var pagerAdapter: PictureAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var thumbnailAdapter: ThumbnailAdapter
     // Android 13 이상: READ_MEDIA_IMAGES 사용
     // Android 12 이하: READ_EXTERNAL_STORAGE 사용
     private val currentAlbumPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -48,16 +52,32 @@ class CameraActivity : AppCompatActivity() {
             insets
         }
 
-        // ViewPager2 초기화
-        viewPager = findViewById(R.id.picture_view_pager)
-        pagerAdapter = PictureAdapter(this, viewModel.items.value)
-        viewPager.adapter = pagerAdapter
+        recyclerView = findViewById(R.id.image_carousel_recycler_view)
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                outRect.right = resources.getDimensionPixelSize(R.dimen.fab_margin)
+            }
+        })
+        thumbnailAdapter = ThumbnailAdapter { viewModel.selectImage(it) }
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = thumbnailAdapter
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.items.collect { itemList ->
-                    pagerAdapter.updateList(itemList)
-                    viewPager.currentItem = itemList.size - 1
+                    thumbnailAdapter.updateList(itemList)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedImages.collect { selected ->
+                    for ((index, select) in selected.withIndex()) {
+                        Glide
+                            .with(findViewById(R.id.selected_image_linear_layout))
+                            .load(select)
+                            .into(findViewById(if (index == 0) R.id.selected_image_start else R.id.selected_image_end))
+                    }
                 }
             }
         }
