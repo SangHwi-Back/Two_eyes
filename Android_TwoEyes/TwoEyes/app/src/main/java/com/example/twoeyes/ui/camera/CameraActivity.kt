@@ -3,13 +3,13 @@ package com.example.twoeyes.ui.camera
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,43 +25,40 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.twoeyes.R
-import com.google.android.material.button.MaterialButton
+import com.example.twoeyes.databinding.ActivityCameraBinding
 import kotlinx.coroutines.launch
 
 class CameraActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityCameraBinding
     private val viewModel: CameraViewModel by viewModels()
-    private lateinit var recyclerView: RecyclerView
     private lateinit var thumbnailAdapter: ThumbnailAdapter
-    // Android 13 이상: READ_MEDIA_IMAGES 사용
-    // Android 12 이하: READ_EXTERNAL_STORAGE 사용
-    private val currentAlbumPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-        Manifest.permission.READ_MEDIA_IMAGES else Manifest.permission.READ_EXTERNAL_STORAGE
     private fun isGranted(permission: String) = ContextCompat.checkSelfPermission(
         this, permission) == PackageManager.PERMISSION_GRANTED
-    private fun isGrantedAlbumPermission() = isGranted(currentAlbumPermission)
-    private fun isGrantedCameraPermission() = isGranted(Manifest.permission.CAMERA)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_camera)
+        binding = ActivityCameraBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_camera)) { view, insets ->
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (isLandscape) setupLandscapeViews() else setupPortraitViews()
+        setupCommonViews(isLandscape)
+    }
+    private fun setupCommonViews(isLandscape: Boolean) {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainCamera) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        recyclerView = findViewById(R.id.image_carousel_recycler_view)
-        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+        binding.imageCarouselRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 outRect.right = resources.getDimensionPixelSize(R.dimen.fab_margin)
             }
         })
         thumbnailAdapter = ThumbnailAdapter { viewModel.selectImage(it) }
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        recyclerView.adapter = thumbnailAdapter
-
+        binding.imageCarouselRecyclerView.layoutManager = LinearLayoutManager(
+            this, if (isLandscape) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL, false)
+        binding.imageCarouselRecyclerView.adapter = thumbnailAdapter
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.items.collect { itemList ->
@@ -74,20 +71,20 @@ class CameraActivity : AppCompatActivity() {
                 viewModel.selectedImages.collect { selected ->
                     for ((index, select) in selected.withIndex()) {
                         Glide
-                            .with(findViewById(R.id.selected_image_linear_layout))
+                            .with(binding.selectedImageLinearLayout)
                             .load(select)
-                            .into(findViewById(if (index == 0) R.id.selected_image_start else R.id.selected_image_end))
+                            .into(if (index == 0) binding.selectedImageStart else binding.selectedImageEnd)
                     }
                 }
             }
         }
-
-        findViewById<MaterialButton>(R.id.button_back)
-            .setOnClickListener { finish() }
-        findViewById<Button>(R.id.show_camera_button)
-            .setOnClickListener { requestCameraPermission() }
-        findViewById<Button>(R.id.show_album_button)
-            .setOnClickListener { requestAlbumPermission() }
+        binding.buttonBack.setOnClickListener { finish() }
+        binding.showCameraButton.setOnClickListener { requestCameraPermission() }
+        binding.showAlbumButton.setOnClickListener { requestAlbumPermission() }
+    }
+    private fun setupPortraitViews() { }
+    private fun setupLandscapeViews() {
+        binding.addImageButton?.setOnClickListener { }
     }
     override fun finish() {
         super.finish()
@@ -113,6 +110,45 @@ class CameraActivity : AppCompatActivity() {
         else
             showToast("Failed to get image")
     }
+    private fun requestAlbumPermission() {
+        when {
+            // 전체 허용 이미 있음
+            isGranted(Manifest.permission.READ_MEDIA_IMAGES) ||
+            isGranted(Manifest.permission.READ_EXTERNAL_STORAGE) ->
+                viewModel.loadAllImages(contentResolver)
+            // 일부 허용 이미 있음 (Android 14+)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            isGranted(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ->
+                pickImageLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" })
+            // 권한 없음 → 요청
+            else -> albumPermissionLauncher.launch(
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
+                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES,
+                                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+                    else ->
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            )
+        }
+    }
+    // 앨범 권한 요청
+    private val albumPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
+            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true ->
+                viewModel.loadAllImages(contentResolver)          // 전체 허용
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED] == true ->
+                pickImageLauncher.launch(                          // 일부 허용
+                    Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" })
+            else -> showToast("Album permission not granted")      // 거부
+        }
+    }
     // 앨범에서 이미지 선택
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -130,28 +166,13 @@ class CameraActivity : AppCompatActivity() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (isGranted) takePictureLauncher.launch(intent) else showToast("Camera permission not granted")
     }
-    // 앨범 권한 요청
-    private val albumPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-        if (isGranted) pickImageLauncher.launch(intent) else showToast("Album permission not granted")
-    }
-    private fun showToast(message: String) = Toast
-        .makeText(this, message, Toast.LENGTH_LONG).show()
     private fun requestCameraPermission() {
         // 권한이 이미 있으면 바로 카메라 실행. 권한이 없으면 권한 요청
-        if (isGrantedCameraPermission())
+        if (isGranted(Manifest.permission.CAMERA))
             takePictureLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
         else
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
-    private fun requestAlbumPermission() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-        // 권한이 이미 있으면 바로 앨범 실행. 권한이 없으면 권한 요청
-        if (isGrantedAlbumPermission())
-            pickImageLauncher.launch(intent)
-        else
-            albumPermissionLauncher.launch(currentAlbumPermission)
-    }
+    private fun showToast(message: String) = Toast
+        .makeText(this, message, Toast.LENGTH_LONG).show()
 }

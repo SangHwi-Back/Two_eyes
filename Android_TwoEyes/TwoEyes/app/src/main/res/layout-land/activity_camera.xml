@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="bottom"
+        android:layout_marginStart="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -62,6 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/start_button_linear_layout"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -134,17 +136,17 @@
         android:layout_marginEnd="8dp"
         android:paddingHorizontal="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/add_image_button"
+        app:layout_constraintEnd_toStartOf="@id/add_image_button"
         app:layout_constraintStart_toEndOf="@+id/selected_preview_image_linear_layout"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
+    <ImageButton
         android:id="@+id/add_image_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableTop="@drawable/outline_collections_bookmark_24_white"
-        app:backgroundTint="@color/design_default_color_on_secondary"
         app:cornerRadius="16dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/outline_add_a_photo_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/image_carousel_recycler_view"
