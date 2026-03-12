@@ -46,8 +46,10 @@ class CameraActivity : AppCompatActivity() {
     }
     private fun setupCommonViews(isLandscape: Boolean) {
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainCamera) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val safeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                        or WindowInsetsCompat.Type.displayCutout())
+            view.setPadding(safeInsets.left, safeInsets.top, safeInsets.right, safeInsets.bottom)
             insets
         }
         binding.imageCarouselRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -71,7 +73,7 @@ class CameraActivity : AppCompatActivity() {
                 viewModel.selectedImages.collect { selected ->
                     for ((index, select) in selected.withIndex()) {
                         Glide
-                            .with(binding.selectedImageLinearLayout)
+                            .with(binding.selectedImageLayout)
                             .load(select)
                             .into(if (index == 0) binding.selectedImageStart else binding.selectedImageEnd)
                     }
