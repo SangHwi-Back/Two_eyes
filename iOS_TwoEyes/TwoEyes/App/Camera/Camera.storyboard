@@ -12,7 +12,7 @@
         <!--Camera View Controller-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController storyboardIdentifier="CameraViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Y6W-OH-hqX" customClass="CameraViewController" customModule="PhotoApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CameraViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Y6W-OH-hqX" customClass="CameraViewController" customModule="TwoEyes" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -27,7 +27,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewButtonsCell" reuseIdentifier="CameraViewButtonsCell" id="UAL-v9-hnX" customClass="CameraViewButtonsCell" customModule="PhotoApp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewButtonsCell" reuseIdentifier="CameraViewButtonsCell" id="UAL-v9-hnX" customClass="CameraViewButtonsCell" customModule="TwoEyes" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TuJ-EQ-Zdf">
@@ -35,7 +35,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </collectionViewCellContentView>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewHeaderCell" reuseIdentifier="CameraViewHeaderCell" id="XYN-Ig-r2Y" customClass="CameraViewHeaderCell" customModule="PhotoApp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewHeaderCell" reuseIdentifier="CameraViewHeaderCell" id="XYN-Ig-r2Y" customClass="CameraViewHeaderCell" customModule="TwoEyes" customModuleProvider="target">
                                         <rect key="frame" x="265" y="0.0" width="128" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="IhU-YD-gYA">
@@ -43,7 +43,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </collectionViewCellContentView>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewImageCollectionViewCell" reuseIdentifier="CameraViewImageCollectionViewCell" id="0BP-Ok-Obl" customClass="CameraViewImageCollectionViewCell" customModule="PhotoApp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewImageCollectionViewCell" reuseIdentifier="CameraViewImageCollectionViewCell" id="0BP-Ok-Obl" customClass="CameraViewImageCollectionViewCell" customModule="TwoEyes" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="138" width="128" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="2AD-Ev-G9v">
@@ -51,7 +51,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </collectionViewCellContentView>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewSelectedImagesCell" reuseIdentifier="CameraViewSelectedImagesCell" id="Bal-K5-vEg" customClass="CameraViewSelectedImagesCell" customModule="PhotoApp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewSelectedImagesCell" reuseIdentifier="CameraViewSelectedImagesCell" id="Bal-K5-vEg" customClass="CameraViewSelectedImagesCell" customModule="TwoEyes" customModuleProvider="target">
                                         <rect key="frame" x="265" y="138" width="128" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="5ld-qm-Kqp">
@@ -59,10 +59,18 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </collectionViewCellContentView>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewTraitScrollCell" reuseIdentifier="CameraViewTraitScrollCell" id="clx-sB-1Bb" customClass="CameraViewTraitScrollCell" customModule="PhotoApp" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="CameraViewTraitScrollCell" reuseIdentifier="CameraViewTraitScrollCell" id="clx-sB-1Bb" customClass="CameraViewTraitScrollCell" customModule="TwoEyes" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="276" width="128" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="vgn-Ps-KHP">
+                                            <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="CameraViewImagePreviewCell" id="rjV-sA-Bzh" customClass="CameraViewImagePreviewCell" customModule="TwoEyes" customModuleProvider="target">
+                                        <rect key="frame" x="265" y="276" width="128" height="128"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="NQC-r4-eAJ">
                                             <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </collectionViewCellContentView>

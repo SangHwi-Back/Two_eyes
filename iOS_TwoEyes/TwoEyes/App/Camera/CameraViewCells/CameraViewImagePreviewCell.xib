@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CameraViewImagePreviewCell" customModule="TwoEyes" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CameraViewImagePreviewCell" id="gTV-IL-0wX" customClass="CameraViewImagePreviewCell" customModule="TwoEyes" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="428" height="309"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="428" height="309"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cfp-6y-biZ">
+                        <rect key="frame" x="111.33333333333331" y="0.0" width="120" height="247.33333333333334"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="120" id="mkv-Bv-XWD"/>
+                        </constraints>
+                    </imageView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="h9G-On-4V4">
+                        <rect key="frame" x="196.66666666666663" y="61.666666666666671" width="120" height="247.33333333333331"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="120" id="adX-9Z-Nia"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="h9G-On-4V4" firstAttribute="height" secondItem="gTV-IL-0wX" secondAttribute="height" multiplier="0.8" id="BNo-PG-TmL"/>
+                <constraint firstItem="h9G-On-4V4" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" multiplier="1.2" id="IkY-aT-5bq"/>
+                <constraint firstAttribute="top" secondItem="cfp-6y-biZ" secondAttribute="top" id="Spt-4M-EKx"/>
+                <constraint firstAttribute="bottom" secondItem="h9G-On-4V4" secondAttribute="bottom" id="Tbh-tK-56b"/>
+                <constraint firstItem="cfp-6y-biZ" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" multiplier="0.8" id="jXs-Pb-QI0"/>
+                <constraint firstItem="cfp-6y-biZ" firstAttribute="height" secondItem="gTV-IL-0wX" secondAttribute="height" multiplier="0.8" id="mtK-HI-hYC"/>
+            </constraints>
+            <size key="customSize" width="428" height="309"/>
+            <connections>
+                <outlet property="leadingImageView" destination="cfp-6y-biZ" id="zVM-aF-cmc"/>
+                <outlet property="trailingImageView" destination="h9G-On-4V4" id="loJ-uS-wJn"/>
+            </connections>
+            <point key="canvasLocation" x="157.25190839694656" y="244.71830985915494"/>
+        </collectionViewCell>
+    </objects>
+</document>

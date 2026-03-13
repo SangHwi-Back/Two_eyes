@@ -22,6 +22,7 @@ final class CameraViewModel: NSObject, ObservableObject {
         case header,
              images,
              collection,
+             preview,
              buttons,
              designScroll,
              landscape
@@ -31,6 +32,7 @@ final class CameraViewModel: NSObject, ObservableObject {
         case header
         case selectedImages([UIImage])
         case collection([UIImage])
+        case preview([UIImage])
         case buttons
         case designScroll
     }
@@ -53,7 +55,7 @@ final class CameraViewModel: NSObject, ObservableObject {
         if $0.verticalSizeClass == .compact {
             return [.landscape]
         } else {
-            return [.header, .images, .collection, .buttons]
+            return [.header, .images, .preview, .collection, .buttons]
         }
     }
     
@@ -70,7 +72,6 @@ final class CameraViewModel: NSObject, ObservableObject {
         return UICollectionViewCompositionalLayout { sectionIndex, environment in
             
             if environment.traitCollection.verticalSizeClass == .compact {
-//            if section == .landscape {
                 // Landscape: nested horizontal groups (5개 셀을 나란히 배치)
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
@@ -87,7 +88,7 @@ final class CameraViewModel: NSObject, ObservableObject {
                 // Images group (30%)
                 let imagesGroup = NSCollectionLayoutGroup.vertical(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.3),
+                        widthDimension: .fractionalWidth(0.25),
                         heightDimension: .fractionalHeight(1.0)),
                     subitems: [item])
 
@@ -95,6 +96,13 @@ final class CameraViewModel: NSObject, ObservableObject {
                 let collectionGroup = NSCollectionLayoutGroup.vertical(
                     layoutSize: NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(0.2),
+                        heightDimension: .fractionalHeight(1.0)),
+                    subitems: [item])
+                
+                // Collection group (20%)
+                let previewGroup = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(0.25),
                         heightDimension: .fractionalHeight(1.0)),
                     subitems: [item])
 
@@ -108,16 +116,14 @@ final class CameraViewModel: NSObject, ObservableObject {
                 // DesignScroll group (remaining: 1.0 - 0.3 - 0.2 - 0.15 = 0.35)
                 let designScrollGroup = NSCollectionLayoutGroup.vertical(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.35),
+                        widthDimension: .fractionalWidth(0.25),
                         heightDimension: .fractionalHeight(1.0)),
                     subitems: [item])
 
                 // Main horizontal group
                 let mainGroup = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [headerGroup, imagesGroup, collectionGroup, buttonsGroup, designScrollGroup])
+                    layoutSize: itemSize,
+                    subitems: [headerGroup, imagesGroup, collectionGroup, previewGroup, buttonsGroup, designScrollGroup])
 
                 return NSCollectionLayoutSection(group: mainGroup)
             } else {
@@ -134,21 +140,29 @@ final class CameraViewModel: NSObject, ObservableObject {
                 case .images:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.35))
+                        heightDimension: .fractionalHeight(0.25))
                 case .collection:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
                         heightDimension: .fractionalHeight(0.2))
+                case .preview:
+                    groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .fractionalHeight(0.25))
                 case .buttons:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
                         heightDimension: .fractionalHeight(0.15))
+                case .designScroll:
+                    groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .fractionalHeight(0.25))
                 default:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
                         heightDimension: .fractionalHeight(1.0))
                 }
-
+                
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .fractionalHeight(1.0))
@@ -179,6 +193,13 @@ final class CameraViewModel: NSObject, ObservableObject {
                 if let collections = cell as? CameraViewImageCollectionViewCell {
                     collections.updateImages(images)
                     collections.updateTrailCollection(traitCollection)
+                }
+                return cell
+                
+            case .preview(let images):
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: CameraViewImagePreviewCell.self), for: indexPath)
+                if let cell = cell as? CameraViewImagePreviewCell {
+                    cell.updateImages(images)
                 }
                 return cell
                 
@@ -214,12 +235,15 @@ final class CameraViewModel: NSObject, ObservableObject {
                 snapshot.appendItems([
                     .buttons,
                     .selectedImages(self.images),
+                    .preview(self.images),
                     .collection(self.images),
                     .designScroll], toSection: .landscape)
             case .header:
                 snapshot.appendItems([.header], toSection: .header)
             case .images:
                 snapshot.appendItems([.selectedImages(self.images)], toSection: .images)
+            case .preview:
+                snapshot.appendItems([.preview(self.images)], toSection: .preview)
             case .collection:
                 snapshot.appendItems([.collection(self.images)], toSection: .collection)
             case .buttons:

@@ -35,6 +35,9 @@ class CameraViewController: UIViewController {
             UINib(nibName: String(describing: CameraViewImageCollectionViewCell.self), bundle: nil),
             forCellWithReuseIdentifier: String(describing: CameraViewImageCollectionViewCell.self))
         collectionView.register(
+            UINib(nibName: String(describing: CameraViewImagePreviewCell.self), bundle: nil),
+            forCellWithReuseIdentifier: String(describing: CameraViewImagePreviewCell.self))
+        collectionView.register(
             UINib(nibName: String(describing: CameraViewButtonsCell.self), bundle: nil),
             forCellWithReuseIdentifier: String(describing: CameraViewButtonsCell.self))
         collectionView.register(
