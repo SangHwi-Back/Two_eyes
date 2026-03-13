@@ -70,103 +70,100 @@ final class CameraViewModel: NSObject, ObservableObject {
         let sectionTypes = self.sectionTypes(traitCollection)
         
         return UICollectionViewCompositionalLayout { sectionIndex, environment in
-            
-            if environment.traitCollection.verticalSizeClass == .compact {
-                // Landscape: nested horizontal groups (5개 셀을 나란히 배치)
-                let itemSize = NSCollectionLayoutSize(
+
+            let item = NSCollectionLayoutItem(
+                layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalHeight(1.0))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    heightDimension: .fractionalHeight(1.0)))
 
-                // Header group (54pt)
-                let headerGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(54),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
+            if environment.traitCollection.verticalSizeClass == .compact {
+                // ── Landscape ──────────────────────────────────────────────────
+                // effectiveContentSize.width : SafeArea 및 콘텐츠 인셋을 제외한 실제 가용 너비
+                // 5개 셀(buttons / selectedImages / preview / collection / designScroll)이
+                // 가용 너비를 꽉 채우도록 절댓값으로 계산
+                let availableWidth = environment.container.effectiveContentSize.width
+                let headerWidth: CGFloat = 54
+                let contentWidth = availableWidth - headerWidth
 
-                // Images group (30%)
-                let imagesGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.25),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
+                // 각 셀 너비 비율: buttons(54pt 고정) / images:collection:preview:designScroll = 25:20:25:15
+                let imagesWidth      = floor(contentWidth * 25 / 85)
+                let collectionWidth  = floor(contentWidth * 20 / 85)
+                let previewWidth     = floor(contentWidth * 25 / 85)
+                // 마지막 셀이 반올림 오차를 흡수해 빈 여백을 없앰
+                let buttonsWidth     = contentWidth - imagesWidth - collectionWidth - previewWidth
 
-                // Collection group (20%)
-                let collectionGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.2),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
-                
-                // Collection group (20%)
-                let previewGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.25),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
+                func landscapeGroup(_ width: CGFloat) -> NSCollectionLayoutGroup {
+                    NSCollectionLayoutGroup.vertical(
+                        layoutSize: NSCollectionLayoutSize(
+                            widthDimension: .absolute(width),
+                            heightDimension: .fractionalHeight(1.0)),
+                        subitems: [item])
+                }
 
-                // Buttons group (15%)
-                let buttonsGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.15),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
+                let headerGroup      = landscapeGroup(headerWidth)
+                let imagesGroup      = landscapeGroup(imagesWidth)
+                let collectionGroup  = landscapeGroup(collectionWidth)
+                let previewGroup     = landscapeGroup(previewWidth)
+                let buttonsGroup     = landscapeGroup(buttonsWidth)
 
-                // DesignScroll group (remaining: 1.0 - 0.3 - 0.2 - 0.15 = 0.35)
-                let designScrollGroup = NSCollectionLayoutGroup.vertical(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(0.25),
-                        heightDimension: .fractionalHeight(1.0)),
-                    subitems: [item])
-
-                // Main horizontal group
                 let mainGroup = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: itemSize,
-                    subitems: [headerGroup, imagesGroup, collectionGroup, previewGroup, buttonsGroup, designScrollGroup])
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .fractionalHeight(1.0)),
+                    subitems: [headerGroup, imagesGroup, collectionGroup, previewGroup, buttonsGroup])
 
                 return NSCollectionLayoutSection(group: mainGroup)
+
             } else {
-                
+                // ── Portrait ───────────────────────────────────────────────────
+                // effectiveContentSize.height : SafeArea 및 콘텐츠 인셋을 제외한 실제 가용 높이
+                // 5개 섹션(header / images / preview / collection / buttons)이
+                // 가용 높이를 꽉 채우도록 절댓값으로 계산
                 let section = sectionTypes[sectionIndex]
-                
-                // Portrait: each section has its own size
+
+                let availableHeight = environment.container.effectiveContentSize.height
+                let headerHeight: CGFloat = 54
+                let contentHeight = availableHeight - headerHeight
+
+                // 각 섹션 높이 비율: header(54pt 고정) / images:preview:collection:buttons = 25:25:20:15
+                let imagesHeight     = floor(contentHeight * 25 / 85)
+                let previewHeight    = floor(contentHeight * 25 / 85)
+                let collectionHeight = floor(contentHeight * 20 / 85)
+                // 마지막 섹션이 반올림 오차를 흡수해 빈 여백을 없앰
+                let buttonsHeight    = contentHeight - imagesHeight - previewHeight - collectionHeight
+
                 let groupSize: NSCollectionLayoutSize
                 switch section {
                 case .header:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .absolute(54))
+                        heightDimension: .absolute(headerHeight))
                 case .images:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.25))
-                case .collection:
-                    groupSize = NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.2))
+                        heightDimension: .absolute(imagesHeight))
                 case .preview:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.25))
+                        heightDimension: .absolute(previewHeight))
+                case .collection:
+                    groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(collectionHeight))
                 case .buttons:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.15))
+                        heightDimension: .absolute(buttonsHeight))
                 case .designScroll:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .fractionalHeight(0.25))
+                        heightDimension: .absolute(floor(contentHeight * 25 / 85)))
                 default:
                     groupSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
                         heightDimension: .fractionalHeight(1.0))
                 }
-                
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalHeight(1.0))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
                 return NSCollectionLayoutSection(group: group)
             }
