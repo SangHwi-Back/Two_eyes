@@ -1,60 +1,72 @@
 package com.example.twoeyes.ui.feed
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.twoeyes.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.twoeyes.databinding.FragmentFeedBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [FeedFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FeedFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var binding: FragmentFeedBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_feed, container, false)
+    ): View {
+        binding = FragmentFeedBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FeedFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FeedFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val adapter = FeedAdapter(layoutInflater)
+
+        binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.feedRecyclerView.adapter = adapter
+
+        adapter.setListData(createMockData())
     }
+
+    // 목 데이터 - 화면 확인 후 삭제 예정
+    // picsum.photos: 무료 랜덤 이미지 제공 서비스 (seed 값으로 항상 같은 이미지 반환)
+    private fun createMockData(): List<FeedItemModel> = listOf(
+        FeedItemModel(
+            images = listOf(
+                Uri.parse("https://picsum.photos/seed/a1/600/600"),
+                Uri.parse("https://picsum.photos/seed/a2/600/600"),
+                Uri.parse("https://picsum.photos/seed/a3/600/600"),
+            ),
+            likes = 42,
+            author = "mock_user_1",
+            description = "이미지 3장짜리 게시물입니다. 좌우로 스와이프해보세요.",
+            showReply = false,
+        ),
+        FeedItemModel(
+            images = listOf(
+                Uri.parse("https://picsum.photos/seed/b1/600/600"),
+            ),
+            likes = 100,
+            author = "mock_user_2",
+            description = "이미지 1장짜리 게시물입니다.",
+            showReply = false,
+        ),
+        FeedItemModel(
+            images = listOf(
+                Uri.parse("https://picsum.photos/seed/c1/600/600"),
+                Uri.parse("https://picsum.photos/seed/c2/600/600"),
+            ),
+            likes = 7,
+            author = "mock_user_3",
+            description = "이미지 2장짜리 게시물입니다.",
+            showReply = false,
+        ),
+    )
 }
