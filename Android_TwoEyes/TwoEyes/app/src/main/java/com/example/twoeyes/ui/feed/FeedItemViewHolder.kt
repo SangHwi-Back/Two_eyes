@@ -2,7 +2,9 @@ package com.example.twoeyes.ui.feed
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.example.twoeyes.databinding.ItemFeedBinding
+import com.example.twoeyes.ui.IndexUpdateDelegate
 
 /**
  * 피드 한 게시물을 담당하는 ViewHolder.
@@ -22,6 +24,18 @@ class FeedItemViewHolder(
         // 1. ViewPager2 에 이미지 Adapter 연결
         //    iOS 의 collectionView.dataSource = ... 에 해당
         binding.imageViewPager.adapter = ImagePagerAdapter(item.images)
+
+        binding.pageIndicatorView.setupDots(item.images.size)
+
+        val delegate: IndexUpdateDelegate = binding.pageIndicatorView
+
+        binding.imageViewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    delegate.onUpdateIndex(position)
+                }
+            }
+        )
 
         // 2. 텍스트 바인딩
         binding.contentsIdTextView.text   = item.author

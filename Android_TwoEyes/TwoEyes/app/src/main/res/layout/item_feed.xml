@@ -13,12 +13,28 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/util_button_linear_layout"
+        app:layout_constraintBottom_toTopOf="@id/page_indicator_frame_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
     </androidx.viewpager2.widget.ViewPager2>
+
+    <FrameLayout
+        android:id="@+id/page_indicator_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_view_pager"
+        app:layout_constraintBottom_toTopOf="@id/util_button_linear_layout">
+        <com.example.twoeyes.ui.PageIndicatorView
+            android:id="@+id/page_indicator_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/util_button_linear_layout"
@@ -27,6 +43,7 @@
         android:layout_marginStart="8dp"
         android:gravity="start"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/page_indicator_frame_layout"
         app:layout_constraintBottom_toTopOf="@+id/contents_reply_toggle_constraint_layout"
         app:layout_constraintStart_toStartOf="parent">
 
