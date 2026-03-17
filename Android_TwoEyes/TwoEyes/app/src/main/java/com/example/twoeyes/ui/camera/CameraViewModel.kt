@@ -2,8 +2,10 @@ package com.example.twoeyes.ui.camera
 
 import android.content.ContentResolver
 import android.content.ContentUris
+import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,19 +14,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 class CameraViewModel: ViewModel() {
-    private val _items = MutableStateFlow<List<Any>>(emptyList())
-    val items: StateFlow<List<Any>> = _items.asStateFlow()
+    private val _items = MutableStateFlow<List<Uri>>(emptyList())
+    val items: StateFlow<List<Uri>> = _items.asStateFlow()
 
-    private val _selectedImages = MutableStateFlow<List<Any?>>(listOf(null, null))
-    val selectedImages: StateFlow<List<Any?>> = _selectedImages.asStateFlow()
+    private val _selectedImages = MutableStateFlow<List<Uri?>>(listOf(null, null))
+    val selectedImages: StateFlow<List<Uri?>> = _selectedImages.asStateFlow()
 
-    fun addItem(item: Any) {
+    fun addItem(item: Uri) {
         _items.value = _items.value + item
     }
 
-    fun selectImage(image: Any) {
+    fun selectImage(image: Uri) {
         val current = _selectedImages.value.toMutableList()
         when {
             current[0] == null -> current[0] = image
@@ -53,6 +56,21 @@ class CameraViewModel: ViewModel() {
                 }
             }
             _items.value = uris
+        }
+    }
+    fun copyToAppStorage(context: Context, sourceUri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val destFile = File(
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                "gallery_${System.currentTimeMillis()}.jpg"
+            )
+            context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                destFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            val destUri = Uri.fromFile(destFile)
+            _items.value = _items.value + destUri
         }
     }
 }

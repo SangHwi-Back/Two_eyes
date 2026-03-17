@@ -4,10 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
@@ -16,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
@@ -27,8 +29,11 @@ import com.bumptech.glide.Glide
 import com.example.twoeyes.R
 import com.example.twoeyes.databinding.ActivityCameraBinding
 import kotlinx.coroutines.launch
+import java.io.File
 
+const val CAMERA_RESULT_CODE: String = "selected_images"
 class CameraActivity : AppCompatActivity() {
+    private var pendingImageUri: Uri? = null
     private lateinit var binding: ActivityCameraBinding
     private val viewModel: CameraViewModel by viewModels()
     private lateinit var thumbnailAdapter: ThumbnailAdapter
@@ -71,7 +76,7 @@ class CameraActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.selectedImages.collect { selected ->
-                    for ((index, select) in selected.withIndex()) {
+                    for ((index, select) in selected.filterNotNull().withIndex()) {
                         Glide
                             .with(binding.selectedImageLayout)
                             .load(select)
@@ -80,7 +85,7 @@ class CameraActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.buttonBack.setOnClickListener { finish() }
+        binding.buttonBack.setOnClickListener { finishWithResult() }
         binding.showCameraButton.setOnClickListener { requestCameraPermission() }
         binding.showAlbumButton.setOnClickListener { requestAlbumPermission() }
     }
@@ -88,11 +93,23 @@ class CameraActivity : AppCompatActivity() {
     private fun setupLandscapeViews() {
         binding.addImageButton?.setOnClickListener { }
     }
+    private fun finishWithResult() {
+        val selectedUris = viewModel.selectedImages.value
+            .filterNotNull()
+            .map { it.toString() }
+
+        val resultIntent = Intent().apply {
+            putStringArrayListExtra(CAMERA_RESULT_CODE, ArrayList(selectedUris))
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
     override fun finish() {
         super.finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
             overrideActivityTransition(
-                OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_down)
+                OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_down
+            )
         else
             @Suppress("DEPRECATION")
             overridePendingTransition(0, R.anim.slide_down)
@@ -101,14 +118,11 @@ class CameraActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            result.data?.extras?.getParcelable("data", Bitmap::class.java)
-        else
-            @Suppress("DEPRECATION")
-            result.data?.extras?.getParcelable("data")
+        val uri = pendingImageUri
+        pendingImageUri = null
 
-        if (result.resultCode == RESULT_OK && imageBitmap != null)
-            viewModel.addItem(imageBitmap)
+        if (result.resultCode == RESULT_OK && uri != null)
+            viewModel.addItem(uri)
         else
             showToast("Failed to get image")
     }
@@ -157,7 +171,7 @@ class CameraActivity : AppCompatActivity() {
     ) { result ->
         val uri = result.data?.data
         if (result.resultCode == RESULT_OK && uri != null)
-            viewModel.addItem(uri)
+            viewModel.copyToAppStorage(this, uri)
         else
             showToast("Failed to get image URI")
     }
@@ -171,9 +185,27 @@ class CameraActivity : AppCompatActivity() {
     private fun requestCameraPermission() {
         // 권한이 이미 있으면 바로 카메라 실행. 권한이 없으면 권한 요청
         if (isGranted(Manifest.permission.CAMERA))
-            takePictureLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+            launchCamera()
         else
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+    private fun launchCamera() {
+        val imageFile = File(
+            getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "camera_${System.currentTimeMillis()}.jpg"
+        )
+        val imageUri = FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider",
+            imageFile
+        )
+        pendingImageUri = imageUri
+
+        takePictureLauncher.launch(
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+            }
+        )
     }
     private fun showToast(message: String) = Toast
         .makeText(this, message, Toast.LENGTH_LONG).show()
