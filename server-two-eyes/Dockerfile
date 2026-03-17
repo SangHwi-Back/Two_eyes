@@ -1,23 +1,28 @@
 # ---- Build Stage ----
 FROM node:20-alpine AS builder
 
+# corepack 으로 pnpm 활성화 (package.json 의 packageManager 필드 자동 인식)
+RUN corepack enable
+
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 # ---- Production Stage ----
 FROM node:20-alpine AS production
+
+RUN corepack enable
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist
 
