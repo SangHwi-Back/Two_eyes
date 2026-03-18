@@ -12,7 +12,6 @@ class FeedAdapter(
     private val layoutInflater: LayoutInflater,
     private val navigationDelegate: FeedFragmentNavigationDelegate? = null,
 ) : RecyclerView.Adapter<FeedItemViewHolder>(), FeedOnClickDelegate {
-
     private var listData = mutableListOf<FeedItemModel>()
     fun setListData(newData: FeedItemModel) {
         listData.add(newData)

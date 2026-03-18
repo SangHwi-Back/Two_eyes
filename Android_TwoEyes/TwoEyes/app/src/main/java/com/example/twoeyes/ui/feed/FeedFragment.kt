@@ -15,6 +15,7 @@ import com.example.twoeyes.databinding.FragmentFeedBinding
 interface FeedFragmentNavigationDelegate {
     fun onFeedClicked(model: FeedItemModel)
 }
+const val KEY_FEED_MODEL = "model"
 class FeedFragment : Fragment(), FeedFragmentNavigationDelegate {
     private lateinit var binding: FragmentFeedBinding
 
@@ -29,11 +30,10 @@ class FeedFragment : Fragment(), FeedFragmentNavigationDelegate {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = FeedAdapter(layoutInflater)
+        val adapter = FeedAdapter(layoutInflater, this)
 
         binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.feedRecyclerView.adapter = adapter
-        binding.feedRecyclerView
 
         adapter.setListData(createMockData())
     }
@@ -41,7 +41,7 @@ class FeedFragment : Fragment(), FeedFragmentNavigationDelegate {
     override fun onFeedClicked(model: FeedItemModel) {
         findNavController().navigate(
             R.id.action_feed_fragment_to_feedDetailFragment,
-            bundleOf("model" to model))
+            bundleOf(KEY_FEED_MODEL to model))
     }
 
     // 목 데이터 - 화면 확인 후 삭제 예정

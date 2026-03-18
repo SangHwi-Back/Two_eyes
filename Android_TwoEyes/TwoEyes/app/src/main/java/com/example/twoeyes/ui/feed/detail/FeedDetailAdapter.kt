@@ -3,7 +3,9 @@ package com.example.twoeyes.ui.feed.detail
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.twoeyes.R
 import com.example.twoeyes.databinding.ItemFeedDetailContentBinding
 import com.example.twoeyes.databinding.ItemFeedDetailHeaderBinding
@@ -23,15 +25,12 @@ class FeedDetailAdapter(
     ): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            VIEW_TYPE_HEADER -> HeaderViewHolder(
-                inflater.inflate(R.layout.item_feed_detail_header, parent, false),
-                ItemFeedDetailHeaderBinding.inflate(inflater))
-            VIEW_TYPE_IMAGE -> ImageViewHolder(
-                inflater.inflate(R.layout.item_feed_detail_image, parent, false),
-                ItemFeedDetailImageBinding.inflate(inflater))
-            VIEW_TYPE_CONTENT -> ContentViewHolder(
-                inflater.inflate(R.layout.item_feed_detail_content, parent, false),
-                ItemFeedDetailContentBinding.inflate(inflater))
+            VIEW_TYPE_HEADER -> HeaderViewHolder(ItemFeedDetailHeaderBinding
+                .inflate(inflater, parent, false))
+            VIEW_TYPE_IMAGE -> ImageViewHolder(ItemFeedDetailImageBinding
+                .inflate(inflater, parent, false))
+            VIEW_TYPE_CONTENT -> ContentViewHolder(ItemFeedDetailContentBinding
+                .inflate(inflater, parent, false))
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -53,24 +52,32 @@ class FeedDetailAdapter(
             is ListItem.Content -> VIEW_TYPE_CONTENT
         }
     }
-    class HeaderViewHolder(view: View, binding: ItemFeedDetailHeaderBinding) : RecyclerView.ViewHolder(view) {
+    class HeaderViewHolder(private val binding: ItemFeedDetailHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ListItem.Header) {
-
+            binding.headerTitle.text = item.title
         }
     }
-    class ImageViewHolder(view: View, binding: ItemFeedDetailImageBinding) : RecyclerView.ViewHolder(view) {
+    class ImageViewHolder(private val binding: ItemFeedDetailImageBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            val width = itemView.context.resources.displayMetrics.widthPixels / 3
+            itemView.layoutParams = RecyclerView.LayoutParams(width, width)
+        }
         fun bind(item: ListItem.Image) {
-
+            Glide.with(itemView.context)
+                .load(item.imageUrl.toUri())
+                .centerCrop()
+                .into(binding.imageView)
         }
     }
-    class ContentViewHolder(view: View, binding: ItemFeedDetailContentBinding) : RecyclerView.ViewHolder(view) {
+    class ContentViewHolder(private val binding: ItemFeedDetailContentBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ListItem.Content) {
-
+            binding.authorTextView.text = item.author
+            binding.contentsTextView.text = item.message
         }
     }
 }
 sealed class ListItem {
     data class Header(val title: String) : ListItem()
     data class Image(val text: String, val imageUrl: String) : ListItem()
-    data class Content(val message: String) : ListItem()
+    data class Content(val author: String, val message: String) : ListItem()
 }

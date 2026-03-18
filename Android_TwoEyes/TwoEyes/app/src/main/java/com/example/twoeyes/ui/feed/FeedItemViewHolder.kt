@@ -20,7 +20,9 @@ class FeedItemViewHolder(
     private val binding: ItemFeedBinding,
     private val onClickDelegate: FeedOnClickDelegate
 ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-
+    init {
+        itemView.setOnClickListener(this)
+    }
     fun bindData(item: FeedItemModel) {
         // 1. ViewPager2 에 이미지 Adapter 연결
         //    iOS 의 collectionView.dataSource = ... 에 해당
@@ -54,6 +56,5 @@ class FeedItemViewHolder(
 
     override fun onClick(p0: View?) {
         onClickDelegate.onClickFeed(bindingAdapterPosition)
-        TODO("Not yet implemented")
     }
 }

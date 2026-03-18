@@ -19,6 +19,6 @@
 
         <argument
             android:name="model"
-            app:argType="com.com.example.twoeyes.ui.feed.FeedItemModel"/>
+            app:argType="com.example.twoeyes.ui.feed.FeedItemModel"/>
     </fragment>
 </navigation>
