@@ -6,15 +6,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.twoeyes.R
 import com.example.twoeyes.databinding.FragmentFeedBinding
 
-class FeedFragment : Fragment() {
+interface FeedFragmentNavigationDelegate {
+    fun onFeedClicked(model: FeedItemModel)
+}
+class FeedFragment : Fragment(), FeedFragmentNavigationDelegate {
     private lateinit var binding: FragmentFeedBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,8 +33,15 @@ class FeedFragment : Fragment() {
 
         binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.feedRecyclerView.adapter = adapter
+        binding.feedRecyclerView
 
         adapter.setListData(createMockData())
+    }
+
+    override fun onFeedClicked(model: FeedItemModel) {
+        findNavController().navigate(
+            R.id.action_feed_fragment_to_feedDetailFragment,
+            bundleOf("model" to model))
     }
 
     // 목 데이터 - 화면 확인 후 삭제 예정

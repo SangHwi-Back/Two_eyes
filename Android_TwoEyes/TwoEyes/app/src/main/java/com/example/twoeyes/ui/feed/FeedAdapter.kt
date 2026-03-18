@@ -5,9 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.twoeyes.databinding.ItemFeedBinding
 
+interface FeedOnClickDelegate {
+    fun onClickFeed(position: Int)
+}
 class FeedAdapter(
-    private val layoutInflater: LayoutInflater
-) : RecyclerView.Adapter<FeedItemViewHolder>() {
+    private val layoutInflater: LayoutInflater,
+    private val navigationDelegate: FeedFragmentNavigationDelegate? = null,
+) : RecyclerView.Adapter<FeedItemViewHolder>(), FeedOnClickDelegate {
 
     private var listData = mutableListOf<FeedItemModel>()
     fun setListData(newData: FeedItemModel) {
@@ -29,7 +33,7 @@ class FeedAdapter(
         viewType: Int
     ): FeedItemViewHolder {
         val binding = ItemFeedBinding.inflate(layoutInflater, parent, false)
-        return FeedItemViewHolder(binding)
+        return FeedItemViewHolder(binding, this)
     }
 
     override fun onBindViewHolder(
@@ -40,4 +44,8 @@ class FeedAdapter(
     }
 
     override fun getItemCount(): Int = listData.size
+
+    override fun onClickFeed(position: Int) {
+        navigationDelegate?.onFeedClicked(listData[position])
+    }
 }

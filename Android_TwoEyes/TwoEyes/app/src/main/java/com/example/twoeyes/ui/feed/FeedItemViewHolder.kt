@@ -17,8 +17,9 @@ import com.example.twoeyes.ui.IndexUpdateDelegate
  * → binding.imageViewPager, binding.contentsIdTextView 처럼 id 를 그대로 camelCase 로 사용.
  */
 class FeedItemViewHolder(
-    private val binding: ItemFeedBinding
-) : RecyclerView.ViewHolder(binding.root) {
+    private val binding: ItemFeedBinding,
+    private val onClickDelegate: FeedOnClickDelegate
+) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
     fun bindData(item: FeedItemModel) {
         // 1. ViewPager2 에 이미지 Adapter 연결
@@ -49,5 +50,10 @@ class FeedItemViewHolder(
             item.showReply = !item.showReply
             bindData(item)
         }
+    }
+
+    override fun onClick(p0: View?) {
+        onClickDelegate.onClickFeed(bindingAdapterPosition)
+        TODO("Not yet implemented")
     }
 }
