@@ -5,32 +5,40 @@
 //  Created by SangHwiBack on 2/27/26.
 //
 
-import UIKit
+import Foundation
 
-nonisolated enum FeedCell: Hashable, Sendable {
-    case thumbnail(FeedThumbnail)
-    case contents(FeedContents)
-}
+// MARK: - Feed Item Model
+nonisolated struct FeedItemModel: Hashable, Sendable {
+    let id: UUID
+    /// Android의 Uri 배열에 해당 — 외부 URL 또는 로컬 file:// URL
+    let images: [URL]
+    let author: String
+    let description: String
+    var showReply: Bool
 
-struct FeedThumbnail: Hashable, Sendable {
-    let firstImage: Image
-    let secondImage: Image?
-    
-    struct Image: Hashable {
-        static func == (lhs: FeedThumbnail.Image, rhs: FeedThumbnail.Image) -> Bool {
-            lhs.imagePath == rhs.imagePath
-        }
-        
-        let image: UIImage
-        let imagePath: String
+    init(
+        images: [URL],
+        author: String,
+        description: String,
+        showReply: Bool = false
+    ) {
+        self.id = UUID()
+        self.images = images
+        self.author = author
+        self.description = description
+        self.showReply = showReply
+    }
+
+    static func == (lhs: FeedItemModel, rhs: FeedItemModel) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
-struct FeedContents: Hashable {
-    let title: String
-    let contents: String
-}
-
+// MARK: - Section
 nonisolated enum FeedSection: Hashable {
     case list
 }
