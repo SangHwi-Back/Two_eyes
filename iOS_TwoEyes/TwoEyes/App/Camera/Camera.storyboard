@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -90,11 +91,122 @@
                     <navigationItem key="navigationItem" id="TSB-ag-gdv"/>
                     <connections>
                         <outlet property="collectionView" destination="tXk-Ta-5C6" id="BYO-4q-VwH"/>
+                        <segue destination="el9-Xx-izR" kind="push" id="5zE-3P-x4u"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1066.4122137404579" y="130.98591549295776"/>
+        </scene>
+        <!--Camera Merging View Controller-->
+        <scene sceneID="Ktw-XS-Py4">
+            <objects>
+                <viewController storyboardIdentifier="CameraMergingViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="el9-Xx-izR" customClass="CameraMergingViewController" customModule="TwoEyes" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xYv-K9-UZc">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zt5-eG-miQ">
+                                <rect key="frame" x="0.0" y="238" width="393" height="480"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zNo-5r-oY9" customClass="MergingImageView" customModule="TwoEyes" customModuleProvider="target">
+                                        <rect key="frame" x="8" y="0.0" width="199" height="304"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NRI-as-Nwh" customClass="MergingImageView" customModule="TwoEyes" customModuleProvider="target">
+                                        <rect key="frame" x="186" y="168" width="199" height="304"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="tJ6-4y-8Lz">
+                                <rect key="frame" x="12" y="730" width="369" height="54"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ro7-hp-ysP">
+                                        <rect key="frame" x="0.0" y="0.0" width="178.66666666666666" height="54"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="54" id="69g-Fw-UJ0"/>
+                                        </constraints>
+                                        <buttonConfiguration key="configuration" style="gray" title="Cancel">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
+                                            <color key="baseForegroundColor" systemColor="systemPinkColor"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="cancelButtonTouchUpInside:" destination="el9-Xx-izR" eventType="touchUpInside" id="HtR-UP-jMf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4Y7-b8-bQE">
+                                        <rect key="frame" x="190.66666666666663" y="0.0" width="178.33333333333337" height="54"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="54" id="1C8-Jb-UOg"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Confirm">
+                                            <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="20"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="confirmButtonTouchUpInside:" destination="el9-Xx-izR" eventType="touchUpInside" id="ljM-d8-6bx"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="gLx-aZ-abb">
+                                <rect key="frame" x="273" y="172" width="120" height="54"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cC-ah-VYe">
+                                        <rect key="frame" x="0.0" y="0.0" width="54" height="54"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="54" id="jcR-uv-T38"/>
+                                            <constraint firstAttribute="height" constant="54" id="vIf-uv-azS"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain">
+                                            <imageReference key="image" image="arrow.clockwise.circle" catalog="system" symbolScale="large"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="refreshButtonTouchUpInside:" destination="el9-Xx-izR" eventType="touchUpInside" id="0I8-6K-V5b"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EMJ-5T-hZT">
+                                        <rect key="frame" x="66" y="0.0" width="54" height="54"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="54" id="4d8-UI-RrM"/>
+                                            <constraint firstAttribute="height" constant="54" id="Q4G-Gq-ejK"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="flip.horizontal" catalog="system"/>
+                                        <connections>
+                                            <action selector="zPositionFlipButtonTouchUpInside:" destination="el9-Xx-izR" eventType="touchUpInside" id="hyH-Px-LUu"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="3Op-zE-hH0"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="tJ6-4y-8Lz" firstAttribute="leading" secondItem="3Op-zE-hH0" secondAttribute="leading" constant="12" id="IeR-xo-FCo"/>
+                            <constraint firstItem="3Op-zE-hH0" firstAttribute="bottom" secondItem="tJ6-4y-8Lz" secondAttribute="bottom" id="TD7-bO-gho"/>
+                            <constraint firstItem="3Op-zE-hH0" firstAttribute="trailing" secondItem="zt5-eG-miQ" secondAttribute="trailing" id="VBU-d6-lyV"/>
+                            <constraint firstItem="gLx-aZ-abb" firstAttribute="top" secondItem="3Op-zE-hH0" secondAttribute="top" id="VP3-ce-yJ0"/>
+                            <constraint firstItem="zt5-eG-miQ" firstAttribute="top" secondItem="gLx-aZ-abb" secondAttribute="bottom" constant="12" id="eEp-bG-HoS"/>
+                            <constraint firstItem="3Op-zE-hH0" firstAttribute="trailing" secondItem="tJ6-4y-8Lz" secondAttribute="trailing" constant="12" id="fgT-Y0-cMJ"/>
+                            <constraint firstItem="tJ6-4y-8Lz" firstAttribute="top" secondItem="zt5-eG-miQ" secondAttribute="bottom" constant="12" id="fha-hO-yxJ"/>
+                            <constraint firstItem="zt5-eG-miQ" firstAttribute="leading" secondItem="3Op-zE-hH0" secondAttribute="leading" id="kZh-ZW-wXf"/>
+                            <constraint firstItem="3Op-zE-hH0" firstAttribute="trailing" secondItem="gLx-aZ-abb" secondAttribute="trailing" id="pMl-AI-3Xi"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="ppi-lL-Nid"/>
+                    <connections>
+                        <outletCollection property="imageViews" destination="zNo-5r-oY9" collectionClass="NSMutableArray" id="Lvi-rC-yJC"/>
+                        <outletCollection property="imageViews" destination="NRI-as-Nwh" collectionClass="NSMutableArray" id="aOa-57-ZPs"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TJV-1H-Nvf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2055.7251908396947" y="130.98591549295776"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="ekf-tD-61A">
@@ -116,8 +228,13 @@
         </scene>
     </scenes>
     <resources>
+        <image name="arrow.clockwise.circle" catalog="system" width="128" height="123"/>
+        <image name="flip.horizontal" catalog="system" width="128" height="109"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemPinkColor">
+            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
