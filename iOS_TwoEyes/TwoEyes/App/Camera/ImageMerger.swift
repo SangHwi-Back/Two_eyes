@@ -13,18 +13,48 @@ struct ImageMerger {
      2. 겹쳐진 부분은 Merge 한다.
      3. 겹쳐지지 않은 부분에서 Merge 한 결과물을 붙인 뒤 새로운 이미지로 만든다.
      */
-    func merge(_ model: ImageMergerModel) -> [UIImage] {
-        model.images.enumerated().map { (index, images) in
-            let size = model.sizes[index]
-            let renderer = UIGraphicsImageRenderer(size: size)
-            return renderer.image { ctx in
-                // TODO: Merge Logics
+    func merge(_ model: ImageMergerModel) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: model.canvasSize)
+        
+        return renderer.image { context in
+            let cgContext = context.cgContext
+            let bottom = model.bottomImage
+            let top = model.topImage
+            
+            bottom.image.draw(in: bottom.frame)
+            
+            let intersection = bottom.frame.intersection(top.frame)
+            
+            if intersection.isNull || intersection.isEmpty {
+                top.image.draw(in: top.frame)
+                return
             }
+            
+            let clipPath = UIBezierPath(rect: top.frame)
+            clipPath.append(UIBezierPath(rect: intersection).reversing())
+            clipPath.usesEvenOddFillRule = true
+            
+            cgContext.saveGState()
+            clipPath.addClip()
+            top.image.draw(in: top.frame)
+            cgContext.restoreGState()
+            
+            cgContext.saveGState()
+            cgContext.clip(to: intersection)
+            top.image.draw(in: top.frame, blendMode: .normal, alpha: model.blendAlpha)
+            cgContext.restoreGState()
         }
     }
 }
 
 struct ImageMergerModel {
-    var images: [UIImage]
-    var sizes: [CGSize]
+    struct ImageInfo {
+        let image: UIImage
+        let frame: CGRect
+    }
+    let canvasSize: CGSize
+    let topImage: ImageInfo
+    let bottomImage: ImageInfo
+    
+    var blendAlpha: CGFloat = 0.5
 }

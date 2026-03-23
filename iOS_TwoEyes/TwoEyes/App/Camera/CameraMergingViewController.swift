@@ -10,6 +10,8 @@ import UIKit
 class CameraMergingViewController: UIViewController {
     @IBOutlet var imageViews: [MergingImageView]!
     
+    @IBOutlet weak var previewImageView: UIImageView!
+    
     // TODO: Should remove '!'
     private var viewModel: CameraMergingViewModel!
     
@@ -24,9 +26,13 @@ class CameraMergingViewController: UIViewController {
             self?.updateOverlapEffect()
         }
         
-        self.viewModel = .init(self, initialStatus: imageViews.map({
-            .init(image: $0.image, frame: $0.frame)
-        }))
+        self.viewModel = .init(
+            self,
+            initialStatus: imageViews.map({
+                .init(image: $0.image, frame: $0.frame)
+            }),
+            previewSize: previewImageView.frame.size
+        )
     }
     
     @IBAction func refreshButtonTouchUpInside(_ sender: UIButton) {
@@ -122,8 +128,8 @@ extension CameraMergingViewController: CameraMergingViewModel.Observer {
             self.setPositions()
             self.updateOverlapEffect()
             
-        case .onStatusChanged(let status):
-            setStatus(status)
+        case .onStatusChanged(let image):
+            self.previewImageView.image = image
         }
     }
 }
