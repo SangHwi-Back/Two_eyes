@@ -36,8 +36,18 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/close_camera_screen"
-                android:src="@drawable/rounded_arrow_cool_down_24"/>
+                android:src="@drawable/rounded_arrow_cool_down_24" />
         </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/next_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/baseline_navigate_next_24"
+            android:drawableTint="@color/white"
+            android:text="@string/next"
+            app:backgroundTint="@color/design_default_color_on_secondary"
+            app:cornerRadius="16dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/show_camera_button"
@@ -88,26 +98,26 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/selected_image_start"
-            android:layout_width="120dp"
+            android:layout_width="240dp"
             android:layout_height="0dp"
             android:scaleType="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/vertical_guideline_70"
             app:layout_constraintBottom_toBottomOf="@id/horizontal_guideline_50"
+            app:layout_constraintEnd_toEndOf="@id/vertical_guideline_70"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/RoundedImageStyle"
             app:strokeColor="@color/white"
-            app:strokeWidth="2dp"/>
+            app:strokeWidth="2dp" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/selected_image_end"
-            android:layout_width="120dp"
+            android:layout_width="240dp"
             android:layout_height="0dp"
             android:scaleType="center"
-            app:layout_constraintTop_toTopOf="@id/horizontal_guideline_50"
-            app:layout_constraintStart_toStartOf="@id/vertical_guideline_30"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/vertical_guideline_30"
+            app:layout_constraintTop_toTopOf="@id/horizontal_guideline_50"
             app:shapeAppearanceOverlay="@style/RoundedImageStyle"
             app:strokeColor="@color/white"
             app:strokeWidth="2dp" />
@@ -124,80 +134,37 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/preview_image_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        app:layout_constraintStart_toEndOf="@id/selected_image_layout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/vertical_guideline_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.45" />
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/vertical_guideline_end"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.55" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/preview_image_start"
-            android:layout_width="100dp"
-            android:layout_height="0dp"
-            android:scaleType="center"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/vertical_guideline_end"
-            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
-            app:strokeColor="@color/white"
-            app:strokeWidth="2dp"/>
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/preview_image_end"
-            android:layout_width="100dp"
-            android:layout_height="0dp"
-            android:scaleType="center"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/vertical_guideline_start"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
-            app:strokeColor="@color/white"
-            app:strokeWidth="2dp"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/image_carousel_recycler_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:paddingHorizontal="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/add_image_button"
-        app:layout_constraintStart_toEndOf="@+id/preview_image_layout"
+        app:layout_constraintStart_toEndOf="@+id/selected_image_layout"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/add_image_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:cornerRadius="16dp"
+        android:layout_width="43dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:src="@drawable/outline_add_a_photo_24"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/image_carousel_recycler_view"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

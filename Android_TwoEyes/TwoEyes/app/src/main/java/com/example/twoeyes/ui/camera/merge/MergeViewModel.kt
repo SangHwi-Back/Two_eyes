@@ -1,10 +1,14 @@
 package com.example.twoeyes.ui.camera.merge
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.graphics.RectF
+import android.net.Uri
 import android.util.SizeF
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyes.ImageMerger
 import com.example.twoeyes.ImageMergerModel
@@ -88,4 +92,32 @@ data class Target(
     val size: SizeF
 ) {
     enum class Order { Top, Bottom }
+}
+
+// MergeViewModel.kt 하단에 추가
+class MergeViewModelFactory(
+    private val context: Context,
+    private val uri1: String,
+    private val uri2: String,
+    private val canvasSize: SizeF
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (!modelClass.isAssignableFrom(MergeViewModel::class.java))
+            throw IllegalArgumentException("Unknown ViewModel class")
+
+        val bitmap1 = BitmapFactory.decodeStream(
+            context.contentResolver.openInputStream(Uri.parse(uri1))
+        )
+        val bitmap2 = BitmapFactory.decodeStream(
+            context.contentResolver.openInputStream(Uri.parse(uri2))
+        )
+
+        val targets = listOf(
+            Target(Target.Order.Top,    bitmap1, PointF(), SizeF(canvasSize.width / 2, canvasSize.height / 2)),
+            Target(Target.Order.Bottom, bitmap2, PointF(), SizeF(canvasSize.width / 2, canvasSize.height / 2))
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        return MergeViewModel(targets, canvasSize) as T
+    }
 }

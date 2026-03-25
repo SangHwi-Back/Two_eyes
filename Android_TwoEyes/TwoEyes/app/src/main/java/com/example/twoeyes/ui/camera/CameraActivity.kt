@@ -1,6 +1,7 @@
 package com.example.twoeyes.ui.camera
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -12,6 +13,8 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -28,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.twoeyes.R
 import com.example.twoeyes.databinding.ActivityCameraBinding
+import com.example.twoeyes.ui.camera.merge.CameraMergeFragment
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -48,7 +52,27 @@ class CameraActivity : AppCompatActivity() {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         if (isLandscape) setupLandscapeViews() else setupPortraitViews()
         setupCommonViews(isLandscape)
+
+        setupBackPressedHandler()
     }
+
+    private fun setupBackPressedHandler() {
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (supportFragmentManager.backStackEntryCount > 0) {
+                        supportFragmentManager.popBackStack()
+                        binding.fragmentContainer.visibility = View.GONE
+                    } else {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        )
+    }
+
     private fun setupCommonViews(isLandscape: Boolean) {
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainCamera) { view, insets ->
             val safeInsets = insets.getInsets(
@@ -88,6 +112,26 @@ class CameraActivity : AppCompatActivity() {
         binding.buttonBack.setOnClickListener { finishWithResult() }
         binding.showCameraButton.setOnClickListener { requestCameraPermission() }
         binding.showAlbumButton.setOnClickListener { requestAlbumPermission() }
+        binding.nextButton.setOnClickListener {
+            val selected = viewModel.selectedImages.value.filterNotNull()
+
+            if (selected.size < 2) {
+                showToast("이미지를 2장 선택해주세요.")
+                return@setOnClickListener
+            }
+
+            val fragment = CameraMergeFragment.newInstance(
+                uri1 = selected[0].toString(),
+                uri2 = selected[1].toString()
+            )
+
+            binding.fragmentContainer.visibility = View.VISIBLE
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
     private fun setupPortraitViews() { }
     private fun setupLandscapeViews() {
