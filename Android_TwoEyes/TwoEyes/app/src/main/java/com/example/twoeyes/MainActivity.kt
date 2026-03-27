@@ -10,10 +10,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.core.net.toUri
+import androidx.navigation.NavOptions
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -32,10 +32,25 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        bottomNavigationView.setupWithNavController(navController)
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            navController.navigate(
+                item.itemId,
+                null,
+                NavOptions.Builder()
+                    .setPopUpTo(navController.graph.startDestinationId, false)
+                    .build()
+            )
+            true
+        }
 
         cameraFloatingButton.setOnClickListener {
-            navController.navigate(R.id.camera_fragment, null)
+            navController.navigate(
+                R.id.camera_fragment,
+                null,
+                NavOptions.Builder()
+                    .setPopUpTo(navController.graph.startDestinationId, false)
+                    .build()
+            )
         }
     }
 }
