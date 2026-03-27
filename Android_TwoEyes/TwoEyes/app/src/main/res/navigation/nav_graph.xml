@@ -9,17 +9,16 @@
         android:name="com.example.twoeyes.ui.feed.FeedFragment"
         android:label="FeedFragment">
         <action
-            android:id="@+id/action_feed_fragment_to_feedDetailFragment"
-            app:destination="@id/feedDetailFragment" />
+            android:id="@+id/action_feed_fragment_to_feed_detail_fragment"
+            app:destination="@id/feed_detail_fragment" />
     </fragment>
     <fragment android:id="@+id/upload_fragment" android:name="com.example.twoeyes.ui.upload.UploadFragment" />
     <fragment android:id="@+id/settings_fragment" android:name="com.example.twoeyes.ui.settings.SettingsFragment" />
     <fragment
-        android:id="@+id/feedDetailFragment"
+        android:id="@+id/feed_detail_fragment"
         android:name="com.example.twoeyes.ui.feed.detail.FeedDetailFragment"
-        android:label="fragment_feed_detail"
+        android:label="FeedDetailFragment"
         tools:layout="@layout/fragment_feed_detail">
-
         <argument
             android:name="model"
             app:argType="com.example.twoeyes.ui.feed.FeedItemModel"/>
@@ -27,17 +26,17 @@
     <fragment
         android:id="@+id/camera_fragment"
         android:name="com.example.twoeyes.ui.camera.CameraFragment"
-        android:label="CameraFragment" >
+        android:label="CameraFragment">
         <action
-            android:id="@+id/action_cameraFragment_to_cameraMergeFragment"
+            android:id="@+id/action_camera_fragment_to_camera_merge_fragment"
             app:destination="@id/camera_merge_fragment" />
     </fragment>
     <fragment
         android:id="@+id/camera_merge_fragment"
         android:name="com.example.twoeyes.ui.camera.merge.CameraMergeFragment"
-        android:label="CameraMergeFragment" />
-
+        android:label="CameraMergeFragment">
         <argument
             android:name="model"
             app:argType="com.example.twoeyes.ui.camera.merge.CameraMergeModel"/>
+    </fragment>
 </navigation>

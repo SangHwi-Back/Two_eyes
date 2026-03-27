@@ -106,7 +106,7 @@ class CameraFragment : Fragment() {
                 return@setOnClickListener
             }
             findNavController().navigate(
-                R.id.action_cameraFragment_to_cameraMergeFragment,
+                R.id.action_camera_fragment_to_camera_merge_fragment,
                 bundleOf(CAMERA_MERGE_MODEL to
                         CameraMergeModel(selected[0], selected[1]))
             )

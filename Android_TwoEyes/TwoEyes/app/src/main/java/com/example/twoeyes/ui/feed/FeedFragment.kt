@@ -40,7 +40,7 @@ class FeedFragment : Fragment(), FeedFragmentNavigationDelegate {
 
     override fun onFeedClicked(model: FeedItemModel) {
         findNavController().navigate(
-            R.id.action_feed_fragment_to_feedDetailFragment,
+            R.id.action_feed_fragment_to_feed_detail_fragment,
             bundleOf(KEY_FEED_MODEL to model))
     }
 
