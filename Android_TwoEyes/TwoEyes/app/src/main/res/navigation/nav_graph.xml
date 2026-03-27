@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/feed_fragment"
     android:id="@+id/nav_graph">
-    <fragment android:id="@+id/feed_fragment" android:name="com.example.twoeyes.ui.feed.FeedFragment" >
+    <fragment
+        android:id="@+id/feed_fragment"
+        android:name="com.example.twoeyes.ui.feed.FeedFragment"
+        android:label="FeedFragment">
         <action
             android:id="@+id/action_feed_fragment_to_feedDetailFragment"
             app:destination="@id/feedDetailFragment" />
@@ -22,15 +25,15 @@
             app:argType="com.example.twoeyes.ui.feed.FeedItemModel"/>
     </fragment>
     <fragment
-        android:id="@+id/cameraFragment"
+        android:id="@+id/camera_fragment"
         android:name="com.example.twoeyes.ui.camera.CameraFragment"
         android:label="CameraFragment" >
         <action
             android:id="@+id/action_cameraFragment_to_cameraMergeFragment"
-            app:destination="@id/cameraMergeFragment" />
+            app:destination="@id/camera_merge_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/cameraMergeFragment"
+        android:id="@+id/camera_merge_fragment"
         android:name="com.example.twoeyes.ui.camera.merge.CameraMergeFragment"
         android:label="CameraMergeFragment" />
 

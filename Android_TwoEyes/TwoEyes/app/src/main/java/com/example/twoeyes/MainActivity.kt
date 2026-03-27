@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
 
         cameraFloatingButton.setOnClickListener {
-            navController.navigate(R.id.fragment_camera, null)
+            navController.navigate(R.id.camera_fragment, null)
         }
     }
 }

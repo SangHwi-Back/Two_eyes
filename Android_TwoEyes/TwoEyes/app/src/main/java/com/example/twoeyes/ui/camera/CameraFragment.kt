@@ -113,7 +113,7 @@ class CameraFragment : Fragment() {
         }
     }
     private fun finishWithResult() {
-        findNavController().popBackStack(R.id.cameraFragment, false)
+        findNavController().popBackStack(R.id.camera_fragment, false)
     }
     // 카메라로 사진 찍기
     private val takePictureLauncher = registerForActivityResult(
