@@ -1,7 +1,7 @@
 package com.example.twoeyes.ui.camera
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -11,70 +11,53 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.twoeyes.R
-import com.example.twoeyes.databinding.ActivityCameraBinding
-import com.example.twoeyes.ui.camera.merge.CameraMergeFragment
+import com.example.twoeyes.databinding.FragmentCameraBinding
+import com.example.twoeyes.ui.camera.merge.CAMERA_MERGE_MODEL
+import com.example.twoeyes.ui.camera.merge.CameraMergeModel
 import kotlinx.coroutines.launch
 import java.io.File
 
-const val CAMERA_RESULT_CODE: String = "selected_images"
-class CameraActivity : AppCompatActivity() {
+class CameraFragment : Fragment() {
+
     private var pendingImageUri: Uri? = null
-    private lateinit var binding: ActivityCameraBinding
+    private lateinit var binding: FragmentCameraBinding
     private val viewModel: CameraViewModel by viewModels()
     private lateinit var thumbnailAdapter: ThumbnailAdapter
     private fun isGranted(permission: String) = ContextCompat.checkSelfPermission(
-        this, permission) == PackageManager.PERMISSION_GRANTED
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityCameraBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        requireContext(), permission) == PackageManager.PERMISSION_GRANTED
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentCameraBinding.inflate(inflater)
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        if (isLandscape) setupLandscapeViews() else setupPortraitViews()
         setupCommonViews(isLandscape)
-
-        setupBackPressedHandler()
+        
+        return binding.root
     }
-
-    private fun setupBackPressedHandler() {
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (supportFragmentManager.backStackEntryCount > 0) {
-                        supportFragmentManager.popBackStack()
-                        binding.fragmentContainer.visibility = View.GONE
-                    } else {
-                        isEnabled = false
-                        onBackPressedDispatcher.onBackPressed()
-                    }
-                }
-            }
-        )
-    }
-
     private fun setupCommonViews(isLandscape: Boolean) {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.mainCamera) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.fragmentCamera) { view, insets ->
             val safeInsets = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
                         or WindowInsetsCompat.Type.displayCutout())
@@ -88,7 +71,10 @@ class CameraActivity : AppCompatActivity() {
         })
         thumbnailAdapter = ThumbnailAdapter { viewModel.selectImage(it) }
         binding.imageCarouselRecyclerView.layoutManager = LinearLayoutManager(
-            this, if (isLandscape) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL, false)
+            requireContext(),
+            if (isLandscape) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
+            false
+        )
         binding.imageCarouselRecyclerView.adapter = thumbnailAdapter
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -119,44 +105,15 @@ class CameraActivity : AppCompatActivity() {
                 showToast("이미지를 2장 선택해주세요.")
                 return@setOnClickListener
             }
-
-            val fragment = CameraMergeFragment.newInstance(
-                uri1 = selected[0].toString(),
-                uri2 = selected[1].toString()
+            findNavController().navigate(
+                R.id.action_cameraFragment_to_cameraMergeFragment,
+                bundleOf(CAMERA_MERGE_MODEL to
+                        CameraMergeModel(selected[0], selected[1]))
             )
-
-            binding.fragmentContainer.visibility = View.VISIBLE
-
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
         }
-    }
-    private fun setupPortraitViews() { }
-    private fun setupLandscapeViews() {
-        binding.addImageButton?.setOnClickListener { }
     }
     private fun finishWithResult() {
-        val selectedUris = viewModel.selectedImages.value
-            .filterNotNull()
-            .map { it.toString() }
-
-        val resultIntent = Intent().apply {
-            putStringArrayListExtra(CAMERA_RESULT_CODE, ArrayList(selectedUris))
-        }
-        setResult(RESULT_OK, resultIntent)
-        finish()
-    }
-    override fun finish() {
-        super.finish()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-            overrideActivityTransition(
-                OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_down
-            )
-        else
-            @Suppress("DEPRECATION")
-            overridePendingTransition(0, R.anim.slide_down)
+        findNavController().popBackStack(R.id.cameraFragment, false)
     }
     // 카메라로 사진 찍기
     private val takePictureLauncher = registerForActivityResult(
@@ -175,7 +132,7 @@ class CameraActivity : AppCompatActivity() {
             // 전체 허용 이미 있음
             isGranted(Manifest.permission.READ_MEDIA_IMAGES) ||
             isGranted(Manifest.permission.READ_EXTERNAL_STORAGE) ->
-                viewModel.loadAllImages(contentResolver)
+                viewModel.loadAllImages(requireContext().contentResolver)
             // 일부 허용 이미 있음 (Android 14+)
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
             isGranted(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ->
@@ -201,7 +158,7 @@ class CameraActivity : AppCompatActivity() {
         when {
             permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
             permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true ->
-                viewModel.loadAllImages(contentResolver)          // 전체 허용
+                viewModel.loadAllImages(requireContext().contentResolver)          // 전체 허용
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
             permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED] == true ->
                 pickImageLauncher.launch(                          // 일부 허용
@@ -215,7 +172,7 @@ class CameraActivity : AppCompatActivity() {
     ) { result ->
         val uri = result.data?.data
         if (result.resultCode == RESULT_OK && uri != null)
-            viewModel.copyToAppStorage(this, uri)
+            viewModel.copyToAppStorage(requireContext(), uri)
         else
             showToast("Failed to get image URI")
     }
@@ -235,12 +192,12 @@ class CameraActivity : AppCompatActivity() {
     }
     private fun launchCamera() {
         val imageFile = File(
-            getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
             "camera_${System.currentTimeMillis()}.jpg"
         )
         val imageUri = FileProvider.getUriForFile(
-            this,
-            "${packageName}.fileprovider",
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
             imageFile
         )
         pendingImageUri = imageUri
@@ -252,5 +209,5 @@ class CameraActivity : AppCompatActivity() {
         )
     }
     private fun showToast(message: String) = Toast
-        .makeText(this, message, Toast.LENGTH_LONG).show()
+        .makeText(requireContext(), message, Toast.LENGTH_LONG).show()
 }

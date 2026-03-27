@@ -11,6 +11,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.twoeyes.databinding.FragmentCameraMergeBinding
 import kotlinx.coroutines.launch
+import android.net.Uri
+
+const val CAMERA_MERGE_MODEL = "modelCameraMerge"
 
 class CameraMergeFragment: Fragment() {
     private val viewModel: MergeViewModel by viewModels {
@@ -46,3 +49,8 @@ class CameraMergeFragment: Fragment() {
         return binding.root
     }
 }
+
+data class CameraMergeModel(
+    val uri1: Uri,
+    val uri2: Uri,
+)
