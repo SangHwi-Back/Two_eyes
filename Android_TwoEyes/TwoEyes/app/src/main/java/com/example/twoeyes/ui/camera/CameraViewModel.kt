@@ -9,6 +9,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,8 @@ class CameraViewModel: ViewModel() {
 
     private val _selectedImages = MutableStateFlow<List<Uri?>>(listOf(null, null))
     val selectedImages: StateFlow<List<Uri?>> = _selectedImages.asStateFlow()
+    private var _highlightedImageView = MutableStateFlow<ShapeableImageView?>(null)
+    val highlightedImageView: StateFlow<ShapeableImageView?> = _highlightedImageView.asStateFlow()
 
     fun addItem(item: Uri) {
         _items.value = _items.value + item
@@ -72,5 +75,11 @@ class CameraViewModel: ViewModel() {
             val destUri = Uri.fromFile(destFile)
             _items.value = _items.value + destUri
         }
+    }
+
+    fun highlightImageView(imageView: ShapeableImageView): ShapeableImageView {
+        val prev = _highlightedImageView.value
+        _highlightedImageView.value = if (imageView == prev) null else imageView
+        return imageView
     }
 }

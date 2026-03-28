@@ -48,6 +48,7 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="album">Album</string>
-    <string name="add_image_description">Picture from...</string>
+    <string name="add_image_description">Picture from…</string>
     <string name="close_camera_screen">Close Camera screen</string>
+    <string name="thumbnail_empty_view_text">Load picture\nPress Buttons Below</string>
 </resources>

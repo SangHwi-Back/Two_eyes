@@ -49,7 +49,7 @@ class CameraFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCameraBinding.inflate(inflater)
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         setupCommonViews(isLandscape)
@@ -76,21 +76,35 @@ class CameraFragment : Fragment() {
             false
         )
         binding.imageCarouselRecyclerView.adapter = thumbnailAdapter
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.items.collect { itemList ->
-                    thumbnailAdapter.updateList(itemList)
-                }
-            }
+        binding.selectedImageStart.setOnClickListener {
+            viewModel.highlightImageView(binding.selectedImageStart)
+        }
+        binding.selectedImageEnd.setOnClickListener {
+            viewModel.highlightImageView(binding.selectedImageEnd)
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.selectedImages.collect { selected ->
-                    for ((index, select) in selected.filterNotNull().withIndex()) {
-                        Glide
-                            .with(binding.selectedImageLayout)
-                            .load(select)
-                            .into(if (index == 0) binding.selectedImageStart else binding.selectedImageEnd)
+                launch {
+                    viewModel.items.collect { itemList ->
+                        thumbnailAdapter.updateList(itemList)
+                    }
+                }
+                launch {
+                    viewModel.selectedImages.collect { selected ->
+                        for ((index, select) in selected.filterNotNull().withIndex()) {
+                            Glide
+                                .with(binding.selectedImageLayout)
+                                .load(select)
+                                .into(if (index == 0) binding.selectedImageStart else binding.selectedImageEnd)
+                        }
+                    }
+                }
+                launch {
+                    viewModel.highlightedImageView.collect {
+                        val defaultStroke = ContextCompat.getColorStateList(requireContext(), R.color.stroke_color)
+                        binding.selectedImageStart.strokeColor = defaultStroke
+                        binding.selectedImageEnd.strokeColor = defaultStroke
+                        it?.strokeColor = ContextCompat.getColorStateList(requireContext(), R.color.red)
                     }
                 }
             }
