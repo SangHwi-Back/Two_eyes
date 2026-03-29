@@ -1,19 +1,16 @@
 package com.example.twoeyes
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import com.example.twoeyes.ui.camera.CameraFragment
+import com.example.twoeyes.ui.feed.FeedFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.core.net.toUri
-import androidx.navigation.NavOptions
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -52,5 +49,20 @@ class MainActivity : AppCompatActivity() {
                     .build()
             )
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                for (fragment in supportFragmentManager.fragments) {
+                    if (fragment is CameraFragment) {
+                        bottomNavigationView.selectedItemId = R.id.camera_fragment
+                        break
+                    } else if (fragment is FeedFragment) {
+                        bottomNavigationView.selectedItemId = R.id.feed_fragment
+                        break
+                    }
+                }
+                bottomNavigationView.selectedItemId = R.id.feed_fragment
+            }
+        })
     }
 }
