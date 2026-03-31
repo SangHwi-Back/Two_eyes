@@ -14,7 +14,7 @@ data class ImageMergerModel(
     val canvasHeight: Int,
     val bottomImage: ImageInfo,
     val topImage: ImageInfo,
-    val blendAlpha: Int = 128 // 0~255, 128 = 50%
+    val blendAlpha: Float = 0.5f,
 ) {
     data class ImageInfo(
         val image: PlatformImage,

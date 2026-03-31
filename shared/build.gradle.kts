@@ -24,8 +24,11 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.androidx.lifecycle.viewmodel)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.lifecycle.viewmodel.ktx)
             implementation(libs.insert.koin.koin.android)
             implementation(libs.koin.android.compat)
@@ -33,8 +36,9 @@ kotlin {
             implementation(libs.koin.androidx.navigation)
             implementation(libs.io.insert.koin.koin.androidx.compose)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
+        androidUnitTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.robolectric)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
