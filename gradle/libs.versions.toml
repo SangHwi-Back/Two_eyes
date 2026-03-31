@@ -18,6 +18,7 @@ kotlinxCoroutinesCore = "1.10.2"
 lifecycleViewmodelKtx = "2.10.0"
 material3 = "1.10.0-alpha05"
 robolectricVersion = "4.12.1"
+coreKtx = "1.7.0"
 
 [libraries]
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
@@ -28,6 +29,7 @@ koin-android-v411 = { module = "io.insert-koin:koin-android", version.ref = "koi
 koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koinAndroidVersion" }
 koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koinAndroidVersion" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinAndroid" }
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koinAndroidVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -48,6 +50,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
+core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

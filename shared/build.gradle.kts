@@ -39,6 +39,8 @@ kotlin {
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.robolectric)
+            implementation(libs.koin.test.junit4)
+            implementation(libs.core.ktx)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

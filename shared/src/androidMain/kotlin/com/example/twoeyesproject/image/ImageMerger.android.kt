@@ -37,7 +37,7 @@ actual class ImageMerger actual constructor() {
         }
 
         // 겹치는 영역을 blendAlpha 로 그리기
-        paint.alpha = (model.blendAlpha * 255)
+        paint.alpha = (model.blendAlpha * 255).toInt()
         canvas.withClip(intersection) {
             drawBitmap(top.image, null, top.frame.toRectF(), paint)
         }
