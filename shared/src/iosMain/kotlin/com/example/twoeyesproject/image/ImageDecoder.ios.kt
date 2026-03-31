@@ -1,6 +1,7 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package com.example.twoeyesproject.image
 
-import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.CoreGraphics.CGSizeMake
 import platform.Photos.PHImageContentModeAspectFill
@@ -12,7 +13,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 actual class ImageDecoder {
-    @OptIn(ExperimentalForeignApi::class)
     actual suspend fun decode(source: ImageSource): PlatformImage {
         val manager = PHImageManager.defaultManager()
         val options = PHImageRequestOptions()
@@ -23,17 +23,21 @@ actual class ImageDecoder {
         options.networkAccessAllowed = true
 
         return suspendCancellableCoroutine { continuation ->
-            manager.requestImageForAsset(
+            val requestId = manager.requestImageForAsset(
                 source,
                 CGSizeMake(100.toDouble(), 100.toDouble()),
                 contentMode = PHImageContentModeAspectFill,
                 options = options
             ) { image, _ ->
                 if (image == null) {
-                    continuation.resumeWithException(NullPointerException())
+                    continuation.resumeWithException(NullPointerException("Failed to decode image"))
                 } else {
                     continuation.resume(image)
                 }
+            }
+
+            continuation.invokeOnCancellation {
+                manager.cancelImageRequest(requestId)
             }
         }
     }
