@@ -10,7 +10,7 @@ interface ContextStore {
     var context: Context
 }
 
-actual class ImageDecoder actual constructor(imageSource: ImageSource) {
+actual class ImageDecoder {
     val contextStore = module {
         single<ContextStore> { AndroidContextStore(androidContext()) }
     }

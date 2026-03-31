@@ -1,5 +1,5 @@
 package com.example.twoeyesproject.image
 
-expect class ImageDecoder(imageSource: ImageSource) {
+expect class ImageDecoder constructor() {
     suspend fun decode(source: ImageSource): PlatformImage
 }

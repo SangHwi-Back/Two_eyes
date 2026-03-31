@@ -11,7 +11,7 @@ import platform.Photos.PHImageRequestOptionsResizeModeExact
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-actual class ImageDecoder actual constructor(imageSource: ImageSource) {
+actual class ImageDecoder {
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun decode(source: ImageSource): PlatformImage {
         val manager = PHImageManager.defaultManager()
