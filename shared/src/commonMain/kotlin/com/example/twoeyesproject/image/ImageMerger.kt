@@ -2,11 +2,18 @@ package com.example.twoeyesproject.image
 
 // Rect 추상화
 data class ImageFrame(
-    val left: Float,
-    val top: Float,
-    val right: Float,
-    val bottom: Float,
-)
+    var left: Float,
+    var top: Float,
+    var right: Float,
+    var bottom: Float,
+) {
+    fun setPosition(x: Float, y: Float) {
+        left = x
+        right += x
+        top = y
+        bottom += y
+    }
+}
 
 // Image 머징 모델
 data class ImageMergerModel(

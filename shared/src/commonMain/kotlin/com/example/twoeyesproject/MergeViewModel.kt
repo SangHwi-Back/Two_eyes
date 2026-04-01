@@ -6,13 +6,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.ImageFrame
+import com.example.twoeyesproject.image.ImageMerger
+import com.example.twoeyesproject.image.ImageMergerModel
 import com.example.twoeyesproject.image.ImageSource
 import com.example.twoeyesproject.image.PlatformImage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.contracts.Effect
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -22,12 +28,13 @@ class MergeViewModel(
     private val source1: ImageSource,
     private val source2: ImageSource,
 ) : ViewModel() {
+    private val merger = ImageMerger()
     private var imageViewZPositions = mutableListOf(ImageOrder.TOP, ImageOrder.BOTTOM)
     private var _mergeSubject = MutableSharedFlow<Unit>()
     val mergeSubject = _mergeSubject.asSharedFlow()
     private var _mergeTrigger = MutableSharedFlow<PlatformImage>()
     val mergeTrigger = _mergeTrigger.asSharedFlow()
-    private var _targets = MutableSharedFlow<MutableList<CameraMergeTarget>>()
+    private var _targets = MutableStateFlow<MutableList<CameraMergeTarget>>(mutableListOf())
     val targets = _targets.asSharedFlow()
 
     init {
@@ -47,23 +54,65 @@ class MergeViewModel(
         }
     }
 
-    private fun triggerMerge() {
-        TODO("Not yet implemented")
+    fun updatePosition(order: ImageOrder, x: Float, y: Float) {
+        val values = _targets.value
+        var index = 0
+        when (order) {
+            ImageOrder.TOP -> {
+                values[0].rect.setPosition(x, y)
+                index = 0
+            }
+            ImageOrder.BOTTOM -> {
+                values[1].rect.setPosition(x, y)
+                index = 1
+            }
+        }
+
+        observer.didStatusChanged(
+            CameraMergeEffect.OnStatusChanged(values[index].image))
+        setNewTargetState(values)
     }
 
-    fun swapZPosition() {
+    fun swapOrder() {
         imageViewZPositions.add(imageViewZPositions.removeFirst())
-        observer.didSwapedZPosition(CameraMergeEffect.OnSwapZPosition(imageViewZPositions.toList()))
-        _mergeSubject.tryEmit(Unit)
+        observer.didSwapedZPosition(
+            CameraMergeEffect.OnSwapZPosition(imageViewZPositions.toList()))
+        setNewTargetState(_targets.value.asReversed())
     }
+
+    private fun setNewTargetState(list: MutableList<CameraMergeTarget>) {
+        viewModelScope.launch {
+            _targets.value = list
+            triggerMerge()
+        }
+    }
+
+    private fun triggerMerge() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val values = _targets.value
+
+            if (values.size < 2) {
+                return@launch
+            }
+
+            val model = ImageMergerModel(
+                canvasWidth = 300,
+                canvasHeight = 700,
+                values[1].toImageInfo(),
+                values[0].toImageInfo(),
+            )
+
+            val merged = merger.merge(model)
+            _mergeTrigger.emit(merged)
+        }
+    }
+
     interface Observer {
-        fun didCallInitialStatus(effect: CameraMergeEffect.OnCallInitialStatus)
         fun didSwapedZPosition(effect: CameraMergeEffect.OnSwapZPosition)
         fun didStatusChanged(effect: CameraMergeEffect.OnStatusChanged)
     }
     enum class ImageOrder { TOP, BOTTOM }
     sealed class CameraMergeEffect {
-        data class OnCallInitialStatus(val status: List<CameraImageViewStatus>)
         data class OnSwapZPosition(val order: List<ImageOrder>)
         data class OnStatusChanged(val image: PlatformImage)
     }
@@ -72,6 +121,10 @@ class MergeViewModel(
         val image: PlatformImage,
         val rect: ImageFrame
     )
+
+    fun CameraMergeTarget.toImageInfo(): ImageMergerModel.ImageInfo =
+        ImageMergerModel.ImageInfo(image, rect)
+
 }
 
 data class CameraImageViewStatus(
