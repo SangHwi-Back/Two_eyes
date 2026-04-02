@@ -16,9 +16,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.contracts.Effect
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.milliseconds
 
