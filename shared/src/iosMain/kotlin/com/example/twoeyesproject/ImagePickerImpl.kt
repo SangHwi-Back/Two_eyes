@@ -21,8 +21,6 @@ class ImagePickerImpl: NSObject(), UIImagePickerControllerDelegateProtocol, PHPi
         didFinishPickingImage: UIImage,
         editingInfo: Map<Any?, *>?
     ) {
-        super.imagePickerController(picker, didFinishPickingImage, editingInfo)
-
         val image: PlatformImage? =
             editingInfo?.get(UIImagePickerControllerOriginalImage) as? PlatformImage
 
