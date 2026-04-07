@@ -2,6 +2,8 @@ package com.example.twoeyesproject.image
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import com.example.twoeyesproject.platformspecific.ImageSource
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 

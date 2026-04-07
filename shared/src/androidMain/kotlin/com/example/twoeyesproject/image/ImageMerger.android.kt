@@ -7,6 +7,7 @@ import android.graphics.RectF
 import android.graphics.Region
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.withClip
+import com.example.twoeyesproject.platformspecific.PlatformImage
 
 actual class ImageMerger actual constructor() {
     actual fun merge(model: ImageMergerModel): PlatformImage {

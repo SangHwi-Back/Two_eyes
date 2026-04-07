@@ -1,6 +1,6 @@
 package com.example.twoeyesproject
 
-import com.example.twoeyesproject.image.PlatformImage
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.NSCollectionLayoutDimension
 import platform.UIKit.NSCollectionLayoutEnvironmentProtocol

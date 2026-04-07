@@ -341,25 +341,19 @@
 		1B30444D2F7CEE0D0062F13F /* SharedModule.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedModule.android.kt; sourceTree = "<group>"; };
 		1B30444F2F7CEE0D0062F13F /* ImageDecoder.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.android.kt; sourceTree = "<group>"; };
 		1B3044502F7CEE0D0062F13F /* ImageMerger.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.android.kt; sourceTree = "<group>"; };
-		1B3044512F7CEE0D0062F13F /* ImageSource.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageSource.android.kt; sourceTree = "<group>"; };
-		1B3044522F7CEE0D0062F13F /* PlatformImage.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlatformImage.android.kt; sourceTree = "<group>"; };
 		1B3044542F7CEE0D0062F13F /* Platform.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.android.kt; sourceTree = "<group>"; };
 		1B30445A2F7CEE0D0062F13F /* SharedModuleTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedModuleTest.kt; sourceTree = "<group>"; };
 		1B30445C2F7CEE0D0062F13F /* ImageDecoderAndroidTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoderAndroidTest.kt; sourceTree = "<group>"; };
 		1B30445D2F7CEE0D0062F13F /* ImageMergerAndroidTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerAndroidTest.kt; sourceTree = "<group>"; };
 		1B3044642F7CEE0D0062F13F /* ImageDecoder.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.kt; sourceTree = "<group>"; };
 		1B3044652F7CEE0D0062F13F /* ImageMerger.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.kt; sourceTree = "<group>"; };
-		1B3044662F7CEE0D0062F13F /* ImageSource.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageSource.kt; sourceTree = "<group>"; };
-		1B3044672F7CEE0D0062F13F /* PlatformImage.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlatformImage.kt; sourceTree = "<group>"; };
 		1B3044692F7CEE0D0062F13F /* Greeting.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Greeting.kt; sourceTree = "<group>"; };
-		1B30446A2F7CEE0D0062F13F /* MergeViewModel.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = MergeViewModel.kt; sourceTree = "<group>"; };
+		1B30446A2F7CEE0D0062F13F /* MergeViewModel.kt */ = {isa = PBXFileReference; lastKnownFileType = file.kt; name = MergeViewModel.kt; path = image/merge/MergeViewModel.kt; sourceTree = "<group>"; };
 		1B30446B2F7CEE0D0062F13F /* Platform.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.kt; sourceTree = "<group>"; };
 		1B3044712F7CEE0D0062F13F /* ImageMergerModelTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerModelTest.kt; sourceTree = "<group>"; };
 		1B3044732F7CEE0D0062F13F /* SharedCommonTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedCommonTest.kt; sourceTree = "<group>"; };
 		1B3044792F7CEE0D0062F13F /* ImageDecoder.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.ios.kt; sourceTree = "<group>"; };
 		1B30447A2F7CEE0D0062F13F /* ImageMerger.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.ios.kt; sourceTree = "<group>"; };
-		1B30447B2F7CEE0D0062F13F /* ImageSource.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageSource.ios.kt; sourceTree = "<group>"; };
-		1B30447C2F7CEE0D0062F13F /* PlatformImage.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlatformImage.ios.kt; sourceTree = "<group>"; };
 		1B30447E2F7CEE0D0062F13F /* Platform.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.ios.kt; sourceTree = "<group>"; };
 		1B3044842F7CEE0D0062F13F /* ImageMergerIosTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerIosTest.kt; sourceTree = "<group>"; };
 		1B30448C2F7CEE0D0062F13F /* build.gradle.kts */ = {isa = PBXFileReference; lastKnownFileType = text; path = build.gradle.kts; sourceTree = "<group>"; };
@@ -367,7 +361,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0191E13EED7E27CA64CC8D2C /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		0191E13EED7E27CA64CC8D2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -385,7 +379,7 @@
 		A588823EC4331B02EF2AB6A3 /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				0191E13EED7E27CA64CC8D2C /* Exceptions for "iosApp" folder in "iosApp" target */,
+				0191E13EED7E27CA64CC8D2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -3460,8 +3454,6 @@
 			children = (
 				1B30444F2F7CEE0D0062F13F /* ImageDecoder.android.kt */,
 				1B3044502F7CEE0D0062F13F /* ImageMerger.android.kt */,
-				1B3044512F7CEE0D0062F13F /* ImageSource.android.kt */,
-				1B3044522F7CEE0D0062F13F /* PlatformImage.android.kt */,
 			);
 			path = image;
 			sourceTree = "<group>";
@@ -3571,8 +3563,6 @@
 			children = (
 				1B3044642F7CEE0D0062F13F /* ImageDecoder.kt */,
 				1B3044652F7CEE0D0062F13F /* ImageMerger.kt */,
-				1B3044662F7CEE0D0062F13F /* ImageSource.kt */,
-				1B3044672F7CEE0D0062F13F /* PlatformImage.kt */,
 			);
 			path = image;
 			sourceTree = "<group>";
@@ -3674,8 +3664,6 @@
 			children = (
 				1B3044792F7CEE0D0062F13F /* ImageDecoder.ios.kt */,
 				1B30447A2F7CEE0D0062F13F /* ImageMerger.ios.kt */,
-				1B30447B2F7CEE0D0062F13F /* ImageSource.ios.kt */,
-				1B30447C2F7CEE0D0062F13F /* PlatformImage.ios.kt */,
 			);
 			path = image;
 			sourceTree = "<group>";

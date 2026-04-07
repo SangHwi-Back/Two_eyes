@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
+import com.example.twoeyesproject.image.CameraLauncher
+import com.example.twoeyesproject.image.CapturedImage
+import com.example.twoeyesproject.image.PickImageViewModel
 import java.io.ByteArrayOutputStream
 
 class PlatformCameraLauncher(

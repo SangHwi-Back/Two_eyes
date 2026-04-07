@@ -1,6 +1,6 @@
 package com.example.twoeyesproject
 
-import com.example.twoeyesproject.image.PlatformImage
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import platform.PhotosUI.PHPickerResult

@@ -1,8 +1,9 @@
-package com.example.twoeyesproject
+package com.example.twoeyesproject.image
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.twoeyesproject.image.PlatformImage
+import com.example.twoeyesproject.image.PickImageFetcher
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package com.example.twoeyesproject
+package com.example.twoeyesproject.image.merge
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,8 +8,8 @@ import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.ImageFrame
 import com.example.twoeyesproject.image.ImageMerger
 import com.example.twoeyesproject.image.ImageMergerModel
-import com.example.twoeyesproject.image.ImageSource
-import com.example.twoeyesproject.image.PlatformImage
+import com.example.twoeyesproject.platformspecific.ImageSource
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow

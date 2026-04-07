@@ -1,4 +1,4 @@
-package com.example.twoeyesproject
+package com.example.twoeyesproject.image
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,10 +6,9 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
-import com.example.twoeyesproject.image.PlatformImage
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 actual class PickImageFetcher actual constructor(val viewModel: PickImageViewModel): KoinComponent {

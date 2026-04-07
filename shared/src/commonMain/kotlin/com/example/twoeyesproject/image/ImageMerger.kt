@@ -1,5 +1,7 @@
 package com.example.twoeyesproject.image
 
+import com.example.twoeyesproject.platformspecific.PlatformImage
+
 // Rect 추상화
 data class ImageFrame(
     var left: Float,

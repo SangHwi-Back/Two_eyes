@@ -1,4 +1,4 @@
-package com.example.twoeyesproject
+package com.example.twoeyesproject.platformspecific
 
 expect class PlatformUri
 

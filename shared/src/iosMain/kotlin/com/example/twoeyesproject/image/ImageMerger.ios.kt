@@ -2,6 +2,7 @@
 
 package com.example.twoeyesproject.image
 
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import platform.CoreGraphics.CGBlendMode
 import platform.CoreGraphics.CGContextClipToRect
 import platform.CoreGraphics.CGContextRestoreGState

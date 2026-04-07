@@ -1,3 +1,3 @@
-package com.example.twoeyesproject.image
+package com.example.twoeyesproject.platformspecific
 
 actual typealias ImageSource = android.net.Uri.Builder
