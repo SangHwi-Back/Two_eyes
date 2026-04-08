@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -83,13 +84,14 @@ private fun AppScaffold(navController: NavHostController) {
                 }
             }
         },
+        floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             if (showBottomBar) {
                 FloatingActionButton(onClick = { navController.navigate(ROUTE_CAMERA) }) {
                     Icon(Icons.Default.Add, contentDescription = "카메라")
                 }
             }
-        }
+        },
     ) { innerPadding ->
         NavHost(
             navController = navController,
