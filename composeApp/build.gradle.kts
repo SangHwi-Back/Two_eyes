@@ -19,6 +19,9 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android.v411)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.coil3.network.okhttp)
+            implementation(libs.androidx.material.icons.extended)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -31,6 +34,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.koin.core)
             implementation(projects.shared)
+            implementation(libs.coil3.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

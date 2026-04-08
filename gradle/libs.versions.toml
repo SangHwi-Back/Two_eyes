@@ -17,11 +17,16 @@ kotlin = "2.3.0"
 kotlinxCoroutinesCore = "1.10.2"
 lifecycleViewmodelKtx = "2.10.0"
 material3 = "1.10.0-alpha05"
+materialIconsExtended = "1.7.8"
 robolectricVersion = "4.12.1"
 coreKtx = "1.7.0"
+coil3 = "3.1.0"
+navigationCompose = "2.8.9"
+uiGraphics = "1.10.6"
 
 [libraries]
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 insert-koin-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroidVersion" }
 io-insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidVersion" }
 koin-android-compat = { module = "io.insert-koin:koin-android-compat", version.ref = "koinAndroidVersion" }
@@ -51,6 +56,10 @@ compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previ
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
+coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil3-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
