@@ -12,13 +12,15 @@ struct FeedListView: View {
     var viewModel = FeedListViewModel()
     
     var listData: [FeedItemModel] {
-        (viewModel.listData as? [FeedItemModel]) ?? []
+        (viewModel.listData.value as? [FeedItemModel]) ?? []
     }
     
     var body: some View {
-        LazyVStack {
-            ForEach(listData, id: \.self) { data in
-                FeedItemView(model: data)
+        ScrollView {
+            LazyVStack(spacing: 18) {
+                ForEach(listData, id: \.self) { data in
+                    FeedItemView(model: data)
+                }
             }
         }
     }

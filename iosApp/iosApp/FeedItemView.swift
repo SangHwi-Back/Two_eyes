@@ -11,14 +11,14 @@ import Kingfisher
 
 struct FeedItemView: View {
     let model: FeedItemModel
-    
+
     @State var showReply: Bool
-    
+
     init(model: FeedItemModel) {
         self.model = model
         self.showReply = model.showReply
     }
-    
+
     var body: some View {
         VStack {
             ScrollView(.horizontal) {
@@ -26,38 +26,46 @@ struct FeedItemView: View {
                     ForEach(model.imageUrls, id: \.self) { url in
                         KFImage(URL(string: url))
                             .resizable()
-                            .aspectRatio(1, contentMode: .fit)
+                            .scaledToFill()
+                            .containerRelativeFrame(.horizontal, count: 1, spacing: 0)
+                            .clipped()
                     }
                 }
             }
             .scrollTargetBehavior(.paging)
             .scrollIndicators(.visible, axes: .horizontal)
+            .aspectRatio(1, contentMode: .fit)
+            .padding(.bottom)
             
-            HStack {
-                Button("Likes", systemImage: "heart") {
-                    
-                }
-                Button("Comment", systemImage: "arrowshape.turn.up.left") {
-                    
-                }
-                Button("Share", systemImage: "square.and.arrow.up") {
-                    
-                }
-            }
-            
-            HStack {
-                Text(model.author)
-                    .font(.largeTitle)
-                Text(model.description_)
-                    .font(.body)
-                    .fontWeight(.medium)
-            }
-            
-            HStack {
+            HStack(spacing: 18) {
+                Button("", systemImage: "heart") {}
+                    .tint(Color.primary)
+                Button("", systemImage: "arrowshape.turn.up.left") {}
+                    .tint(Color.primary)
+                Button("", systemImage: "square.and.arrow.up") {}
+                    .tint(Color.primary)
                 Spacer()
+            }
+            .padding(.bottom)
+            .padding(.leading)
+            
+            HStack(alignment: .top, spacing: 18) {
+                Text(model.author)
+                    .font(.callout)
+                Text(model.description_)
+                    .font(.subheadline)
+                Spacer()
+            }
+            .padding(.bottom)
+            .padding(.leading)
+            
+            HStack {
                 Button(showReply ? "Hide Comment" : "Show Comment") {
                     showReply.toggle()
                 }
+                .tint(Color.secondary)
+                .padding(.leading)
+                Spacer()
             }
             
             if showReply {
@@ -65,14 +73,4 @@ struct FeedItemView: View {
             }
         }
     }
-}
-
-#Preview {
-    FeedItemView(model: .init(
-        imageUrls: [],
-        likes: 0,
-        author: "",
-        description: "",
-        showReply: false
-    ))
 }
