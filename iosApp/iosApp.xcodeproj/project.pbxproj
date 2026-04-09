@@ -3872,7 +3872,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1B3041AF2F7CEDAC0062F13F /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
