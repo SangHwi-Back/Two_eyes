@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.coroutines.Dispatchers

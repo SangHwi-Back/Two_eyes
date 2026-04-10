@@ -25,6 +25,12 @@ class PickImageViewModel: ViewModel() {
     private var _images = MutableStateFlow<List<PlatformImage>>(listOf())
     val images: StateFlow<List<PlatformImage>> = _images.asStateFlow()
 
+    var onImagesUpdated: ((List<PlatformImage>) -> Unit)? = null
+        set(value) {
+            field = value
+            onImagesUpdated?.invoke(images.value)
+        }
+
     data class TargetModel(
         var leading: ImageViewModel,
         var trailing: ImageViewModel

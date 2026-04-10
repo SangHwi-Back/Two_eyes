@@ -9,9 +9,9 @@ import SwiftUI
 import Shared
 
 struct PickImageView: View {
-    let viewModel = PickImageViewModel()
-    var images: [UIImage] {
-        (viewModel.images.value as? [UIImage]) ?? []
+    let viewModelWrapper = PickImageViewModelWrapper()
+    var viewModel: PickImageViewModel {
+        viewModelWrapper.viewModel
     }
     var target: PickImageViewModel.TargetModel? {
         viewModel.target.value as? PickImageViewModel.TargetModel
@@ -39,7 +39,7 @@ struct PickImageView: View {
             .frame(height: 200)
             
             LazyHStack(spacing: 8) {
-                ForEach(images, id: \.self) { image in
+                ForEach(viewModelWrapper.images, id: \.self) { image in
                     Image(uiImage: image)
                         .resizable()
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -69,17 +69,4 @@ struct PickImageView: View {
 
 #Preview {
     PickImageView()
-}
-
-class Collector<T> : Kotlinx_coroutines_coreFlowCollector {
-    let callback:(T) -> Void
-
-    init(callback: @escaping (T) -> Void) {
-        self.callback = callback
-    }
-    
-    func emit(value: Any?, completionHandler: @escaping (Error?) -> Void) {
-        callback(value as! T)
-        completionHandler(nil)
-    }
 }
