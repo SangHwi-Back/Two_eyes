@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>이 앱은 창의력을 표현할 사진을 사용자가 직접 촬영할 수 있도록 카메라에 접근합니다. 이를 인지하셨나요?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>이 앱은 창의력을 표현할 사진을 사용자의 앨범을 통해 가져옵니다. 앨범의 사진을 공유할 수 있음을 인지하셨나요?</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

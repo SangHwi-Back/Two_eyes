@@ -7,29 +7,22 @@
 
 import SwiftUI
 import Shared
+import Photos
 
 struct PickImageView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     
-    var viewModel: PickImageViewModel {
-        viewModelWrapper.viewModel
-    }
+    @State private var wrapper = PickImageViewModelWrapper()
+
+    private var viewModel: PickImageViewModel { wrapper.viewModel }
+    private var cameraLauncher: PlatformCameraLauncher { wrapper.cameraLauncher }
+    private var photoPickerLauncher: PlatformPhotoPickerLauncher { wrapper.photoPickerLauncher }
+
     var target: PickImageViewModel.TargetModel? {
         viewModel.target.value as? PickImageViewModel.TargetModel
     }
     var goNextEnabled: Bool {
         target?.leading.image != nil && target?.trailing.image != nil
-    }
-    
-    let viewModelWrapper: PickImageViewModelWrapper
-    let cameraLauncher: PlatformCameraLauncher
-    let photoPickerLauncher: PlatformPhotoPickerLauncher
-
-    init() {
-        let wrapper = PickImageViewModelWrapper()
-        self.viewModelWrapper = wrapper
-        self.cameraLauncher = .init(viewModel: wrapper.viewModel)
-        self.photoPickerLauncher = .init(viewModel: wrapper.viewModel)
     }
     
     var body: some View {
@@ -47,7 +40,7 @@ struct PickImageView: View {
             .aspectRatio(0.75, contentMode: .fill)
             
             LazyHStack(spacing: 8) {
-                ForEach(viewModelWrapper.images, id: \.self) { image in
+                ForEach(wrapper.images, id: \.self) { image in
                     Image(uiImage: image)
                         .resizable()
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -68,11 +61,11 @@ struct PickImageView: View {
                 BottomButtonImage(systemName: "appwindow.swipe.rectangle")
                     .contextMenu {
                         Button { photoPickerLauncher.launch() } label: {
-                            Label("Pick", image: "hand.rays")
+                            Label("앨범에서 선택", systemImage: "hand.rays")
                         }
-                        
-                        Button { viewModel.loadAllImages() } label: {
-                            Label("Album", systemImage: "photo.on.rectangle.angled")
+
+                        Button { requestAlbumAccess() } label: {
+                            Label("전체 불러오기", systemImage: "photo.on.rectangle.angled")
                         }
                     }
                 
@@ -91,6 +84,29 @@ struct PickImageView: View {
         }}
     }
     
+    private func requestAlbumAccess() {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .authorized:
+            viewModel.loadAllImages()
+        case .limited:
+            photoPickerLauncher.launch()
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                DispatchQueue.main.async {
+                    if newStatus == .authorized {
+                        viewModel.loadAllImages()
+                    } else {
+                        photoPickerLauncher.launch()
+                    }
+                }
+            }
+        default:
+            // denied / restricted: PHPicker는 권한 없이도 사용 가능
+            photoPickerLauncher.launch()
+        }
+    }
+
     private func highLightImageView(isLeft: Bool) {
         guard let model = isLeft ? target?.leading : target?.trailing else {
             return

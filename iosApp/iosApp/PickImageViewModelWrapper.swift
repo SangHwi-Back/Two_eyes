@@ -9,11 +9,16 @@ import Shared
 @Observable
 final class PickImageViewModelWrapper {
     let viewModel = PickImageViewModel()
+    let cameraLauncher: PlatformCameraLauncher
+    let photoPickerLauncher: PlatformPhotoPickerLauncher
 
     private(set) var images = [UIImage]()
     private(set) var capturedImage: UIImage?
 
     init() {
+        cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
+        photoPickerLauncher = PlatformPhotoPickerLauncher(viewModel: viewModel)
+
         viewModel.onImagesUpdated = { [weak self] images in
             self?.images = images
         }
