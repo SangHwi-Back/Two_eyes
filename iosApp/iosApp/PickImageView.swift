@@ -9,7 +9,8 @@ import SwiftUI
 import Shared
 
 struct PickImageView: View {
-    let viewModelWrapper = PickImageViewModelWrapper()
+    @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
+    
     var viewModel: PickImageViewModel {
         viewModelWrapper.viewModel
     }
@@ -17,26 +18,28 @@ struct PickImageView: View {
         viewModel.target.value as? PickImageViewModel.TargetModel
     }
     
+    let viewModelWrapper: PickImageViewModelWrapper
+    let cameraLauncher: PlatformCameraLauncher
+
+    init() {
+        let wrapper = PickImageViewModelWrapper()
+        self.viewModelWrapper = wrapper
+        self.cameraLauncher = .init(viewModel: wrapper.viewModel)
+    }
+    
     var body: some View {
         ScrollView { VStack {
             HStack {
-                Image("")
-                    .resizable()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .border((target?.trailing.isHighlighted ?? false) ? Color.red : Color.gray, width: 1)
-                    .onTapGesture {
-                        highLightImageView(isLeft: true)
-                    }
+                target
+                    .getImageView(isLeading: true)
+                    .onTapGesture { highLightImageView(isLeft: true) }
                 Image(systemName: "plus")
-                Image("")
-                    .resizable()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .border((target?.leading.isHighlighted ?? false) ? Color.red : Color.gray, width: 1)
-                    .onTapGesture {
-                        highLightImageView(isLeft: false)
-                    }
+                target
+                    .getImageView(isLeading: false)
+                    .onTapGesture { highLightImageView(isLeft: false) }
             }
-            .frame(height: 200)
+            .padding(.horizontal)
+            .aspectRatio(1.21, contentMode: .fill)
             
             LazyHStack(spacing: 8) {
                 ForEach(viewModelWrapper.images, id: \.self) { image in
@@ -44,17 +47,33 @@ struct PickImageView: View {
                         .resizable()
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .frame(width: 120, height: 200)
+                        .onTapGesture { viewModel.setImage(image: image) }
                 }
             }
+            .padding(.horizontal)
             
             HStack {
-                Button("", systemImage: "camera") {}
+                Button("", systemImage: "camera") {
+                    cameraLauncher.launch()
+                }
+                Spacer()
                 Button("", systemImage: "photo.on.rectangle.angled") {
                     viewModel.loadAllImages()
                 }
-                Button("", systemImage: "arrowshape.forward") {}
+                Spacer()
+                Button("", systemImage: "arrowshape.forward") {
+                    if let leadingImage = target?.leading.image,
+                       let trailingImage = target?.trailing.image
+                    {
+                        navHost.push(to: .merge(leadingImage, trailingImage))
+                    }
+                }
+                .disabled(
+                    target?.leading.image != nil
+                    && target?.trailing.image != nil)
             }
             .frame(height: 56)
+            .padding(.horizontal)
         }}
     }
     
@@ -64,6 +83,27 @@ struct PickImageView: View {
         }
         
         viewModel.highlightImageView(model: model)
+    }
+}
+
+extension Optional where Wrapped == PickImageViewModel.TargetModel {
+    func getImageView(isLeading: Bool) -> some View {
+        let image = isLeading ? self?.leading.image : self?.trailing.image
+        let isHighlighted = isLeading ? self?.leading.isHighlighted : self?.trailing.isHighlighted
+        let borderColor = (isHighlighted ?? false) ? Color.red : Color.gray
+        
+        let result: Image = {
+            if let image {
+                return Image(uiImage: image)
+            } else {
+                return Image(systemName: "rectangle.dashed")
+            }
+        }()
+        
+        return result
+            .resizable()
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .border(borderColor, width: 1)
     }
 }
 

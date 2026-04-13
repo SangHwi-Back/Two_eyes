@@ -2,7 +2,6 @@ package com.example.twoeyesproject.image
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.twoeyesproject.image.PickImageFetcher
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -30,30 +29,32 @@ class PickImageViewModel: ViewModel() {
             field = value
             onImagesUpdated?.invoke(images.value)
         }
+    var onImageCaptured: ((CapturedImage) -> Unit)? = null
+        set(value) {
+            field = value
+            capturedImage.value?.let { onImageCaptured?.invoke(it) }
+        }
 
     data class TargetModel(
-        var leading: ImageViewModel,
-        var trailing: ImageViewModel
+        val leading: ImageViewModel,
+        val trailing: ImageViewModel
     )
     data class ImageViewModel(
         val uuid: Uuid,
-        var image: PlatformImage?,
-        var isHighlighted: Boolean
+        val image: PlatformImage?,
+        val isHighlighted: Boolean
     )
 
     fun setImage(image: PlatformImage) {
         val status = target.value
 
-        when {
-            status.leading.isHighlighted -> status.leading.image = image
-            status.trailing.isHighlighted -> status.trailing.image = image
-            status.leading.image == null -> status.leading.image = image
-            status.trailing.image == null -> status.trailing.image = image
-            else ->
-                status.leading.image = image
+        if (target.value.leading.isHighlighted) {
+            _target.value = target.value.copy(leading = status.leading.copy(image = image))
         }
 
-        _target.value = status
+        if (target.value.trailing.isHighlighted) {
+            _target.value = target.value.copy(trailing = status.leading.copy(image = image))
+        }
     }
 
     fun loadAllImages() {
@@ -65,15 +66,24 @@ class PickImageViewModel: ViewModel() {
     }
 
     fun highlightImageView(model: ImageViewModel) {
-        if (target.value.leading.uuid == model.uuid) {
-            target.value.leading.isHighlighted = target.value.leading.isHighlighted.not()
-        } else if (target.value.trailing.uuid == model.uuid) {
-            target.value.trailing.isHighlighted = target.value.trailing.isHighlighted.not()
+        val status = target.value
+        _target.value = when (model.uuid) {
+            status.leading.uuid -> status.copy(leading = status.leading.copy(isHighlighted = status.leading.isHighlighted.not()))
+            status.trailing.uuid -> status.copy(trailing = status.trailing.copy(isHighlighted = status.trailing.isHighlighted.not()))
+            else -> status
         }
     }
 
-    fun onImageCaptured(image: CapturedImage) {
+    fun setCapturedImage(capturedImage: CapturedImage) {
+        _capturedImage.value = capturedImage
+        _images.value += capturedImage.image
 
+        val status = target.value
+        _target.value = when {
+            status.leading.isHighlighted -> status.copy(leading = status.leading.copy(image = capturedImage.image))
+            status.trailing.isHighlighted -> status.copy(trailing = status.trailing.copy(image = capturedImage.image))
+            else -> status
+        }
     }
 }
 

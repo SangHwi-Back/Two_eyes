@@ -30,13 +30,11 @@ fun ComponentActivity.registerCameraLauncher(
             it.compress(Bitmap.CompressFormat.JPEG, 90, stream)
             val bitmap = stream.toByteArray().decodeToImageBitmap()
 
-            viewModel.onImageCaptured(
-                CapturedImage(
-                    image = bitmap.asAndroidBitmap(),
-                    width = bitmap.width,
-                    height = bitmap.height
-                )
-            )
+            viewModel.setCapturedImage(CapturedImage(
+                image = bitmap.asAndroidBitmap(),
+                width = bitmap.width,
+                height = bitmap.height
+            ))
         }
     }
 

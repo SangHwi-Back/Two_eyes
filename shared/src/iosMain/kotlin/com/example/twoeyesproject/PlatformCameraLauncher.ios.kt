@@ -5,6 +5,7 @@ import com.example.twoeyesproject.image.CapturedImage
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSData
+import platform.UIKit.UIApplication
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageJPEGRepresentation
 import platform.UIKit.UIImagePickerController
@@ -18,7 +19,6 @@ import platform.darwin.NSObject
 // Objective-C 델리게이트: NSObject + ObjC 프로토콜만 상속
 @OptIn(ExperimentalForeignApi::class)
 private class CameraPickerDelegate(
-    private val viewController: UIViewController,
     private val viewModel: PickImageViewModel
 ) : NSObject(), UIImagePickerControllerDelegateProtocol, UINavigationControllerDelegateProtocol {
 
@@ -35,7 +35,8 @@ private class CameraPickerDelegate(
         picker.sourceType = UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera
         picker.delegate = this
 
-        viewController.presentViewController(picker, true, null)
+        UIApplication.sharedApplication.keyWindow?.rootViewController
+            ?.presentViewController(picker, true, null)
     }
 
     override fun imagePickerController(
@@ -50,13 +51,11 @@ private class CameraPickerDelegate(
         val jpegData: NSData = UIImageJPEGRepresentation(image, 0.9) ?: return
         val convertedImage = UIImage(data = jpegData)
 
-        viewModel.onImageCaptured(
-            CapturedImage(
-                image = convertedImage,
-                width = 300,
-                height = 300
-            )
-        )
+        viewModel.setCapturedImage(CapturedImage(
+            image = convertedImage,
+            width = 300,
+            height = 300
+        ))
     }
 
     override fun imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -66,10 +65,9 @@ private class CameraPickerDelegate(
 
 // Kotlin 인터페이스만 구현: ObjC 타입 없음
 class PlatformCameraLauncher(
-    viewController: UIViewController,
     viewModel: PickImageViewModel
 ) : CameraLauncher {
-    private val delegate = CameraPickerDelegate(viewController, viewModel)
+    private val delegate = CameraPickerDelegate(viewModel)
 
     override fun launch() {
         delegate.presentPicker()
