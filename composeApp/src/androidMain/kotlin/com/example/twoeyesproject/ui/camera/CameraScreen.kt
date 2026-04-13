@@ -17,23 +17,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.coroutines.Dispatchers
@@ -293,7 +291,31 @@ fun CameraScreen(
                     else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }) { Text("카메라") }
 
-                Button(onClick = { requestAlbumPermission() }) { Text("앨범") }
+                var showAlbumMenu by remember { mutableStateOf(false) }
+                Box {
+                    Button(onClick = { showAlbumMenu = true }) { Text("앨범") }
+                    DropdownMenu(
+                        expanded = showAlbumMenu,
+                        onDismissRequest = { showAlbumMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("앨범에서 선택") },
+                            onClick = {
+                                showAlbumMenu = false
+                                pickImageLauncher.launch(
+                                    Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("전체 불러오기") },
+                            onClick = {
+                                showAlbumMenu = false
+                                requestAlbumPermission()
+                            }
+                        )
+                    }
+                }
 
                 Button(
                     onClick = {

@@ -61,7 +61,10 @@ class PickImageViewModel: ViewModel() {
         val fetcher = PickImageFetcher(this)
         viewModelScope.launch(Dispatchers.IO) {
             val images = fetcher.loadPlatformImages()
-            _images.value = images
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                _images.value = images
+                onImagesUpdated?.invoke(images)
+            }
         }
     }
 
@@ -84,6 +87,9 @@ class PickImageViewModel: ViewModel() {
             status.trailing.isHighlighted -> status.copy(trailing = status.trailing.copy(image = capturedImage.image))
             else -> status
         }
+
+        onImagesUpdated?.invoke(_images.value)
+        onImageCaptured?.invoke(capturedImage)
     }
 }
 
