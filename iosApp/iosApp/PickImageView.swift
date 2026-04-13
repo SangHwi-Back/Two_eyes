@@ -109,7 +109,7 @@ struct PickImageView: View {
     
     private func BottomButtonImage(
         systemName: String,
-        color: Color = Color.black
+        color: Color = Color.primary
     ) -> some View {
         Image(systemName: systemName)
             .resizable()
