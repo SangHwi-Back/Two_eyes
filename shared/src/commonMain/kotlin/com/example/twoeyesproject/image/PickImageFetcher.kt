@@ -1,7 +1,7 @@
 package com.example.twoeyesproject.image
 
-import com.example.twoeyesproject.platformspecific.PlatformImage
+import com.example.twoeyesproject.platformspecific.ImageSource
 
 expect class PickImageFetcher(viewModel: PickImageViewModel) {
-    suspend fun loadPlatformImages(): List<PlatformImage>
+    suspend fun loadPlatformSourceOfImages(): List<ImageSource>
 }

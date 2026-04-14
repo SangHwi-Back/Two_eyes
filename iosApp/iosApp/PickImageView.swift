@@ -25,6 +25,8 @@ struct PickImageView: View {
         target?.leading.image != nil && target?.trailing.image != nil
     }
     
+    private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
+    
     var body: some View {
         ScrollView { VStack {
             HStack {
@@ -37,24 +39,31 @@ struct PickImageView: View {
                     .onTapGesture { highLightImageView(isLeft: false) }
             }
             .padding(.horizontal)
-            .aspectRatio(0.75, contentMode: .fill)
+            .padding(.bottom)
+            .aspectRatio(0.9, contentMode: .fill)
             
-            LazyHStack(spacing: 8) {
-                ForEach(wrapper.images, id: \.self) { image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .frame(width: 120, height: 200)
-                        .onTapGesture { viewModel.setImage(image: image) }
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 8) {
+                    ForEach(wrapper.imageSources, id: \.self) { asset in
+                        PHAssetImage(asset: asset, size: thumbnailSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .padding(.trailing)
+                            .onTapGesture {
+                                Task {
+                                    try? await viewModel.setImageFromSource(imageSource: asset)
+                                }
+                            }
+                    }
                 }
             }
             .padding(.horizontal)
+            .padding(.bottom, wrapper.imageSources.isEmpty ? 8 : 12)
+            .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             
             HStack {
                 Button { cameraLauncher.launch() } label: {
                     BottomButtonImage(systemName: "camera")
                 }
-                .glassEffect(.regular)
                 
                 Spacer()
                 
@@ -77,7 +86,6 @@ struct PickImageView: View {
                         color: goNextEnabled ? Color.black : Color.secondary)
                 }
                 .disabled(!goNextEnabled)
-                .glassEffect(.regular)
             }
             .frame(height: 48)
             .padding(.horizontal)

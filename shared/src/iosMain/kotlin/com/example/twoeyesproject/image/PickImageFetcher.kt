@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.image
 
+import com.example.twoeyesproject.platformspecific.ImageSource
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -26,7 +27,7 @@ import kotlin.coroutines.resume
 @OptIn(ExperimentalForeignApi::class)
 actual class PickImageFetcher actual constructor(val viewModel: PickImageViewModel) {
     suspend fun requestPhotoLibraryPermission(): Boolean {
-        val status = PHPhotoLibrary.Companion.authorizationStatusForAccessLevel(
+        val status = PHPhotoLibrary.authorizationStatusForAccessLevel(
             PHAccessLevelReadWrite
         )
 
@@ -34,7 +35,7 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
             return true
         } else if (status == PHAuthorizationStatusNotDetermined) {
             return suspendCancellableCoroutine { continuation ->
-                PHPhotoLibrary.Companion.requestAuthorizationForAccessLevel(PHAccessLevelReadWrite) {
+                PHPhotoLibrary.requestAuthorizationForAccessLevel(PHAccessLevelReadWrite) {
                     val result =
                         (it == PHAuthorizationStatusAuthorized || it == PHAuthorizationStatusLimited)
                     continuation.resume(result)
@@ -45,7 +46,7 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
         return false
     }
 
-    actual suspend fun loadPlatformImages(): List<PlatformImage> {
+    actual suspend fun loadPlatformSourceOfImages(): List<ImageSource> {
         val permissionResult = requestPhotoLibraryPermission()
 
         if (permissionResult.not()) {
@@ -53,9 +54,7 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
         }
 
         val assets = fetchAllPhotos()
-        val images = convertToUIImages(assets)
-
-        return images
+        return assets
     }
 
     private fun fetchAllPhotos(): List<PHAsset> {
@@ -64,9 +63,9 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
 
         fetchOptions.sortDescriptors = listOf(NSSortDescriptor("creationDate", false))
         fetchOptions.predicate =
-            NSPredicate.Companion.predicateWithFormat("mediaType == %d", PHAssetMediaTypeImage)
+            NSPredicate.predicateWithFormat("mediaType == %d", PHAssetMediaTypeImage)
 
-        val result = PHAsset.Companion.fetchAssetsWithOptions(fetchOptions)
+        val result = PHAsset.fetchAssetsWithOptions(fetchOptions)
 
         result.enumerateObjectsUsingBlock { asset, _, _ ->
             if (asset is PHAsset) {
@@ -81,7 +80,7 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
         assets: List<PHAsset>,
         targetSize: CValue<CGSize> = CGSizeMake(300.0, 300.0),
     ): List<PlatformImage> {
-        val imageManager = PHImageManager.Companion.defaultManager()
+        val imageManager = PHImageManager.defaultManager()
 
         val options = PHImageRequestOptions()
         options.synchronous = true

@@ -3803,7 +3803,6 @@
 			buildPhases = (
 				9D0578ADE6BDD339233B0B10 /* Compile Kotlin Framework */,
 				D7F156DA62D749352B5FC334 /* Sources */,
-				1B3041AF2F7CEDAC0062F13F /* Compile Kotlin Framework */,
 				3209B010376135F1052F9810 /* Frameworks */,
 				347AB204F793D6A2D99BB8CC /* Resources */,
 			);
@@ -3870,24 +3869,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1B3041AF2F7CEDAC0062F13F /* Compile Kotlin Framework */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile Kotlin Framework";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
-		};
 		9D0578ADE6BDD339233B0B10 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;

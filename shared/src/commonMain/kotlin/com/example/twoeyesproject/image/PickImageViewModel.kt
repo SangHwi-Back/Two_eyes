@@ -2,6 +2,7 @@ package com.example.twoeyesproject.image
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.twoeyesproject.platformspecific.ImageSource
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -23,16 +24,28 @@ class PickImageViewModel: ViewModel() {
     val capturedImage: StateFlow<CapturedImage?> = _capturedImage.asStateFlow()
     private var _images = MutableStateFlow<List<PlatformImage>>(listOf())
     val images: StateFlow<List<PlatformImage>> = _images.asStateFlow()
+    private var _imageSources = MutableStateFlow<List<ImageSource>>(listOf())
+    val imageSources: StateFlow<List<ImageSource>> = _imageSources.asStateFlow()
 
     var onImagesUpdated: ((List<PlatformImage>) -> Unit)? = null
         set(value) {
             field = value
             onImagesUpdated?.invoke(images.value)
         }
+    var onImageSourcesUpdated: ((List<ImageSource>) -> Unit)? = null
+        set(value) {
+            field = value
+            onImageSourcesUpdated?.invoke(imageSources.value)
+        }
     var onImageCaptured: ((CapturedImage) -> Unit)? = null
         set(value) {
             field = value
             capturedImage.value?.let { onImageCaptured?.invoke(it) }
+        }
+    var onTargetUpdated: ((TargetModel) -> Unit)? = null
+        set(value) {
+            field = value
+            onTargetUpdated?.invoke(target.value)
         }
 
     data class TargetModel(
@@ -57,13 +70,26 @@ class PickImageViewModel: ViewModel() {
         }
     }
 
+    suspend fun setImageFromSource(imageSource: ImageSource) {
+        val status = target.value
+        val image = ImageDecoder().decode(imageSource)
+
+        if (target.value.leading.isHighlighted) {
+            _target.value = target.value.copy(leading = status.leading.copy(image = image))
+        }
+
+        if (target.value.trailing.isHighlighted) {
+            _target.value = target.value.copy(trailing = status.leading.copy(image = image))
+        }
+    }
+
     fun loadAllImages() {
         val fetcher = PickImageFetcher(this)
         viewModelScope.launch(Dispatchers.IO) {
-            val images = fetcher.loadPlatformImages()
+            val sources = fetcher.loadPlatformSourceOfImages()
             kotlinx.coroutines.withContext(Dispatchers.Main) {
-                _images.value = images
-                onImagesUpdated?.invoke(images)
+                _imageSources.value = sources
+                onImageSourcesUpdated?.invoke(sources)
             }
         }
     }
@@ -74,6 +100,13 @@ class PickImageViewModel: ViewModel() {
             status.leading.uuid -> status.copy(leading = status.leading.copy(isHighlighted = status.leading.isHighlighted.not()))
             status.trailing.uuid -> status.copy(trailing = status.trailing.copy(isHighlighted = status.trailing.isHighlighted.not()))
             else -> status
+        }
+
+        viewModelScope.launch {
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                _target.value = status
+                onTargetUpdated?.invoke(status)
+            }
         }
     }
 
