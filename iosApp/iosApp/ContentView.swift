@@ -1,4 +1,5 @@
 import SwiftUI
+import Photos
 import Shared
 
 struct ContentView: View {
@@ -26,11 +27,8 @@ struct ContentView: View {
                     switch route {
                     case .main:
                         PickImageView()
-                    case .merge(let leadingImage, let trailingImage):
-                        PickImageMergeView(
-                            leadingImage: leadingImage,
-                            trailingImage: trailingImage
-                        )
+                    case .merge(let leading, let trailing):
+                        PickImageMergeView(model: .init(leading: leading, trailing: trailing))
                     }
                 }
             }
@@ -56,7 +54,7 @@ enum NavHost {
     
     enum Camera: Hashable {
         case main
-        case merge(UIImage, UIImage)
+        case merge(PHAsset, PHAsset)
     }
     
     enum Upload: Hashable {

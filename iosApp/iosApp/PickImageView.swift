@@ -124,10 +124,8 @@ struct PickImageView: View {
     }
     
     private func goNext() {
-        if let leadingImage = target?.leading.image,
-           let trailingImage = target?.trailing.image
-        {
-            navHost.push(to: .merge(leadingImage, trailingImage))
+        if wrapper.imageSources.count >= 2 {
+            navHost.push(to: .merge(wrapper.imageSources[0], wrapper.imageSources[1]))
         }
     }
     
