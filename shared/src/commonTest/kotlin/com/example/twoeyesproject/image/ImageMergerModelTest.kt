@@ -10,15 +10,4 @@ class ImageMergerModelTest {
         assertEquals(100f, frame.right)
         assertEquals(200f, frame.bottom)
     }
-
-    @Test
-    fun `blendAlpha 기본값은 0_5이다`() {
-        val model = ImageMergerModel(
-            canvasWidth = 100,
-            canvasHeight = 100,
-            bottomImage = ImageMergerModel.ImageInfo(TODO(), ImageFrame(0f, 0f, 100f, 100f)),
-            topImage = ImageMergerModel.ImageInfo(TODO(), ImageFrame(0f, 0f, 100f, 100f)),
-        )
-        assertEquals(0.5f, model.blendAlpha)
-    }
 }

@@ -12,6 +12,6 @@ actual class ImageDecoder : KoinComponent {
         val context: Context = get()
         return BitmapFactory.decodeStream(
             context.contentResolver.openInputStream(source.build())
-        ) ?: throw IllegalStateException("Failed to decode image from source")
+        ) ?: throw Exception("Failed to decode image from source")
     }
 }
