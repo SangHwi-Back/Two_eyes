@@ -24,11 +24,7 @@ struct FeedItemView: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(model.imageUrls, id: \.self) { url in
-                        KFImage(URL(string: url))
-                            .resizable()
-                            .scaledToFill()
-                            .containerRelativeFrame(.horizontal, count: 1, spacing: 0)
-                            .clipped()
+                        DownloadImageView(url: URL(string: url))
                     }
                 }
             }
