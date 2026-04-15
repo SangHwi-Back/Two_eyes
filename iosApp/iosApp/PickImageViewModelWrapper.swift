@@ -16,10 +16,19 @@ final class PickImageViewModelWrapper {
 //    private(set) var images = [UIImage]()
     private(set) var imageSources = [PHAsset]()
     private(set) var capturedImage: UIImage?
+    private(set) var target: PickImageViewModel.TargetModel
+    
+    var leading: PickImageViewModel.ImageViewModel {
+        target.leading
+    }
+    var trailing: PickImageViewModel.ImageViewModel {
+        target.trailing
+    }
 
     init() {
         cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
         photoPickerLauncher = PlatformPhotoPickerLauncher(viewModel: viewModel)
+        self.target = viewModel.target.value as! PickImageViewModel.TargetModel
 
 //        viewModel.onImagesUpdated = { [weak self] images in
 //            self?.images = images
@@ -29,6 +38,9 @@ final class PickImageViewModelWrapper {
         }
         viewModel.onImageCaptured = { [weak self] capturedImage in
             self?.capturedImage = capturedImage.image
+        }
+        viewModel.onTargetUpdated = { [weak self] target in
+            self?.target = target
         }
     }
 }

@@ -343,7 +343,6 @@
 		1B3044502F7CEE0D0062F13F /* ImageMerger.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.android.kt; sourceTree = "<group>"; };
 		1B3044542F7CEE0D0062F13F /* Platform.android.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.android.kt; sourceTree = "<group>"; };
 		1B30445A2F7CEE0D0062F13F /* SharedModuleTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedModuleTest.kt; sourceTree = "<group>"; };
-		1B30445C2F7CEE0D0062F13F /* ImageDecoderAndroidTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoderAndroidTest.kt; sourceTree = "<group>"; };
 		1B30445D2F7CEE0D0062F13F /* ImageMergerAndroidTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerAndroidTest.kt; sourceTree = "<group>"; };
 		1B3044642F7CEE0D0062F13F /* ImageDecoder.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.kt; sourceTree = "<group>"; };
 		1B3044652F7CEE0D0062F13F /* ImageMerger.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.kt; sourceTree = "<group>"; };
@@ -361,7 +360,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0191E13EED7E27CA64CC8D2C /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		0191E13EED7E27CA64CC8D2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -379,7 +378,7 @@
 		A588823EC4331B02EF2AB6A3 /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				0191E13EED7E27CA64CC8D2C /* Exceptions for "iosApp" folder in "iosApp" target */,
+				0191E13EED7E27CA64CC8D2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -3511,7 +3510,6 @@
 		1B30445E2F7CEE0D0062F13F /* image */ = {
 			isa = PBXGroup;
 			children = (
-				1B30445C2F7CEE0D0062F13F /* ImageDecoderAndroidTest.kt */,
 				1B30445D2F7CEE0D0062F13F /* ImageMergerAndroidTest.kt */,
 			);
 			path = image;

@@ -11,12 +11,15 @@ struct PickImageMergeView: View {
     let model: PickImageMergeModel
     let wrapper: PickImageMergeViewModelWrapper
     
+    let bottomZIndex: Double = 999
+    let topZIndex: Double = 1000
+    
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
     
-    @State private var leadingOffset: CGSize = .zero
-    @State private var trailingOffset: CGSize = .init(width: 160, height: 0)
-    @State private var leadingMagnification: CGFloat = 1.0
-    @State private var trailingMagnification: CGFloat = 1.0
+    @GestureState private var leadingOffset: CGSize = .zero
+    @GestureState private var trailingOffset: CGSize = .init(width: 160, height: 0)
+    @GestureState private var leadingMagnification: CGFloat = 1.0
+    @GestureState private var trailingMagnification: CGFloat = 1.0
     
     init(model: PickImageMergeModel) {
         self.model = model
@@ -25,38 +28,39 @@ struct PickImageMergeView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            HStack {
+            ZStack {
                 PHAssetImage(asset: model.leading, size: thumbnailSize)
-                    .gesture(offset: $leadingOffset,
-                             magnification: $leadingMagnification,
-                             canvasSize: proxy.canvasSize)
-                    .onGeometryChange(for: CGRect.self) { proxy in
-                        proxy.frame(in: .global)
-                    } action: { position in
-                        wrapper.viewModel.updatePosition(
-                            order: .bottom,
-                            x: Float(position.origin.x),
-                            y: Float(position.origin.y)
-                        )
-                    }
-                
-                Spacer()
+                    .gesture(
+                        offset: $leadingOffset,
+                        magnification: $leadingMagnification,
+                        onUpdate: { offset, magnification in
+                            wrapper.viewModel.updatePosition(
+                                order: .bottom,
+                                x: Float(offset.width),
+                                y: Float(offset.height))
+                        },
+                        canvasSize: proxy.canvasSize
+                    )
+                    .offset(CGSize(width: 0, height: 0))
+                    .zIndex(bottomZIndex)
                 
                 PHAssetImage(asset: model.trailing, size: thumbnailSize)
-                    .gesture(offset: $trailingOffset,
-                             magnification: $trailingMagnification,
-                             canvasSize: proxy.canvasSize)
-                    .onGeometryChange(for: CGRect.self) { proxy in
-                        proxy.frame(in: .global)
-                    } action: { position in
-                        wrapper.viewModel.updatePosition(
-                            order: .top,
-                            x: Float(position.origin.x),
-                            y: Float(position.origin.y)
-                        )
-                    }
+                    .gesture(
+                        offset: $trailingOffset,
+                        magnification: $trailingMagnification,
+                        onUpdate: { offset, magnification in
+                            wrapper.viewModel.updatePosition(
+                                order: .top,
+                                x: Float(offset.width),
+                                y: Float(offset.height))
+                        },
+                        canvasSize: proxy.canvasSize
+                    )
+                    .offset(CGSize(width: proxy.size.width - thumbnailSize.width, height: 0))
+                    .zIndex(topZIndex)
             }
-            .frame(maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .frame(height: 300)
             
             Divider()
                 .padding(.vertical)
@@ -92,49 +96,66 @@ private extension GeometryProxy {
 
 private extension PHAssetImage {
     func gesture(
-        offset: Binding<CGSize>,
-        magnification: Binding<CGFloat>,
+        offset: GestureState<CGSize>,
+        magnification: GestureState<CGFloat>,
+        onUpdate: @escaping (CGSize, CGFloat) -> Void,
+        onEnded: ((CGSize, CGFloat) -> Void)? = nil,
         canvasSize: CGSize
     ) -> some View {
-        self.modifier(PHAsssetImageGestureModifier(offset: offset, magnification: magnification, canvasSize: canvasSize))
+        self.modifier(PHAsssetImageGestureModifier(
+            offset: offset,
+            magnification: magnification,
+            onUpdate: onUpdate,
+            onEnded: onEnded ?? onUpdate,
+            canvasSize: canvasSize
+        ))
     }
     
     struct PHAsssetImageGestureModifier: ViewModifier {
         
-        @Binding private var offset: CGSize
-        @Binding private var magnification: CGFloat
+        @GestureState private var offset: CGSize
+        @GestureState private var magnification: CGFloat
         @State private var lastMagnification: CGFloat = 1.0
         
         let canvasSize: CGSize
         
+        let onUpdate: (CGSize, CGFloat) -> Void
+        let onEnded: (CGSize, CGFloat) -> Void
+        
         public init(
-            offset: Binding<CGSize>,
-            magnification: Binding<CGFloat>,
+            offset: GestureState<CGSize>,
+            magnification: GestureState<CGFloat>,
+            onUpdate: @escaping (CGSize, CGFloat) -> Void,
+            onEnded: @escaping (CGSize, CGFloat) -> Void,
             canvasSize: CGSize
         ) {
             self._offset = offset
             self._magnification = magnification
+            self.onUpdate = onUpdate
+            self.onEnded = onEnded
             self.canvasSize = canvasSize
         }
         
         func body(content: Content) -> some View {
-            content
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            self.offset = value.translation
-                        }.onEnded { _ in
-                            withAnimation(.spring()) { self.offset = .zero }
+            content.gesture(
+                DragGesture()
+                    .updating($offset) { value, state, transaction in
+                        state = value.translation
+                        onUpdate(state, magnification)
+                    }
+                    .onEnded { value in
+                        onEnded(value.translation, magnification)
+                    }
+                    .exclusively(before: MagnifyGesture()
+                        .updating($magnification) { value, state, transaction in
+                            state = value.magnification
+                            onUpdate(offset, state)
                         }
-                        .exclusively(before: MagnifyGesture()
-                            .onChanged { value in
-                                magnification = lastMagnification * value.magnification
-                            }
-                            .onEnded { _ in
-                                lastMagnification = magnification
-                            }
-                        )
-                )
+                        .onEnded { value in
+                            onEnded(offset, value.magnification)
+                        }
+                    )
+            )
         }
     }
 }

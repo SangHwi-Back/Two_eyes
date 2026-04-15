@@ -13,16 +13,14 @@ struct PickImageView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     
     @State private var wrapper = PickImageViewModelWrapper()
-
+    
     private var viewModel: PickImageViewModel { wrapper.viewModel }
     private var cameraLauncher: PlatformCameraLauncher { wrapper.cameraLauncher }
     private var photoPickerLauncher: PlatformPhotoPickerLauncher { wrapper.photoPickerLauncher }
-
-    var target: PickImageViewModel.TargetModel? {
-        viewModel.target.value as? PickImageViewModel.TargetModel
-    }
+    
     var goNextEnabled: Bool {
-        target?.leading.image != nil && target?.trailing.image != nil
+        wrapper.leading.image != nil
+        && wrapper.trailing.image != nil
     }
     
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
@@ -30,13 +28,13 @@ struct PickImageView: View {
     var body: some View {
         ScrollView { VStack {
             HStack {
-                target
-                    .getImageView(isLeading: true)
-                    .onTapGesture { highLightImageView(isLeft: true) }
+                wrapper.leading.getImageView {
+                    highLightImageView(isLeft: true)
+                }
                 Image(systemName: "plus")
-                target
-                    .getImageView(isLeading: false)
-                    .onTapGesture { highLightImageView(isLeft: false) }
+                wrapper.trailing.getImageView {
+                    highLightImageView(isLeft: false)
+                }
             }
             .padding(.horizontal)
             .padding(.bottom)
@@ -72,7 +70,7 @@ struct PickImageView: View {
                         Button { photoPickerLauncher.launch() } label: {
                             Label("앨범에서 선택", systemImage: "hand.rays")
                         }
-
+                        
                         Button { requestAlbumAccess() } label: {
                             Label("전체 불러오기", systemImage: "photo.on.rectangle.angled")
                         }
@@ -114,13 +112,10 @@ struct PickImageView: View {
             photoPickerLauncher.launch()
         }
     }
-
+    
     private func highLightImageView(isLeft: Bool) {
-        guard let model = isLeft ? target?.leading : target?.trailing else {
-            return
-        }
-        
-        viewModel.highlightImageView(model: model)
+        viewModel.highlightImageView(
+            model: isLeft ? wrapper.leading : wrapper.trailing)
     }
     
     private func goNext() {
@@ -140,21 +135,27 @@ struct PickImageView: View {
     }
 }
 
-extension Optional where Wrapped == PickImageViewModel.TargetModel {
-    func getImageView(isLeading: Bool) -> some View {
-        let image = isLeading ? self?.leading.image : self?.trailing.image
-        let isHighlighted = (isLeading ? self?.leading.isHighlighted : self?.trailing.isHighlighted) ?? false
-
-        return RoundedRectangle(cornerRadius: 8)
-            .stroke(isHighlighted ? Color.red : Color.gray, style: StrokeStyle(lineWidth: 1, dash: [6, 10]))
+extension PickImageViewModel.ImageViewModel {
+    @ViewBuilder
+    func getImageView(onTapGesture: @escaping () -> Void) -> some View {
+        let strokeColor = isHighlighted ? Color.red : Color.gray
+        let strokeStyle = StrokeStyle(lineWidth: 1, dash: [6, 10])
+        let rectangle = RoundedRectangle(cornerRadius: 8)
+            .stroke(strokeColor, style: strokeStyle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay {
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+        
+        if let image {
+            rectangle.overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .onTapGesture { onTapGesture() }
             }
+        } else {
+            rectangle
+                .contentShape(RoundedRectangle(cornerRadius: 8))
+                .onTapGesture { onTapGesture() }
+        }
     }
 }
 

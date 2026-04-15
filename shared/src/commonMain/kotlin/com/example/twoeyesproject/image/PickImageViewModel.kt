@@ -81,6 +81,12 @@ class PickImageViewModel: ViewModel() {
         if (target.value.trailing.isHighlighted) {
             _target.value = target.value.copy(trailing = status.leading.copy(image = image))
         }
+
+        viewModelScope.launch {
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                onTargetUpdated?.invoke(_target.value)
+            }
+        }
     }
 
     fun loadAllImages() {
@@ -96,16 +102,21 @@ class PickImageViewModel: ViewModel() {
 
     fun highlightImageView(model: ImageViewModel) {
         val status = target.value
-        _target.value = when (model.uuid) {
-            status.leading.uuid -> status.copy(leading = status.leading.copy(isHighlighted = status.leading.isHighlighted.not()))
-            status.trailing.uuid -> status.copy(trailing = status.trailing.copy(isHighlighted = status.trailing.isHighlighted.not()))
+        val newStatus = when (model.uuid) {
+            status.leading.uuid -> status.copy(
+                leading = status.leading.copy(isHighlighted = status.leading.isHighlighted.not()),
+                trailing = status.trailing.copy(isHighlighted = status.leading.isHighlighted))
+            status.trailing.uuid -> status.copy(
+                leading = status.leading.copy(isHighlighted = status.trailing.isHighlighted),
+                trailing = status.trailing.copy(isHighlighted = status.trailing.isHighlighted.not()))
             else -> status
         }
 
+        _target.value = newStatus
+
         viewModelScope.launch {
             kotlinx.coroutines.withContext(Dispatchers.Main) {
-                _target.value = status
-                onTargetUpdated?.invoke(status)
+                onTargetUpdated?.invoke(newStatus)
             }
         }
     }
