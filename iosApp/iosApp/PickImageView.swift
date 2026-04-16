@@ -15,8 +15,6 @@ struct PickImageView: View {
     @State private var wrapper = PickImageViewModelWrapper()
     
     private var viewModel: PickImageViewModel { wrapper.viewModel }
-    private var cameraLauncher: PlatformCameraLauncher { wrapper.cameraLauncher }
-    private var photoPickerLauncher: PlatformPhotoPickerLauncher { wrapper.photoPickerLauncher }
     
     var goNextEnabled: Bool {
         wrapper.leading.image != nil
@@ -29,16 +27,28 @@ struct PickImageView: View {
         ScrollView { VStack {
             HStack {
                 wrapper.leading.getImageView {
-                    highLightImageView(isLeft: true)
+                    handleImageViewTap($0, isLeading: true)
                 }
                 Image(systemName: "plus")
                 wrapper.trailing.getImageView {
-                    highLightImageView(isLeft: false)
+                    handleImageViewTap($0, isLeading: false)
                 }
             }
             .padding(.horizontal)
             .padding(.bottom)
             .aspectRatio(0.9, contentMode: .fill)
+            
+            if wrapper.imageSources.isEmpty {
+                VStack {
+                    Image(systemName: "ellipsis.bubble")
+                        .resizable()
+                        .foregroundStyle(Color.black)
+                        .aspectRatio(contentMode: .fit)
+                        .padding(.vertical)
+                    Text("Get photos! Using buttons!")
+                }
+                .frame(height: thumbnailSize.height)
+            }
             
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 8) {
@@ -59,29 +69,29 @@ struct PickImageView: View {
             .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             
             HStack {
-                Button { cameraLauncher.launch() } label: {
-                    BottomButtonImage(systemName: "camera")
+                Button { wrapper.cameraLauncher.launch() } label: {
+                    BottomButtonImage(image: Image(systemName: "camera"), title: "Camera")
                 }
                 
                 Spacer()
                 
-                BottomButtonImage(systemName: "appwindow.swipe.rectangle")
-                    .contextMenu {
-                        Button { photoPickerLauncher.launch() } label: {
-                            Label("앨범에서 선택", systemImage: "hand.rays")
-                        }
-                        
-                        Button { requestAlbumAccess() } label: {
-                            Label("전체 불러오기", systemImage: "photo.on.rectangle.angled")
-                        }
-                    }
+                Button { wrapper.photoPickerLauncher.launch() } label: {
+                    BottomButtonImage(image: Image(systemName: "hand.rays"), title: "Pick")
+                }
                 
                 Spacer()
                 
+                Button { requestAlbumAccess() } label: {
+                    BottomButtonImage(image: Image(systemName: "photo.on.rectangle.angled"), title: "GetAll")
+                }
+                Spacer()
+                
                 Button { goNext() } label: {
+                    let color = goNextEnabled ? Color.black : Color.secondary
                     BottomButtonImage(
-                        systemName: "arrowshape.forward",
-                        color: goNextEnabled ? Color.black : Color.secondary)
+                        image: Image(systemName: "arrowshape.forward"),
+                        title: "Next",
+                        foregroundColor: color)
                 }
                 .disabled(!goNextEnabled)
             }
@@ -96,26 +106,31 @@ struct PickImageView: View {
         case .authorized:
             viewModel.loadAllImages()
         case .limited:
-            photoPickerLauncher.launch()
+            wrapper.photoPickerLauncher.launch()
         case .notDetermined:
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
                 DispatchQueue.main.async {
                     if newStatus == .authorized {
                         viewModel.loadAllImages()
                     } else {
-                        photoPickerLauncher.launch()
+                        wrapper.photoPickerLauncher.launch()
                     }
                 }
             }
         default:
             // denied / restricted: PHPicker는 권한 없이도 사용 가능
-            photoPickerLauncher.launch()
+            wrapper.photoPickerLauncher.launch()
         }
     }
     
-    private func highLightImageView(isLeft: Bool) {
-        viewModel.highlightImageView(
-            model: isLeft ? wrapper.leading : wrapper.trailing)
+    private func handleImageViewTap(_ tap: TapType, isLeading: Bool) {
+        let model = isLeading ? wrapper.leading : wrapper.trailing
+        switch tap {
+        case .highlihgt:
+            viewModel.highlightImageView(model: model)
+        case .delete:
+            viewModel.deleteImage(model: model)
+        }
     }
     
     private func goNext() {
@@ -125,19 +140,27 @@ struct PickImageView: View {
     }
     
     private func BottomButtonImage(
-        systemName: String,
-        color: Color = Color.primary
+        image: Image,
+        title: String,
+        foregroundColor: Color = Color.primary
     ) -> some View {
-        Image(systemName: systemName)
-            .resizable()
-            .aspectRatio(1, contentMode: .fit)
-            .foregroundStyle(color)
+        VStack {
+            image
+            Text(title)
+        }
+        .frame(idealWidth: 50, maxWidth: 100, idealHeight: 80, maxHeight: 80, alignment: .center)
+        .foregroundStyle(foregroundColor)
+        .glassEffect(in: .rect(cornerRadius: 8))
+    }
+    
+    enum TapType {
+        case highlihgt, delete
     }
 }
 
 extension PickImageViewModel.ImageViewModel {
     @ViewBuilder
-    func getImageView(onTapGesture: @escaping () -> Void) -> some View {
+    func getImageView(onTapGesture: @escaping (PickImageView.TapType) -> Void) -> some View {
         let strokeColor = isHighlighted ? Color.red : Color.gray
         let strokeStyle = StrokeStyle(lineWidth: 1, dash: [6, 10])
         let rectangle = RoundedRectangle(cornerRadius: 8)
@@ -146,15 +169,22 @@ extension PickImageViewModel.ImageViewModel {
         
         if let image {
             rectangle.overlay {
-                Image(uiImage: image)
-                    .resizable()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .onTapGesture { onTapGesture() }
+                ZStack(alignment: Alignment.topTrailing) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .onTapGesture { onTapGesture(.highlihgt) }
+                    Image(systemName: "trash")
+                        .frame(width: 42, height: 42)
+                        .glassEffect(in: .rect(cornerRadius: 21))
+                        .offset(.zero)
+                        .onTapGesture { onTapGesture(.delete) }
+                }
             }
         } else {
             rectangle
                 .contentShape(RoundedRectangle(cornerRadius: 8))
-                .onTapGesture { onTapGesture() }
+                .onTapGesture { onTapGesture(.highlihgt) }
         }
     }
 }

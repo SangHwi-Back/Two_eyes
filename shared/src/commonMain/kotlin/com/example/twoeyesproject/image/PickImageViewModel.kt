@@ -89,6 +89,24 @@ class PickImageViewModel: ViewModel() {
         }
     }
 
+    fun deleteImage(model: ImageViewModel) {
+        val status = target.value
+
+        val newStatus = when (model.uuid) {
+            target.value.leading.uuid -> target.value.copy(leading = status.leading.copy(image = null))
+            target.value.trailing.uuid -> target.value.copy(trailing = status.trailing.copy(image = null))
+            else -> status
+        }
+
+        _target.value = newStatus
+
+        viewModelScope.launch {
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                onTargetUpdated?.invoke(newStatus)
+            }
+        }
+    }
+
     fun loadAllImages() {
         val fetcher = PickImageFetcher(this)
         viewModelScope.launch(Dispatchers.IO) {
@@ -102,13 +120,14 @@ class PickImageViewModel: ViewModel() {
 
     fun highlightImageView(model: ImageViewModel) {
         val status = target.value
+
         val newStatus = when (model.uuid) {
             status.leading.uuid -> status.copy(
-                leading = status.leading.copy(isHighlighted = status.leading.isHighlighted.not()),
-                trailing = status.trailing.copy(isHighlighted = status.leading.isHighlighted))
+                leading = status.leading.copy(isHighlighted = !status.leading.isHighlighted),
+                trailing = status.trailing.copy(isHighlighted = false))
             status.trailing.uuid -> status.copy(
-                leading = status.leading.copy(isHighlighted = status.trailing.isHighlighted),
-                trailing = status.trailing.copy(isHighlighted = status.trailing.isHighlighted.not()))
+                leading = status.leading.copy(isHighlighted = false),
+                trailing = status.trailing.copy(isHighlighted = !status.trailing.isHighlighted))
             else -> status
         }
 

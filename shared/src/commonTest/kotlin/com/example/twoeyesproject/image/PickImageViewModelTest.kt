@@ -14,7 +14,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalUuidApi::class, ExperimentalCoroutinesApi::class)
 class PickImageViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
@@ -63,6 +63,31 @@ class PickImageViewModelTest {
 
         // Assert
         assertTrue(viewModel.target.value.leading.isHighlighted)
+        assertFalse(viewModel.target.value.trailing.isHighlighted)
+
+        // Act
+        viewModel.highlightImageView(viewModel.target.value.trailing)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertFalse(viewModel.target.value.leading.isHighlighted)
+        assertTrue(viewModel.target.value.trailing.isHighlighted)
+
+        // Act
+        viewModel.highlightImageView(viewModel.target.value.trailing)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertFalse(viewModel.target.value.leading.isHighlighted)
+        assertFalse(viewModel.target.value.trailing.isHighlighted)
+
+        // Act
+        viewModel.highlightImageView(viewModel.target.value.leading)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertTrue(viewModel.target.value.leading.isHighlighted)
+        assertFalse(viewModel.target.value.trailing.isHighlighted)
     }
 
     @Test
