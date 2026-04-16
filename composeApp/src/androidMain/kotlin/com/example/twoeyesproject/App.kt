@@ -23,7 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.twoeyesproject.ui.camera.CameraScreen
+import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.camera.MergeScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
 
@@ -109,7 +109,7 @@ private fun AppScaffold(navController: NavHostController) {
             }
 
             composable(ROUTE_CAMERA) {
-                CameraScreen(
+                PickImageScreen(
                     onBack = { navController.popBackStack() },
                     onNext = { uri1, uri2 ->
                         val encoded1 = android.net.Uri.encode(uri1)

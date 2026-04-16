@@ -102,7 +102,7 @@ private fun Modifier.dashedBorder(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen(
+fun PickImageScreen(
     viewModel: PickImageViewModel = viewModel(),
     onBack: () -> Unit,
     onNext: (uri1: String, uri2: String) -> Unit,
