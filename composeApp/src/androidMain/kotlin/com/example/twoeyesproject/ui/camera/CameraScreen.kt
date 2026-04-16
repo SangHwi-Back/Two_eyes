@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -255,7 +257,12 @@ fun CameraScreen(
                 ImageSlot(
                     imageViewModel = target.leading,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onClick = { viewModel.highlightImageView(target.leading) }
+                    onClick = {
+                        when (it) {
+                            CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.leading)
+                            CameraScreenTapType.Delete -> viewModel.deleteImage(target.leading)
+                        }
+                    }
                 )
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -266,7 +273,12 @@ fun CameraScreen(
                 ImageSlot(
                     imageViewModel = target.trailing,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onClick = { viewModel.highlightImageView(target.trailing) }
+                    onClick = {
+                        when (it) {
+                            CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.trailing)
+                            CameraScreenTapType.Delete -> viewModel.deleteImage(target.trailing)
+                        }
+                    }
                 )
             }
 
@@ -347,6 +359,10 @@ fun CameraScreen(
     }
 }
 
+enum class CameraScreenTapType {
+    Highlight, Delete
+}
+
 // ── BottomButton ──────────────────────────────────────────────────────────────
 // iOS의 BottomButtonImage: VStack { 아이콘 + 텍스트 } + glassEffect 대응
 @Composable
@@ -387,7 +403,7 @@ private fun BottomButton(
 private fun ImageSlot(
     imageViewModel: PickImageViewModel.ImageViewModel,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (CameraScreenTapType) -> Unit,
 ) {
     val strokeColor = if (imageViewModel.isHighlighted)
         MaterialTheme.colorScheme.error
@@ -400,7 +416,7 @@ private fun ImageSlot(
         modifier = modifier
             .dashedBorder(color = strokeColor, cornerRadius = 8.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() },
+            .clickable { onClick(CameraScreenTapType.Highlight) },
         contentAlignment = Alignment.Center
     ) {
         if (bitmap != null) {
@@ -410,6 +426,12 @@ private fun ImageSlot(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
+            IconButton(
+                onClick = { onClick(CameraScreenTapType.Delete) },
+                modifier = Modifier.size(42.dp).align(Alignment.TopEnd)
+            ) {
+                Icon(imageVector = Icons.Outlined.RestoreFromTrash, contentDescription = "사진 지우기")
+            }
         }
     }
 }
