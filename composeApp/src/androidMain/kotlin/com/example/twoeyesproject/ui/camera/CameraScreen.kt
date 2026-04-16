@@ -113,28 +113,23 @@ fun CameraScreen(
     val imageSources by viewModel.imageSources.collectAsStateWithLifecycle()
 
     // MergeScreen 이동용 URI 추적 (ViewModel에는 저장소 없음)
-    var selectedUri1 by remember { mutableStateOf<Uri?>(null) }
-    var selectedUri2 by remember { mutableStateOf<Uri?>(null) }
     var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-    val goNextEnabled = selectedUri1 != null && selectedUri2 != null
+    val goNextEnabled = target.leading.image != null
+            && target.trailing.image != null
+            && imageSources.size >= 2
     val thumbnailHeight = 190.dp
 
     // ── selectedUri 슬롯 결정 헬퍼 ────────────────────────────────────────────
-    fun resolveTargetSlot(uri: Uri) {
-        val t = viewModel.target.value
-        when {
-            t.leading.isHighlighted  -> selectedUri1 = uri
-            t.trailing.isHighlighted -> selectedUri2 = uri
-            t.leading.image == null  -> selectedUri1 = uri
-            t.trailing.image == null -> selectedUri2 = uri
-            else                     -> selectedUri1 = uri
-        }
-    }
+//    fun resolveTargetSlot(uri: Uri) {
+//        runBlocking {
+//            viewModel.setImageFromSource(uri.buildUpon())
+//        }
+//    }
 
     // ── 썸네일 탭: ViewModel이 URI를 직접 decode해서 슬롯에 배치 ──────────────
     fun onThumbnailSelected(imageSource: Uri.Builder) {
-        resolveTargetSlot(imageSource.build())
+//        resolveTargetSlot(imageSource.build())
         scope.launch { viewModel.setImageFromSource(imageSource) }
     }
 
@@ -150,7 +145,7 @@ fun CameraScreen(
                     BitmapFactory.decodeStream(it)
                 } ?: return@launch
                 withContext(Dispatchers.Main) {
-                    resolveTargetSlot(uri)
+//                    resolveTargetSlot(uri)
                     viewModel.setCapturedImage(
                         CapturedImage(image = bitmap, width = bitmap.width, height = bitmap.height)
                     )
@@ -181,7 +176,7 @@ fun CameraScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         uri?.let {
-            resolveTargetSlot(it)
+//            resolveTargetSlot(it)
             scope.launch {
                 val decoder = ImageDecoder()
                 val decodedImage = decoder.decode(it.buildUpon())
@@ -343,9 +338,8 @@ fun CameraScreen(
                     label = "Next",
                     enabled = goNextEnabled,
                     onClick = {
-                        val u1 = selectedUri1
-                        val u2 = selectedUri2
-                        if (u1 != null && u2 != null) onNext(u1.toString(), u2.toString())
+                        if (imageSources.size < 2) return@BottomButton
+                        onNext(imageSources[0].toString(), imageSources[1].toString())
                     }
                 )
             }

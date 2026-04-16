@@ -27,27 +27,6 @@ class PickImageViewModel: ViewModel() {
     private var _imageSources = MutableStateFlow<List<ImageSource>>(listOf())
     val imageSources: StateFlow<List<ImageSource>> = _imageSources.asStateFlow()
 
-    var onImagesUpdated: ((List<PlatformImage>) -> Unit)? = null
-        set(value) {
-            field = value
-            onImagesUpdated?.invoke(images.value)
-        }
-    var onImageSourcesUpdated: ((List<ImageSource>) -> Unit)? = null
-        set(value) {
-            field = value
-            onImageSourcesUpdated?.invoke(imageSources.value)
-        }
-    var onImageCaptured: ((CapturedImage) -> Unit)? = null
-        set(value) {
-            field = value
-            capturedImage.value?.let { onImageCaptured?.invoke(it) }
-        }
-    var onTargetUpdated: ((TargetModel) -> Unit)? = null
-        set(value) {
-            field = value
-            onTargetUpdated?.invoke(target.value)
-        }
-
     data class TargetModel(
         val leading: ImageViewModel,
         val trailing: ImageViewModel
@@ -81,12 +60,6 @@ class PickImageViewModel: ViewModel() {
         if (target.value.trailing.isHighlighted) {
             _target.value = target.value.copy(trailing = status.leading.copy(image = image))
         }
-
-        viewModelScope.launch {
-            kotlinx.coroutines.withContext(Dispatchers.Main) {
-                onTargetUpdated?.invoke(_target.value)
-            }
-        }
     }
 
     fun deleteImage(model: ImageViewModel) {
@@ -99,22 +72,14 @@ class PickImageViewModel: ViewModel() {
         }
 
         _target.value = newStatus
-
-        viewModelScope.launch {
-            kotlinx.coroutines.withContext(Dispatchers.Main) {
-                onTargetUpdated?.invoke(newStatus)
-            }
-        }
     }
 
     fun loadAllImages() {
         val fetcher = PickImageFetcher(this)
+
         viewModelScope.launch(Dispatchers.IO) {
             val sources = fetcher.loadPlatformSourceOfImages()
-            kotlinx.coroutines.withContext(Dispatchers.Main) {
-                _imageSources.value = sources
-                onImageSourcesUpdated?.invoke(sources)
-            }
+            _imageSources.value = sources
         }
     }
 
@@ -132,12 +97,6 @@ class PickImageViewModel: ViewModel() {
         }
 
         _target.value = newStatus
-
-        viewModelScope.launch {
-            kotlinx.coroutines.withContext(Dispatchers.Main) {
-                onTargetUpdated?.invoke(newStatus)
-            }
-        }
     }
 
     fun setCapturedImage(capturedImage: CapturedImage) {
@@ -150,9 +109,6 @@ class PickImageViewModel: ViewModel() {
             status.trailing.isHighlighted -> status.copy(trailing = status.trailing.copy(image = capturedImage.image))
             else -> status
         }
-
-        onImagesUpdated?.invoke(_images.value)
-        onImageCaptured?.invoke(capturedImage)
     }
 }
 
