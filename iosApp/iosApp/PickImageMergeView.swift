@@ -6,14 +6,17 @@
 //
 
 import SwiftUI
+import Photos
+import Shared
 
 struct PickImageMergeView: View {
-    let model: PickImageMergeModel
     // @Observable 클래스는 @State 로 관리해야 부모 뷰 재생성 시 재초기화되지 않음
     @State private var wrapper: PickImageMergeViewModelWrapper
 
     let bottomZIndex: Double = 999
     let topZIndex: Double = 1000
+    let leadingSource: PHAsset
+    let trailingSource: PHAsset
 
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 
@@ -24,8 +27,9 @@ struct PickImageMergeView: View {
     @State private var trailingScale: CGFloat = 1.0
 
     init(model: PickImageMergeModel) {
-        self.model = model
         self._wrapper = State(initialValue: PickImageMergeViewModelWrapper(model: model))
+        self.leadingSource = model.leading
+        self.trailingSource = model.trailing
     }
 
     var body: some View {
@@ -33,7 +37,7 @@ struct PickImageMergeView: View {
             // GeometryReader 는 자식을 모두 (0,0) 에 쌓으므로 VStack 으로 감쌈
             VStack(spacing: 0) {
                 ZStack {
-                    PHAssetImage(asset: model.leading, size: thumbnailSize)
+                    PHAssetImage(asset: leadingSource, size: thumbnailSize)
                         .draggableAndScalable(
                             offset: $leadingOffset,
                             scale: $leadingScale,
@@ -46,7 +50,7 @@ struct PickImageMergeView: View {
                         )
                         .zIndex(bottomZIndex)
 
-                    PHAssetImage(asset: model.trailing, size: thumbnailSize)
+                    PHAssetImage(asset: trailingSource, size: thumbnailSize)
                         .draggableAndScalable(
                             offset: $trailingOffset,
                             scale: $trailingScale,

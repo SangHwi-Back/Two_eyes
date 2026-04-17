@@ -12,28 +12,27 @@ import com.example.twoeyesproject.platformspecific.ImageSource
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
-class MergeViewModel(
+class PickImageMergeViewModel(
     private val observer: Observer,
     private val source1: ImageSource,
     private val source2: ImageSource,
 ) : ViewModel() {
     private val merger = ImageMerger()
     private var imageViewZPositions = mutableListOf(ImageOrder.TOP, ImageOrder.BOTTOM)
-    private var _mergeSubject = MutableSharedFlow<Unit>()
-    val mergeSubject = _mergeSubject.asSharedFlow()
-    private var _mergeTrigger = MutableSharedFlow<PlatformImage>()
-    val mergeTrigger = _mergeTrigger.asSharedFlow()
+    private var _mergeSubject = MutableStateFlow(Unit)
+    val mergeSubject = _mergeSubject.asStateFlow()
+    private var _mergeTrigger = MutableStateFlow<PlatformImage?>(null)
+    val mergeTrigger = _mergeTrigger.asStateFlow()
     private var _targets = MutableStateFlow<MutableList<CameraMergeTarget>>(mutableListOf())
-    val targets = _targets.asSharedFlow()
+    val targets = _targets.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -131,14 +130,14 @@ data class CameraImageViewStatus(
 )
 
 class MergeViewModelFactory(
-    private val observer: MergeViewModel.Observer,
+    private val observer: PickImageMergeViewModel.Observer,
     private val source1: ImageSource,
     private val source2: ImageSource,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
-        if (modelClass.isInstance(MergeViewModel::class))
+        if (modelClass.isInstance(PickImageMergeViewModel::class))
             throw IllegalArgumentException("Unknown ViewModel Class")
         @Suppress("UNCHECKED_CAST")
-        return MergeViewModel(observer, source1, source2) as T
+        return PickImageMergeViewModel(observer, source1, source2) as T
     }
 }

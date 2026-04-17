@@ -347,7 +347,7 @@
 		1B3044642F7CEE0D0062F13F /* ImageDecoder.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.kt; sourceTree = "<group>"; };
 		1B3044652F7CEE0D0062F13F /* ImageMerger.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.kt; sourceTree = "<group>"; };
 		1B3044692F7CEE0D0062F13F /* Greeting.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Greeting.kt; sourceTree = "<group>"; };
-		1B30446A2F7CEE0D0062F13F /* MergeViewModel.kt */ = {isa = PBXFileReference; lastKnownFileType = file.kt; name = MergeViewModel.kt; path = image/merge/MergeViewModel.kt; sourceTree = "<group>"; };
+		1B30446A2F7CEE0D0062F13F /* PickImageMergeViewModel.kt */ = {isa = PBXFileReference; lastKnownFileType = file.kt; name = PickImageMergeViewModel.kt; path = image/merge/PickImageMergeViewModel.kt; sourceTree = "<group>"; };
 		1B30446B2F7CEE0D0062F13F /* Platform.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.kt; sourceTree = "<group>"; };
 		1B3044712F7CEE0D0062F13F /* ImageMergerModelTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerModelTest.kt; sourceTree = "<group>"; };
 		1B3044732F7CEE0D0062F13F /* SharedCommonTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedCommonTest.kt; sourceTree = "<group>"; };
@@ -3570,7 +3570,7 @@
 			children = (
 				1B3044682F7CEE0D0062F13F /* image */,
 				1B3044692F7CEE0D0062F13F /* Greeting.kt */,
-				1B30446A2F7CEE0D0062F13F /* MergeViewModel.kt */,
+				1B30446A2F7CEE0D0062F13F /* PickImageMergeViewModel.kt */,
 				1B30446B2F7CEE0D0062F13F /* Platform.kt */,
 			);
 			path = twoeyesproject;

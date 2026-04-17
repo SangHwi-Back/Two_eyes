@@ -2,15 +2,16 @@ package com.example.twoeyesproject.ui.camera
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -99,7 +100,6 @@ private fun Modifier.dashedBorder(
 }
 
 // ── CameraScreen ──────────────────────────────────────────────────────────────
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PickImageScreen(
@@ -155,7 +155,6 @@ fun PickImageScreen(
             }
         }
     }
-
     fun launchCamera() {
         val imageFile = File(
             context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
@@ -167,11 +166,18 @@ fun PickImageScreen(
             Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, uri) }
         )
     }
-
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted -> if (isGranted) launchCamera() }
 
+    val permissionReadImage: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        Manifest.permission.READ_MEDIA_IMAGES
+    else
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    val pickImagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+    else
+        ""
     // ── 앨범에서 1장 선택 (Pick 버튼): PlatformPhotoPickerLauncher와 동일한 로직 ──
     // PickVisualMedia → ImageDecoder().decode() → viewModel.setCapturedImage()
     val pickImageLauncher = rememberLauncherForActivityResult(
@@ -190,41 +196,27 @@ fun PickImageScreen(
             }
         }
     }
-
     // ── 전체 불러오기 권한 요청: 허가 후 viewModel.loadAllImages() ─────────────
-    val albumPermissionLauncher = rememberLauncherForActivityResult(
+    val pickImagePermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val granted = permissions[Manifest.permission.READ_MEDIA_IMAGES] == true ||
-            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                permissions[Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED] == true)
-        if (granted) viewModel.loadAllImages()
+        if (permissions[permissionReadImage] ?: false || permissions[pickImagePermission] ?: false)
+            pickImageLauncher.launch(PickVisualMediaRequest())
+        else
+            Toast.makeText(context, "Permission Not granted", Toast.LENGTH_LONG).show()
     }
-
-    fun requestAlbumPermission() {
-        val hasFullAccess =
-            context.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) ==
-                android.content.pm.PackageManager.PERMISSION_GRANTED ||
-            context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                android.content.pm.PackageManager.PERMISSION_GRANTED
-        when {
-            hasFullAccess -> viewModel.loadAllImages()
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-            context.checkSelfPermission(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ==
-                android.content.pm.PackageManager.PERMISSION_GRANTED ->
-                pickImageLauncher.launch(PickVisualMediaRequest())
-            else -> albumPermissionLauncher.launch(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
-                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
-
-                    else -> arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-                }
-            )
-        }
+    fun requestAlbumPermission() = when {
+        // Version low
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
+            Toast.makeText(context, "Version is too low!", Toast.LENGTH_LONG).show()
+        // Already granted
+        context.checkSelfPermission(permissionReadImage) == PackageManager.PERMISSION_GRANTED
+                || context.checkSelfPermission(pickImagePermission) == PackageManager.PERMISSION_GRANTED ->
+            pickImageLauncher.launch(PickVisualMediaRequest())
+        // Needed to get granted by user
+        else ->
+            pickImagePermissionLauncher.launch(arrayOf(permissionReadImage, pickImagePermission))
     }
-
     // ── UI ────────────────────────────────────────────────────────────────────
     Scaffold(
         topBar = {
@@ -318,7 +310,7 @@ fun PickImageScreen(
                     label = "Camera",
                     onClick = {
                         val hasCamera = context.checkSelfPermission(Manifest.permission.CAMERA) ==
-                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                            PackageManager.PERMISSION_GRANTED
                         if (hasCamera) launchCamera()
                         else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -377,7 +369,7 @@ private fun BottomButton(
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
         tonalElevation = 2.dp,
-        modifier = Modifier.width(72.dp).height(72.dp)
+        modifier = Modifier.size(72.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -428,7 +420,9 @@ private fun ImageSlot(
             )
             IconButton(
                 onClick = { onClick(CameraScreenTapType.Delete) },
-                modifier = Modifier.size(42.dp).align(Alignment.TopEnd)
+                modifier = Modifier
+                    .size(42.dp)
+                    .align(Alignment.TopEnd)
             ) {
                 Icon(imageVector = Icons.Outlined.RestoreFromTrash, contentDescription = "사진 지우기")
             }

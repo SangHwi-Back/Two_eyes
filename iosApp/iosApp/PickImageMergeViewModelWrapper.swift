@@ -12,26 +12,45 @@ import Shared
 
 @Observable
 class PickImageMergeViewModelWrapper {
+    typealias CameraMergeTarget = PickImageMergeViewModel.CameraMergeTarget
     let observer: Observer
-    let viewModel: MergeViewModel
+    let viewModel: PickImageMergeViewModel
     
     let mergePublisher: PassthroughSubject<UIImage, Never>
     private(set) var mergedImage: UIImage?
     
     var cancellables = Set<AnyCancellable>()
     
+    var leadingTarget: CameraMergeTarget!
+    var trailingTarget: CameraMergeTarget!
+    
     init(model: PickImageMergeModel) {
         self.observer = Observer()
-        self.viewModel = MergeViewModel(
+        let viewModel = PickImageMergeViewModel(
             observer: observer,
             source1: model.leading,
             source2: model.trailing)
+        self.viewModel = viewModel
+        
+        let targets = viewModel.targets.value as! [CameraMergeTarget]
+        self.leadingTarget = targets[0]
+        self.trailingTarget = targets[1]
+        
         self.mergePublisher = PassthroughSubject<UIImage, Never>()
         
         self.viewModel
             .mergeTrigger
-            .collect(collector: Collector<UIImage>(callback: { image in
-                self.mergePublisher.send(image)
+            .collect(collector: Collector<UIImage?>(callback: { image in
+                if let image {
+                    self.mergePublisher.send(image)
+                }
+            })) { _ in }
+        
+        self.viewModel
+            .targets
+            .collect(collector: Collector<[CameraMergeTarget]>(callback: { [weak self] targets in
+                self?.leadingTarget = targets[0]
+                self?.trailingTarget = targets[1]
             })) { _ in }
         
         self.mergePublisher.sink { image in
@@ -40,12 +59,12 @@ class PickImageMergeViewModelWrapper {
         .store(in: &cancellables)
     }
     
-    class Observer: MergeViewModelObserver {
-        func didStatusChanged(effect: MergeViewModel.CameraMergeEffectOnStatusChanged) {
+    class Observer: PickImageMergeViewModelObserver {
+        func didStatusChanged(effect: PickImageMergeViewModel.CameraMergeEffectOnStatusChanged) {
             
         }
         
-        func didSwapedZPosition(effect: MergeViewModel.CameraMergeEffectOnSwapZPosition) {
+        func didSwapedZPosition(effect: PickImageMergeViewModel.CameraMergeEffectOnSwapZPosition) {
             
         }
     }

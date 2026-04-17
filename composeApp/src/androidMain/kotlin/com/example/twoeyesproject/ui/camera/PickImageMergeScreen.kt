@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.twoeyesproject.image.merge.MergeViewModel
+import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
 import com.example.twoeyesproject.image.merge.MergeViewModelFactory
 import kotlin.math.roundToInt
 
@@ -66,24 +66,24 @@ fun PickImageMergeScreen(
     val source2 = remember { uri2String.toUri().buildUpon() }
 
     var zOrder by remember {
-        mutableStateOf(listOf(MergeViewModel.ImageOrder.TOP, MergeViewModel.ImageOrder.BOTTOM))
+        mutableStateOf(listOf(PickImageMergeViewModel.ImageOrder.TOP, PickImageMergeViewModel.ImageOrder.BOTTOM))
     }
     val observer = remember {
-        object : MergeViewModel.Observer {
-            override fun didSwapedZPosition(effect: MergeViewModel.CameraMergeEffect.OnSwapZPosition) {
+        object : PickImageMergeViewModel.Observer {
+            override fun didSwapedZPosition(effect: PickImageMergeViewModel.CameraMergeEffect.OnSwapZPosition) {
                 zOrder = effect.order
             }
-            override fun didStatusChanged(effect: MergeViewModel.CameraMergeEffect.OnStatusChanged) {}
+            override fun didStatusChanged(effect: PickImageMergeViewModel.CameraMergeEffect.OnStatusChanged) {}
         }
     }
 
     val factory = remember { MergeViewModelFactory(observer, source1, source2) }
-    val viewModel: MergeViewModel = viewModel(factory = factory)
+    val viewModel: PickImageMergeViewModel = viewModel(factory = factory)
 
     var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(viewModel) {
         viewModel.mergeTrigger.collect { bitmap ->
-            previewBitmap = bitmap.asImageBitmap()
+            previewBitmap = bitmap?.asImageBitmap()
         }
     }
 
@@ -116,12 +116,12 @@ fun PickImageMergeScreen(
                 }
             }
 
-            val leadingTarget = targets.find { it.order == MergeViewModel.ImageOrder.BOTTOM }
-            val trailingTarget = targets.find { it.order == MergeViewModel.ImageOrder.TOP }
+            val leadingTarget = targets.find { it.order == PickImageMergeViewModel.ImageOrder.BOTTOM }
+            val trailingTarget = targets.find { it.order == PickImageMergeViewModel.ImageOrder.TOP }
 
             zOrder.forEach { order ->
                 when (order) {
-                    MergeViewModel.ImageOrder.BOTTOM -> leadingTarget?.let {
+                    PickImageMergeViewModel.ImageOrder.BOTTOM -> leadingTarget?.let {
                         TransformableImage(
                             bitmap = it.image.asImageBitmap(),
                             offsetX = leadingOffsetX,
@@ -131,14 +131,14 @@ fun PickImageMergeScreen(
                                 leadingOffsetX += dx
                                 leadingOffsetY += dy
                                 viewModel.updatePosition(
-                                    MergeViewModel.ImageOrder.BOTTOM,
+                                    PickImageMergeViewModel.ImageOrder.BOTTOM,
                                     leadingOffsetX, leadingOffsetY
                                 )
                             },
                             onScale = { factor -> leadingScale *= factor }
                         )
                     }
-                    MergeViewModel.ImageOrder.TOP -> trailingTarget?.let {
+                    PickImageMergeViewModel.ImageOrder.TOP -> trailingTarget?.let {
                         TransformableImage(
                             bitmap = it.image.asImageBitmap(),
                             offsetX = trailingOffsetX,
@@ -148,7 +148,7 @@ fun PickImageMergeScreen(
                                 trailingOffsetX += dx
                                 trailingOffsetY += dy
                                 viewModel.updatePosition(
-                                    MergeViewModel.ImageOrder.TOP,
+                                    PickImageMergeViewModel.ImageOrder.TOP,
                                     trailingOffsetX, trailingOffsetY
                                 )
                             },
