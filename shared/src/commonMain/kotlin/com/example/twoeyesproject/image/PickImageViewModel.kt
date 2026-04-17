@@ -58,7 +58,7 @@ class PickImageViewModel: ViewModel() {
         }
 
         if (target.value.trailing.isHighlighted) {
-            _target.value = target.value.copy(trailing = status.leading.copy(image = image))
+            _target.value = target.value.copy(trailing = status.trailing.copy(image = image))
         }
     }
 
