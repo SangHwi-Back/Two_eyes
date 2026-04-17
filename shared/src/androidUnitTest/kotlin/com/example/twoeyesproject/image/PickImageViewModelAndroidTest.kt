@@ -65,6 +65,7 @@ class PickImageViewModelAndroidTest {
         assertNull(viewModel.target.value.trailing.image)
 
         // Act
+        val originalTrailingUuid = viewModel.target.value.trailing.uuid
         viewModel.highlightImageView(viewModel.target.value.trailing)
         testDispatcher.scheduler.advanceUntilIdle()
         val imageSetTrailing = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
@@ -73,7 +74,9 @@ class PickImageViewModelAndroidTest {
         // Assert
         assertNotNull(viewModel.target.value.leading.image)
         assertNotNull(viewModel.target.value.trailing.image)
-        assertEquals(viewModel.target.value.trailing.image, imageSetTrailing)
+        assertEquals(imageSetTrailing, viewModel.target.value.trailing.image)
+        // trailing 슬롯의 UUID가 바뀌지 않았는지 확인 — leading 데이터로 덮어쓰는 버그 검출
+        assertEquals(originalTrailingUuid, viewModel.target.value.trailing.uuid, "[Unit Test] Trailing slot was overwritten with leading data")
     }
 
     @Test
