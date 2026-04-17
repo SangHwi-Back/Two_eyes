@@ -24,7 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.twoeyesproject.ui.camera.PickImageScreen
-import com.example.twoeyesproject.ui.camera.MergeScreen
+import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
 
 private const val ROUTE_FEED    = "feed"
@@ -122,7 +122,7 @@ private fun AppScaffold(navController: NavHostController) {
             composable(ROUTE_MERGE) { backStackEntry ->
                 val uri1 = backStackEntry.arguments?.getString("uri1") ?: return@composable
                 val uri2 = backStackEntry.arguments?.getString("uri2") ?: return@composable
-                MergeScreen(
+                PickImageMergeScreen(
                     uri1String = android.net.Uri.decode(uri1),
                     uri2String = android.net.Uri.decode(uri2),
                     onConfirm = {
