@@ -27,23 +27,24 @@ class PickImageMergeViewModel(
 ) : ViewModel() {
     private val merger = ImageMerger()
     private var imageViewZPositions = mutableListOf(ImageOrder.TOP, ImageOrder.BOTTOM)
-    private var _mergeSubject = MutableStateFlow(Unit)
+    private val _mergeSubject = MutableStateFlow(Unit)
     val mergeSubject = _mergeSubject.asStateFlow()
-    private var _mergeTrigger = MutableStateFlow<PlatformImage?>(null)
+    private val _mergeTrigger = MutableStateFlow<PlatformImage?>(null)
     val mergeTrigger = _mergeTrigger.asStateFlow()
-    private var _targets = MutableStateFlow<MutableList<CameraMergeTarget>>(mutableListOf())
+    private val _targets = MutableStateFlow<MutableList<CameraMergeTarget>>(mutableListOf(
+        CameraMergeTarget(ImageOrder.TOP,    ImageFrame(0f,   0f,   100f, 100f)),
+        CameraMergeTarget(ImageOrder.BOTTOM, ImageFrame(100f, 100f, 200f, 200f))
+    ))
     val targets = _targets.asStateFlow()
+
+    // 이미지는 합성 연산에만 사용 — 뷰에 노출하지 않음
+    private val images = mutableMapOf<ImageOrder, PlatformImage>()
 
     init {
         viewModelScope.launch {
             val decoder = ImageDecoder()
-            val image1 = decoder.decode(source1)
-            val image2 = decoder.decode(source2)
-
-            _targets.emit(mutableListOf(
-                CameraMergeTarget(ImageOrder.TOP, image1, ImageFrame(0f,0f,100f,100f)),
-                CameraMergeTarget(ImageOrder.BOTTOM, image2, ImageFrame(100f,100f,200f,200f))
-            ))
+            images[ImageOrder.TOP] = decoder.decode(source1)
+            images[ImageOrder.BOTTOM] = decoder.decode(source2)
 
             _mergeTrigger
                 .debounce(16.milliseconds)
@@ -64,9 +65,8 @@ class PickImageMergeViewModel(
                 index = 1
             }
         }
-
-        observer.didStatusChanged(
-            CameraMergeEffect.OnStatusChanged(values[index].image))
+        val image = images[values[index].order] ?: return
+        observer.didStatusChanged(CameraMergeEffect.OnStatusChanged(image))
         setNewTargetState(values)
     }
 
@@ -87,16 +87,13 @@ class PickImageMergeViewModel(
     private fun triggerMerge() {
         viewModelScope.launch(Dispatchers.Default) {
             val values = _targets.value
-
-            if (values.size < 2) {
-                return@launch
-            }
+            if (values.size < 2) return@launch
 
             val model = ImageMergerModel(
                 canvasWidth = 300,
                 canvasHeight = 700,
-                values[1].toImageInfo(),
-                values[0].toImageInfo(),
+                ImageMergerModel.ImageInfo(images[values[1].order] ?: return@launch, values[1].rect),
+                ImageMergerModel.ImageInfo(images[values[0].order] ?: return@launch, values[0].rect),
             )
 
             val merged = merger.merge(model)
@@ -113,21 +110,13 @@ class PickImageMergeViewModel(
         data class OnSwapZPosition(val order: List<ImageOrder>)
         data class OnStatusChanged(val image: PlatformImage)
     }
+
+    // image 필드 제거 — 이미지는 ViewModel 내부 images 맵에서 관리
     data class CameraMergeTarget(
         val order: ImageOrder,
-        val image: PlatformImage,
         val rect: ImageFrame
     )
-
-    fun CameraMergeTarget.toImageInfo(): ImageMergerModel.ImageInfo =
-        ImageMergerModel.ImageInfo(image, rect)
-
 }
-
-data class CameraImageViewStatus(
-    var image: PlatformImage,
-    var frame: ImageFrame
-)
 
 class MergeViewModelFactory(
     private val observer: PickImageMergeViewModel.Observer,

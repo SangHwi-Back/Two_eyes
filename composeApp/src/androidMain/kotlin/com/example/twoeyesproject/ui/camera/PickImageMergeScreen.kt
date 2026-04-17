@@ -45,11 +45,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
+import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.merge.MergeViewModelFactory
+import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val ThumbnailWidth = 120.dp
 private val ThumbnailHeight = 190.dp
@@ -87,7 +89,14 @@ fun PickImageMergeScreen(
         }
     }
 
-    val targets by viewModel.targets.collectAsStateWithLifecycle(initialValue = mutableListOf())
+    // 이미지는 뷰가 직접 디코딩 — ViewModel의 targets에 의존하지 않음
+    var leadingBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var trailingBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(Unit) {
+        val decoder = ImageDecoder()
+        leadingBitmap  = withContext(Dispatchers.IO) { decoder.decode(source1) }.asImageBitmap()
+        trailingBitmap = withContext(Dispatchers.IO) { decoder.decode(source2) }.asImageBitmap()
+    }
 
     var leadingOffsetX by remember { mutableFloatStateOf(0f) }
     var leadingOffsetY by remember { mutableFloatStateOf(0f) }
@@ -116,14 +125,11 @@ fun PickImageMergeScreen(
                 }
             }
 
-            val leadingTarget = targets.find { it.order == PickImageMergeViewModel.ImageOrder.BOTTOM }
-            val trailingTarget = targets.find { it.order == PickImageMergeViewModel.ImageOrder.TOP }
-
             zOrder.forEach { order ->
                 when (order) {
-                    PickImageMergeViewModel.ImageOrder.BOTTOM -> leadingTarget?.let {
+                    PickImageMergeViewModel.ImageOrder.BOTTOM -> leadingBitmap?.let {
                         TransformableImage(
-                            bitmap = it.image.asImageBitmap(),
+                            bitmap = it,
                             offsetX = leadingOffsetX,
                             offsetY = leadingOffsetY,
                             scale = leadingScale,
@@ -138,9 +144,9 @@ fun PickImageMergeScreen(
                             onScale = { factor -> leadingScale *= factor }
                         )
                     }
-                    PickImageMergeViewModel.ImageOrder.TOP -> trailingTarget?.let {
+                    PickImageMergeViewModel.ImageOrder.TOP -> trailingBitmap?.let {
                         TransformableImage(
-                            bitmap = it.image.asImageBitmap(),
+                            bitmap = it,
                             offsetX = trailingOffsetX,
                             offsetY = trailingOffsetY,
                             scale = trailingScale,
