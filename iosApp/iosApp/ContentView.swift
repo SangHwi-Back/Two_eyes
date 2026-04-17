@@ -14,27 +14,38 @@ struct ContentView: View {
         TabView(selection: $tabSelection) {
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
                 NavigationStack(path: $feedPath.path) {
-                    FeedListView()
+                    FeedListView().navigationDestination(for: NavHost.Feed.self) { route in
+                        switch route {
+                        case .main:
+                            FeedListView()
+                        case .feedDetail(let model):
+                            FeedItemView(model: model)
+                        }
+                    }
                 }
                 .environmentObject(feedPath)
             }
             Tab("Camera", systemImage: "camera", value: .camera) {
                 NavigationStack(path: $cameraPath.path) {
-                    PickImageView()
-                }
-                .environmentObject(cameraPath)
-                .navigationDestination(for: NavHost.Camera.self) { route in
-                    switch route {
-                    case .main:
-                        PickImageView()
-                    case .merge(let leading, let trailing):
-                        PickImageMergeView(model: .init(leading: leading, trailing: trailing))
+                    PickImageView().navigationDestination(for: NavHost.Camera.self) { route in
+                        switch route {
+                        case .main:
+                            PickImageView()
+                        case .merge(let leading, let trailing):
+                            PickImageMergeView(model: .init(leading: leading, trailing: trailing))
+                        }
                     }
                 }
+                .environmentObject(cameraPath)
             }
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
                 NavigationStack(path: $uploadPath.path) {
-                    UploadView()
+                    UploadView().navigationDestination(for: NavHost.Upload.self) { route in
+                        switch route {
+                        case .main:
+                            UploadView()
+                        }
+                    }
                 }
                 .environmentObject(uploadPath)
             }
