@@ -26,7 +26,7 @@ final class PickImageViewModelWrapper {
     
     typealias ImageSourcesCollector = Collector<[PHAsset]>
     typealias TargetCollector = Collector<PickImageViewModel.TargetModel>
-    typealias CapturedImageCollector = Collector<UIImage?>
+    typealias CapturedImageCollector = Collector<CapturedImage?>
 
     init() {
         self.cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
@@ -46,7 +46,7 @@ final class PickImageViewModelWrapper {
         
         viewModel.capturedImage
             .collect(collector: CapturedImageCollector(callback: { [weak self] image in
-                self?.capturedImage = image
+                self?.capturedImage = image?.image
             })) { _ in }
     }
 }

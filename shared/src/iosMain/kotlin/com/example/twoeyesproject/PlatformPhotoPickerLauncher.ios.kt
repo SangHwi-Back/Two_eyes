@@ -1,10 +1,12 @@
 package com.example.twoeyesproject
 
 import com.example.twoeyesproject.image.CapturedImage
+import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.PhotoPickerLauncher
 import com.example.twoeyesproject.image.PickImageViewModel
+import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.Foundation.NSItemProviderReadingProtocol
+import platform.Foundation.NSData
 import platform.PhotosUI.PHPickerConfiguration
 import platform.PhotosUI.PHPickerFilter
 import platform.PhotosUI.PHPickerResult
@@ -38,16 +40,17 @@ class PhotoPickerDelegate(
         for (result in results) {
             val provider = result.itemProvider
 
-            if (provider.canLoadObjectOfClass(UIImage::class as NSItemProviderReadingProtocol)) {
-                provider.loadObjectOfClass(UIImage::class as NSItemProviderReadingProtocol) { image, error ->
-                    val uiImage = image as? UIImage ?: return@loadObjectOfClass
-                    if (error == null) {
-                        viewModel.setCapturedImage(CapturedImage(
-                            image = uiImage,
-                            width = 300,
-                            height = 300
-                        ))
-                    }
+            if (provider.hasItemConformingToTypeIdentifier("public.image")) {
+                provider.loadDataRepresentationForTypeIdentifier("public.image") { data, error ->
+
+                    if (error != null || data == null)
+                        return@loadDataRepresentationForTypeIdentifier
+
+                    viewModel.setCapturedImage(CapturedImage(
+                        image = UIImage(data = data),
+                        width = 300,
+                        height = 300
+                    ))
                 }
             }
         }
