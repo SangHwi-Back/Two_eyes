@@ -41,11 +41,11 @@ struct PickImageMergeView: View {
                         .draggableAndScalable(
                             offset: $leadingOffset,
                             scale: $leadingScale,
-                            onUpdate: { offset, magnifier in
-                                wrapper.viewModel.updatePosition(
-                                    order: .bottom,
-                                    x: Float(offset.width),
-                                    y: Float(offset.height))
+                            onUpdate: { offset, scale in
+                                wrapper.viewModel.updateLeading(
+                                    offsetX: Float(offset.width),
+                                    offsetY: Float(offset.height),
+                                    scale:   Float(scale))
                             }
                         )
                         .zIndex(bottomZIndex)
@@ -54,11 +54,11 @@ struct PickImageMergeView: View {
                         .draggableAndScalable(
                             offset: $trailingOffset,
                             scale: $trailingScale,
-                            onUpdate: { offset, _ in
-                                wrapper.viewModel.updatePosition(
-                                    order: .top,
-                                    x: Float(offset.width),
-                                    y: Float(offset.height))
+                            onUpdate: { offset, scale in
+                                wrapper.viewModel.updateTrailing(
+                                    offsetX: Float(offset.width),
+                                    offsetY: Float(offset.height),
+                                    scale:   Float(scale))
                             }
                         )
                         .zIndex(topZIndex)
@@ -66,10 +66,19 @@ struct PickImageMergeView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
                 .onAppear {
+                    let canvasSize = CGSize(width: proxy.size.width, height: 300)
+                    wrapper.setCanvasSize(canvasSize)
+
                     // leading 초기 위치: ZStack 중심에서 왼쪽 절반 중앙
-                    leadingOffset = CGSize(width: -proxy.size.width / 4, height: 0)
+                    leadingOffset  = CGSize(width: -proxy.size.width / 4, height: 0)
                     // trailing 초기 위치: ZStack 중심에서 오른쪽 절반 중앙
-                    trailingOffset = CGSize(width: proxy.size.width / 4, height: 0)
+                    trailingOffset = CGSize(width:  proxy.size.width / 4, height: 0)
+
+                    // ViewModel 초기 상태 동기화
+                    wrapper.viewModel.updateLeading(
+                        offsetX: Float(-proxy.size.width / 4), offsetY: 0, scale: 1)
+                    wrapper.viewModel.updateTrailing(
+                        offsetX: Float( proxy.size.width / 4), offsetY: 0, scale: 1)
                 }
 
                 Divider()
@@ -87,8 +96,8 @@ struct PickImageMergeView: View {
                     if let image = wrapper.mergedImage {
                         Image(uiImage: image)
                             .resizable()
+                            .frame(maxWidth: proxy.size.width, maxHeight: proxy.size.width * 0.75)
                             .aspectRatio(1.6, contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(.vertical)
                     } else {
                         ProgressView()

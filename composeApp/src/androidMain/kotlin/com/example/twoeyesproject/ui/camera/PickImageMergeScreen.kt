@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.ui.camera
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -45,17 +46,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.twoeyesproject.image.ImageDecoder
-import com.example.twoeyesproject.image.merge.MergeViewModelFactory
+import com.example.twoeyesproject.image.ImageFrame
+import com.example.twoeyesproject.image.ImageMerger
+import com.example.twoeyesproject.image.ImageMergerModel
 import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
-import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
-private val ThumbnailWidth = 120.dp
+private val ThumbnailWidth  = 120.dp
 private val ThumbnailHeight = 190.dp
-private val CanvasHeight = 300.dp
+private val CanvasHeight    = 300.dp
 
 @Composable
 fun PickImageMergeScreen(
@@ -67,140 +71,165 @@ fun PickImageMergeScreen(
     val source1 = remember { uri1String.toUri().buildUpon() }
     val source2 = remember { uri2String.toUri().buildUpon() }
 
-    var zOrder by remember {
-        mutableStateOf(listOf(PickImageMergeViewModel.ImageOrder.TOP, PickImageMergeViewModel.ImageOrder.BOTTOM))
-    }
-    val observer = remember {
-        object : PickImageMergeViewModel.Observer {
-            override fun didSwapedZPosition(effect: PickImageMergeViewModel.CameraMergeEffect.OnSwapZPosition) {
-                zOrder = effect.order
-            }
-            override fun didStatusChanged(effect: PickImageMergeViewModel.CameraMergeEffect.OnStatusChanged) {}
-        }
-    }
+    // ── ViewModel (위치·z순서만 관리) ─────────────────────────────────────────
+    val viewModel: PickImageMergeViewModel = viewModel()
+    val zOrder by viewModel.zOrder.collectAsStateWithLifecycle()
 
-    val factory = remember { MergeViewModelFactory(observer, source1, source2) }
-    val viewModel: PickImageMergeViewModel = viewModel(factory = factory)
-
-    var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    LaunchedEffect(viewModel) {
-        viewModel.mergeTrigger.collect { bitmap ->
-            previewBitmap = bitmap?.asImageBitmap()
-        }
-    }
-
-    // 이미지는 뷰가 직접 디코딩 — ViewModel의 targets에 의존하지 않음
-    var leadingBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    var trailingBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    // ── 이미지 디코딩 (뷰 레이어 담당) ───────────────────────────────────────
+    var leadingBitmap:  Bitmap? by remember { mutableStateOf(null) }
+    var trailingBitmap: Bitmap? by remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
         val decoder = ImageDecoder()
-        leadingBitmap  = withContext(Dispatchers.IO) { decoder.decode(source1) }.asImageBitmap()
-        trailingBitmap = withContext(Dispatchers.IO) { decoder.decode(source2) }.asImageBitmap()
+        leadingBitmap  = withContext(Dispatchers.IO) { decoder.decode(source1) }
+        trailingBitmap = withContext(Dispatchers.IO) { decoder.decode(source2) }
     }
 
-    var leadingOffsetX by remember { mutableFloatStateOf(0f) }
-    var leadingOffsetY by remember { mutableFloatStateOf(0f) }
-    var leadingScale by remember { mutableFloatStateOf(1f) }
+    // ── 제스처 상태 ───────────────────────────────────────────────────────────
+    var leadingOffsetX  by remember { mutableFloatStateOf(0f) }
+    var leadingOffsetY  by remember { mutableFloatStateOf(0f) }
+    var leadingScale    by remember { mutableFloatStateOf(1f) }
 
     var trailingOffsetX by remember { mutableFloatStateOf(0f) }
     var trailingOffsetY by remember { mutableFloatStateOf(0f) }
-    var trailingInitialized by remember { mutableStateOf(false) }
-    var trailingScale by remember { mutableFloatStateOf(1f) }
+    var trailingScale   by remember { mutableFloatStateOf(1f) }
+    var initialized     by remember { mutableStateOf(false) }
+
+    // ── 합성 미리보기 ─────────────────────────────────────────────────────────
+    var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // 캔버스: 두 이미지를 드래그·핀치로 겹치는 영역
+        // ── 제스처 캔버스 ─────────────────────────────────────────────────────
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(CanvasHeight)
         ) {
-            val density = LocalDensity.current
+            val density      = LocalDensity.current
+            val canvasWidthPx  = with(density) { maxWidth.roundToPx() }
+            val canvasHeightPx = with(density) { CanvasHeight.roundToPx() }
+            val thumbWidthPx   = with(density) { ThumbnailWidth.toPx() }
+            val thumbHeightPx  = with(density) { ThumbnailHeight.toPx() }
 
-            // trailing 초기 위치: 오른쪽 끝 (iOS: proxy.size.width - thumbnailSize.width)
+            // 초기 위치: iOS 와 동일하게 캔버스 좌우 절반 중앙
             LaunchedEffect(maxWidth) {
-                if (!trailingInitialized) {
-                    trailingOffsetX = with(density) { (maxWidth - ThumbnailWidth).toPx() }
-                    trailingInitialized = true
+                if (!initialized) {
+                    val cw = with(density) { maxWidth.toPx() }
+                    val tw = with(density) { ThumbnailWidth.toPx() }
+                    leadingOffsetX  = cw / 4f - tw / 2f
+                    trailingOffsetX = 3f * cw / 4f - tw / 2f
+                    initialized = true
+                    viewModel.updateLeading( leadingOffsetX,  leadingOffsetY,  leadingScale)
+                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
                 }
             }
 
+            // 위치·비트맵이 바뀔 때마다 합성 이미지 재생성
+            LaunchedEffect(
+                leadingOffsetX, leadingOffsetY, leadingScale,
+                trailingOffsetX, trailingOffsetY, trailingScale,
+                zOrder, leadingBitmap, trailingBitmap
+            ) {
+                val lBitmap = leadingBitmap  ?: return@LaunchedEffect
+                val tBitmap = trailingBitmap ?: return@LaunchedEffect
+                previewBitmap = withContext(Dispatchers.Default) {
+                    renderMerged(
+                        canvasWidthPx  = canvasWidthPx,
+                        canvasHeightPx = canvasHeightPx,
+                        leadingBitmap  = lBitmap,
+                        leadingOffsetX = leadingOffsetX,
+                        leadingOffsetY = leadingOffsetY,
+                        leadingScale   = leadingScale,
+                        trailingBitmap = tBitmap,
+                        trailingOffsetX = trailingOffsetX,
+                        trailingOffsetY = trailingOffsetY,
+                        trailingScale   = trailingScale,
+                        zOrder          = zOrder,
+                        thumbWidthPx    = thumbWidthPx,
+                        thumbHeightPx   = thumbHeightPx
+                    ).asImageBitmap()
+                }
+            }
+
+            // z순서대로 이미지 렌더
             zOrder.forEach { order ->
                 when (order) {
-                    PickImageMergeViewModel.ImageOrder.BOTTOM -> leadingBitmap?.let {
-                        TransformableImage(
-                            bitmap = it,
-                            offsetX = leadingOffsetX,
-                            offsetY = leadingOffsetY,
-                            scale = leadingScale,
-                            onDrag = { dx, dy ->
-                                leadingOffsetX += dx
-                                leadingOffsetY += dy
-                                viewModel.updatePosition(
-                                    PickImageMergeViewModel.ImageOrder.BOTTOM,
-                                    leadingOffsetX, leadingOffsetY
-                                )
-                            },
-                            onScale = { factor -> leadingScale *= factor }
-                        )
+                    PickImageMergeViewModel.ImageOrder.BOTTOM -> {
+                        leadingBitmap?.asImageBitmap()?.let { bmp ->
+                            TransformableImage(
+                                bitmap    = bmp,
+                                offsetX   = leadingOffsetX,
+                                offsetY   = leadingOffsetY,
+                                scale     = leadingScale,
+                                onDrag    = { dx, dy ->
+                                    leadingOffsetX += dx; leadingOffsetY += dy
+                                    viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
+                                },
+                                onScale   = { f ->
+                                    leadingScale *= f
+                                    viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
+                                }
+                            )
+                        }
                     }
-                    PickImageMergeViewModel.ImageOrder.TOP -> trailingBitmap?.let {
-                        TransformableImage(
-                            bitmap = it,
-                            offsetX = trailingOffsetX,
-                            offsetY = trailingOffsetY,
-                            scale = trailingScale,
-                            onDrag = { dx, dy ->
-                                trailingOffsetX += dx
-                                trailingOffsetY += dy
-                                viewModel.updatePosition(
-                                    PickImageMergeViewModel.ImageOrder.TOP,
-                                    trailingOffsetX, trailingOffsetY
-                                )
-                            },
-                            onScale = { factor -> trailingScale *= factor }
-                        )
+                    PickImageMergeViewModel.ImageOrder.TOP -> {
+                        trailingBitmap?.asImageBitmap()?.let { bmp ->
+                            TransformableImage(
+                                bitmap    = bmp,
+                                offsetX   = trailingOffsetX,
+                                offsetY   = trailingOffsetY,
+                                scale     = trailingScale,
+                                onDrag    = { dx, dy ->
+                                    trailingOffsetX += dx; trailingOffsetY += dy
+                                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
+                                },
+                                onScale   = { f ->
+                                    trailingScale *= f
+                                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
+                                }
+                            )
+                        }
                     }
                 }
             }
 
-            // Swap 버튼: 캔버스 우상단 오버레이
+            // Swap 버튼
             IconButton(
-                onClick = { viewModel.swapOrder() },
-                modifier = Modifier
+                onClick   = { viewModel.swapOrder() },
+                modifier  = Modifier
                     .align(Alignment.TopEnd)
                     .padding(4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.SwapHoriz,
+                    imageVector  = Icons.Default.SwapHoriz,
                     contentDescription = "순서 교환",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint         = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // 합성 미리보기 (iOS: ZStack with RoundedRectangle border + aspect ratio 1.6 ≈ 16:10)
+        // ── 합성 미리보기 ─────────────────────────────────────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .aspectRatio(16f / 10f)
                 .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(8.dp)
+                    width  = 1.dp,
+                    color  = MaterialTheme.colorScheme.outline,
+                    shape  = RoundedCornerShape(8.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
             val preview = previewBitmap
             if (preview != null) {
                 Image(
-                    bitmap = preview,
+                    bitmap        = preview,
                     contentDescription = "합성 미리보기",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
+                    contentScale  = ContentScale.Fit,
+                    modifier      = Modifier
                         .fillMaxSize()
                         .padding(8.dp)
                 )
@@ -211,7 +240,7 @@ fun PickImageMergeScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 하단 버튼: 취소 + 확인
+        // ── 하단 버튼 ─────────────────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,36 +248,80 @@ fun PickImageMergeScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedButton(
-                onClick = onCancel,
+                onClick  = onCancel,
                 modifier = Modifier.weight(1f)
             ) { Text("취소") }
             Button(
-                onClick = onConfirm,
+                onClick  = onConfirm,
                 modifier = Modifier.weight(1f)
             ) { Text("확인") }
         }
     }
 }
 
+// ── 합성 렌더링 ───────────────────────────────────────────────────────────────
+private fun renderMerged(
+    canvasWidthPx:  Int,
+    canvasHeightPx: Int,
+    leadingBitmap:  Bitmap,
+    leadingOffsetX: Float,
+    leadingOffsetY: Float,
+    leadingScale:   Float,
+    trailingBitmap: Bitmap,
+    trailingOffsetX: Float,
+    trailingOffsetY: Float,
+    trailingScale:   Float,
+    zOrder:          List<PickImageMergeViewModel.ImageOrder>,
+    thumbWidthPx:    Float,
+    thumbHeightPx:   Float,
+): Bitmap {
+    fun makeFrame(ox: Float, oy: Float, s: Float) = ImageFrame(
+        left   = ox,
+        top    = oy,
+        right  = ox + thumbWidthPx * s,
+        bottom = oy + thumbHeightPx * s
+    )
+
+    val leadingFrame  = makeFrame(leadingOffsetX,  leadingOffsetY,  leadingScale)
+    val trailingFrame = makeFrame(trailingOffsetX, trailingOffsetY, trailingScale)
+
+    val isLeadingBottom = zOrder.firstOrNull() == PickImageMergeViewModel.ImageOrder.BOTTOM
+    val model = ImageMergerModel(
+        canvasWidth  = canvasWidthPx,
+        canvasHeight = canvasHeightPx,
+        bottomImage  = ImageMergerModel.ImageInfo(
+            image = if (isLeadingBottom) leadingBitmap  else trailingBitmap,
+            frame = if (isLeadingBottom) leadingFrame   else trailingFrame
+        ),
+        topImage     = ImageMergerModel.ImageInfo(
+            image = if (isLeadingBottom) trailingBitmap else leadingBitmap,
+            frame = if (isLeadingBottom) trailingFrame  else leadingFrame
+        ),
+        blendAlpha   = 0.5f
+    )
+
+    return ImageMerger().merge(model)
+}
+
+// ── TransformableImage ────────────────────────────────────────────────────────
 @Composable
 private fun TransformableImage(
-    bitmap: ImageBitmap,
-    offsetX: Float,
-    offsetY: Float,
-    scale: Float,
-    onDrag: (dx: Float, dy: Float) -> Unit,
-    onScale: (factor: Float) -> Unit,
+    bitmap:   ImageBitmap,
+    offsetX:  Float,
+    offsetY:  Float,
+    scale:    Float,
+    onDrag:   (dx: Float, dy: Float) -> Unit,
+    onScale:  (factor: Float) -> Unit,
 ) {
-    // transformable 은 단일 손가락 pan + 핀치 줌을 모두 처리
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         onDrag(panChange.x, panChange.y)
         onScale(zoomChange)
     }
     Image(
-        bitmap = bitmap,
+        bitmap        = bitmap,
         contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
+        contentScale  = ContentScale.Crop,
+        modifier      = Modifier
             .size(ThumbnailWidth, ThumbnailHeight)
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .scale(scale)

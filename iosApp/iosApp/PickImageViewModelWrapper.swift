@@ -23,9 +23,9 @@ final class PickImageViewModelWrapper {
         target.trailing
     }
     
-    typealias ImageSourcesCollector = Collector<[PHAsset]>
-    typealias TargetCollector = Collector<PickImageViewModel.TargetModel>
-    typealias CapturedImageCollector = Collector<PHAsset?>
+    typealias ImageSourcesCollector = MergeCollector<[PHAsset]>
+    typealias TargetCollector = MergeCollector<PickImageViewModel.TargetModel>
+    typealias CapturedImageCollector = MergeCollector<PHAsset?>
 
     init() {
         self.cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
