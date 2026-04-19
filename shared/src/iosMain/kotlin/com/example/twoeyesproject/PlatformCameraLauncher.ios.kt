@@ -1,19 +1,15 @@
 package com.example.twoeyesproject
 
 import com.example.twoeyesproject.image.CameraLauncher
-import com.example.twoeyesproject.image.CapturedImage
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.Foundation.NSData
+import platform.Photos.PHAsset
 import platform.UIKit.UIApplication
-import platform.UIKit.UIImage
-import platform.UIKit.UIImageJPEGRepresentation
 import platform.UIKit.UIImagePickerController
 import platform.UIKit.UIImagePickerControllerDelegateProtocol
-import platform.UIKit.UIImagePickerControllerOriginalImage
+import platform.UIKit.UIImagePickerControllerPHAsset
 import platform.UIKit.UIImagePickerControllerSourceType
 import platform.UIKit.UINavigationControllerDelegateProtocol
-import platform.UIKit.UIViewController
 import platform.darwin.NSObject
 
 // Objective-C 델리게이트: NSObject + ObjC 프로토콜만 상속
@@ -45,17 +41,10 @@ private class CameraPickerDelegate(
     ) {
         picker.dismissViewControllerAnimated(true, null)
 
-        val image = didFinishPickingMediaWithInfo[UIImagePickerControllerOriginalImage]
-            as? UIImage ?: return
+        val imageSource = didFinishPickingMediaWithInfo[UIImagePickerControllerPHAsset]
+            as? PHAsset ?: return
 
-        val jpegData: NSData = UIImageJPEGRepresentation(image, 0.9) ?: return
-        val convertedImage = UIImage(data = jpegData)
-
-        viewModel.setCapturedImage(CapturedImage(
-            image = convertedImage,
-            width = 300,
-            height = 300
-        ))
+        viewModel.setCameraImage(imageSource)
     }
 
     override fun imagePickerControllerDidCancel(picker: UIImagePickerController) {

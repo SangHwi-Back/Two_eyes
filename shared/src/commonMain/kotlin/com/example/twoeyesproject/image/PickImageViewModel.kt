@@ -3,7 +3,6 @@ package com.example.twoeyesproject.image
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.platformspecific.ImageSource
-import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +19,6 @@ class PickImageViewModel: ViewModel() {
         ImageViewModel(Uuid.random(), null, false),
     ))
     val target: StateFlow<TargetModel> = _target.asStateFlow()
-    private var _capturedImage = MutableStateFlow<CapturedImage?>(null)
-    val capturedImage: StateFlow<CapturedImage?> = _capturedImage.asStateFlow()
-    private var _images = MutableStateFlow<List<PlatformImage>>(listOf())
-    val images: StateFlow<List<PlatformImage>> = _images.asStateFlow()
     private var _imageSources = MutableStateFlow<List<ImageSource>>(listOf())
     val imageSources: StateFlow<List<ImageSource>> = _imageSources.asStateFlow()
 
@@ -33,45 +28,35 @@ class PickImageViewModel: ViewModel() {
     )
     data class ImageViewModel(
         val uuid: Uuid,
-        val image: PlatformImage?,
+        val imageSource: ImageSource?,
         val isHighlighted: Boolean
     )
 
-    fun setImage(image: PlatformImage) {
+    fun setImageFromSource(imageSource: ImageSource) {
         val status = target.value
 
         if (target.value.leading.isHighlighted) {
-            _target.value = target.value.copy(leading = status.leading.copy(image = image))
+            _target.value = target.value.copy(leading = status.leading.copy(imageSource = imageSource))
         }
 
         if (target.value.trailing.isHighlighted) {
-            _target.value = target.value.copy(trailing = status.trailing.copy(image = image))
-        }
-    }
-
-    suspend fun setImageFromSource(imageSource: ImageSource) {
-        val status = target.value
-        val image = ImageDecoder().decode(imageSource)
-
-        if (target.value.leading.isHighlighted) {
-            _target.value = target.value.copy(leading = status.leading.copy(image = image))
+            _target.value = target.value.copy(trailing = status.trailing.copy(imageSource = imageSource))
         }
 
-        if (target.value.trailing.isHighlighted) {
-            _target.value = target.value.copy(trailing = status.trailing.copy(image = image))
+        if (!imageSources.value.contains(imageSource)) {
+            _imageSources.value += imageSource
         }
     }
 
     fun deleteImage(model: ImageViewModel) {
         val status = target.value
 
-        val newStatus = when (model.uuid) {
-            target.value.leading.uuid -> target.value.copy(leading = status.leading.copy(image = null))
-            target.value.trailing.uuid -> target.value.copy(trailing = status.trailing.copy(image = null))
-            else -> status
+        when (model.uuid) {
+            target.value.leading.uuid ->
+                _target.value = target.value.copy(leading = status.leading.copy(imageSource = null))
+            target.value.trailing.uuid ->
+                _target.value = target.value.copy(trailing = status.trailing.copy(imageSource = null))
         }
-
-        _target.value = newStatus
     }
 
     fun loadAllImages() {
@@ -99,21 +84,7 @@ class PickImageViewModel: ViewModel() {
         _target.value = newStatus
     }
 
-    fun setCapturedImage(capturedImage: CapturedImage) {
-        _capturedImage.value = capturedImage
-        _images.value += capturedImage.image
-
-        val status = target.value
-        _target.value = when {
-            status.leading.isHighlighted -> status.copy(leading = status.leading.copy(image = capturedImage.image))
-            status.trailing.isHighlighted -> status.copy(trailing = status.trailing.copy(image = capturedImage.image))
-            else -> status
-        }
+    fun setCameraImage(imageSource: ImageSource) {
+        loadAllImages()
     }
 }
-
-data class CapturedImage(
-    val image: PlatformImage,
-    val width: Int,
-    val height: Int,
-)

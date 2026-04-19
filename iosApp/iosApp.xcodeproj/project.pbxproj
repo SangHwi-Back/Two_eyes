@@ -349,8 +349,6 @@
 		1B3044692F7CEE0D0062F13F /* Greeting.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Greeting.kt; sourceTree = "<group>"; };
 		1B30446A2F7CEE0D0062F13F /* PickImageMergeViewModel.kt */ = {isa = PBXFileReference; lastKnownFileType = file.kt; name = PickImageMergeViewModel.kt; path = image/merge/PickImageMergeViewModel.kt; sourceTree = "<group>"; };
 		1B30446B2F7CEE0D0062F13F /* Platform.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.kt; sourceTree = "<group>"; };
-		1B3044712F7CEE0D0062F13F /* ImageMergerModelTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMergerModelTest.kt; sourceTree = "<group>"; };
-		1B3044732F7CEE0D0062F13F /* SharedCommonTest.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SharedCommonTest.kt; sourceTree = "<group>"; };
 		1B3044792F7CEE0D0062F13F /* ImageDecoder.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageDecoder.ios.kt; sourceTree = "<group>"; };
 		1B30447A2F7CEE0D0062F13F /* ImageMerger.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageMerger.ios.kt; sourceTree = "<group>"; };
 		1B30447E2F7CEE0D0062F13F /* Platform.ios.kt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Platform.ios.kt; sourceTree = "<group>"; };
@@ -3611,7 +3609,6 @@
 		1B3044722F7CEE0D0062F13F /* image */ = {
 			isa = PBXGroup;
 			children = (
-				1B3044712F7CEE0D0062F13F /* ImageMergerModelTest.kt */,
 			);
 			path = image;
 			sourceTree = "<group>";
@@ -3620,7 +3617,6 @@
 			isa = PBXGroup;
 			children = (
 				1B3044722F7CEE0D0062F13F /* image */,
-				1B3044732F7CEE0D0062F13F /* SharedCommonTest.kt */,
 			);
 			path = twoeyesproject;
 			sourceTree = "<group>";

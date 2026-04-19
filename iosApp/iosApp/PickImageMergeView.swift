@@ -37,11 +37,11 @@ struct PickImageMergeView: View {
             // GeometryReader 는 자식을 모두 (0,0) 에 쌓으므로 VStack 으로 감쌈
             VStack(spacing: 0) {
                 ZStack {
-                    PHAssetImage(asset: leadingSource, size: thumbnailSize)
+                    PHAssetImage(asset: leadingSource, size: thumbnailSize * leadingScale)
                         .draggableAndScalable(
                             offset: $leadingOffset,
                             scale: $leadingScale,
-                            onUpdate: { offset, _ in
+                            onUpdate: { offset, magnifier in
                                 wrapper.viewModel.updatePosition(
                                     order: .bottom,
                                     x: Float(offset.width),
@@ -50,7 +50,7 @@ struct PickImageMergeView: View {
                         )
                         .zIndex(bottomZIndex)
 
-                    PHAssetImage(asset: trailingSource, size: thumbnailSize)
+                    PHAssetImage(asset: trailingSource, size: thumbnailSize * trailingScale)
                         .draggableAndScalable(
                             offset: $trailingOffset,
                             scale: $trailingScale,
@@ -66,8 +66,10 @@ struct PickImageMergeView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
                 .onAppear {
-                    // trailing 초기 위치: 오른쪽 끝
-                    trailingOffset = CGSize(width: proxy.size.width - thumbnailSize.width, height: 0)
+                    // leading 초기 위치: ZStack 중심에서 왼쪽 절반 중앙
+                    leadingOffset = CGSize(width: -proxy.size.width / 4, height: 0)
+                    // trailing 초기 위치: ZStack 중심에서 오른쪽 절반 중앙
+                    trailingOffset = CGSize(width: proxy.size.width / 4, height: 0)
                 }
 
                 Divider()
@@ -86,6 +88,7 @@ struct PickImageMergeView: View {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(1.6, contentMode: .fit)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(.vertical)
                     } else {
                         ProgressView()
@@ -98,7 +101,24 @@ struct PickImageMergeView: View {
             }
         }
     }
+    
+    
 }
+
+precedencegroup SizePrecedence {
+    higherThan: AdditionPrecedence // 우선순위 수준 설정
+    lowerThan: MultiplicationPrecedence
+    associativity: left // 결합 방향: left, right, none
+    assignment: false // 할당 연산자 여부
+}
+
+// 1. 연산자 선언
+infix operator * : SizePrecedence
+
+fileprivate func * (left: CGSize, right: CGFloat) -> CGSize {
+    return CGSize(width: left.width * right, height: left.height * right)
+}
+
 
 private extension GeometryProxy {
     var canvasSize: CGSize {

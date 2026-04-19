@@ -17,8 +17,8 @@ struct PickImageView: View {
     private var viewModel: PickImageViewModel { wrapper.viewModel }
     
     var goNextEnabled: Bool {
-        wrapper.leading.image != nil
-        && wrapper.trailing.image != nil
+        wrapper.leading.imageSource != nil
+        && wrapper.trailing.imageSource != nil
     }
     
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
@@ -56,11 +56,7 @@ struct PickImageView: View {
                         PHAssetImage(asset: asset, size: thumbnailSize)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .padding(.trailing)
-                            .onTapGesture {
-                                Task {
-                                    try? await viewModel.setImageFromSource(imageSource: asset)
-                                }
-                            }
+                            .onTapGesture { viewModel.setImageFromSource(imageSource: asset) }
                     }
                 }
             }
@@ -134,8 +130,10 @@ struct PickImageView: View {
     }
     
     private func goNext() {
-        if wrapper.imageSources.count >= 2 {
-            navHost.push(to: .merge(wrapper.imageSources[0], wrapper.imageSources[1]))
+        if let left = wrapper.target.leading.imageSource,
+           let right = wrapper.target.trailing.imageSource
+        {
+            navHost.push(to: .merge(left, right))
         }
     }
     
@@ -167,11 +165,10 @@ extension PickImageViewModel.ImageViewModel {
             .stroke(strokeColor, style: strokeStyle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         
-        if let image {
+        if let imageSource {
             rectangle.overlay {
                 ZStack(alignment: Alignment.topTrailing) {
-                    Image(uiImage: image)
-                        .resizable()
+                    PHAssetImage(asset: imageSource, size: CGSize(width: 120, height: 190))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .onTapGesture { onTapGesture(.highlihgt) }
                     Image(systemName: "trash")

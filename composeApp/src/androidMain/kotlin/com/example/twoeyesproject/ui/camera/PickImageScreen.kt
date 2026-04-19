@@ -3,7 +3,6 @@ package com.example.twoeyesproject.ui.camera
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -12,7 +11,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,7 +59,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -71,12 +68,11 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.example.twoeyesproject.image.CapturedImage
-import com.example.twoeyesproject.image.ImageDecoder
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 // ── Dashed border Modifier (iOS stroke + dash 효과 재현) ──────────────────────
@@ -117,21 +113,13 @@ fun PickImageScreen(
     // MergeScreen 이동용 URI 추적 (ViewModel에는 저장소 없음)
     var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-    val goNextEnabled = target.leading.image != null
-            && target.trailing.image != null
+    val goNextEnabled = target.leading.imageSource != null
+            && target.trailing.imageSource != null
             && imageSources.size >= 2
     val thumbnailHeight = 190.dp
 
-    // ── selectedUri 슬롯 결정 헬퍼 ────────────────────────────────────────────
-//    fun resolveTargetSlot(uri: Uri) {
-//        runBlocking {
-//            viewModel.setImageFromSource(uri.buildUpon())
-//        }
-//    }
-
     // ── 썸네일 탭: ViewModel이 URI를 직접 decode해서 슬롯에 배치 ──────────────
     fun onThumbnailSelected(imageSource: Uri.Builder) {
-//        resolveTargetSlot(imageSource.build())
         scope.launch { viewModel.setImageFromSource(imageSource) }
     }
 
@@ -143,15 +131,7 @@ fun PickImageScreen(
         pendingCameraUri = null
         if (result.resultCode == android.app.Activity.RESULT_OK && uri != null) {
             scope.launch(Dispatchers.IO) {
-                val bitmap = context.contentResolver.openInputStream(uri)?.use {
-                    BitmapFactory.decodeStream(it)
-                } ?: return@launch
-                withContext(Dispatchers.Main) {
-//                    resolveTargetSlot(uri)
-                    viewModel.setCapturedImage(
-                        CapturedImage(image = bitmap, width = bitmap.width, height = bitmap.height)
-                    )
-                }
+                viewModel.setCameraImage(uri.buildUpon())
             }
         }
     }
@@ -184,15 +164,9 @@ fun PickImageScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         uri?.let {
-//            resolveTargetSlot(it)
-            scope.launch {
-                val decoder = ImageDecoder()
-                val decodedImage = decoder.decode(it.buildUpon())
-                viewModel.setCapturedImage(CapturedImage(
-                    image = decodedImage,
-                    width = decodedImage.width,
-                    height = decodedImage.height
-                ))
+            viewModel.loadAllImages()
+            scope.launch(Dispatchers.IO) {
+                viewModel.setCameraImage(it.buildUpon())
             }
         }
     }
@@ -201,7 +175,7 @@ fun PickImageScreen(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions[permissionReadImage] ?: false || permissions[pickImagePermission] ?: false)
-            pickImageLauncher.launch(PickVisualMediaRequest())
+            viewModel.loadAllImages()
         else
             Toast.makeText(context, "Permission Not granted", Toast.LENGTH_LONG).show()
     }
@@ -212,7 +186,7 @@ fun PickImageScreen(
         // Already granted
         context.checkSelfPermission(permissionReadImage) == PackageManager.PERMISSION_GRANTED
                 || context.checkSelfPermission(pickImagePermission) == PackageManager.PERMISSION_GRANTED ->
-            pickImageLauncher.launch(PickVisualMediaRequest())
+            viewModel.loadAllImages()
         // Needed to get granted by user
         else ->
             pickImagePermissionLauncher.launch(arrayOf(permissionReadImage, pickImagePermission))
@@ -272,6 +246,26 @@ fun PickImageScreen(
                         }
                     }
                 )
+            }
+
+            // ── Empty view (iOS: imageSources 없을 때 아이콘 + 텍스트) ──────────────
+            if (imageSources.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(thumbnailHeight),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PhotoLibrary,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(bottom = 8.dp)
+                    )
+                    Text("Get photos! Using buttons!")
+                }
             }
 
             // ── 썸네일 캐러셀: viewModel.imageSources 수집 (iOS: 비어있으면 height=0) ──
@@ -342,7 +336,6 @@ fun PickImageScreen(
                     label = "Next",
                     enabled = goNextEnabled,
                     onClick = {
-                        if (imageSources.size < 2) return@BottomButton
                         onNext(imageSources[0].toString(), imageSources[1].toString())
                     }
                 )
@@ -402,8 +395,6 @@ private fun ImageSlot(
     else
         MaterialTheme.colorScheme.outline
 
-    val bitmap = imageViewModel.image?.asImageBitmap()
-
     Box(
         modifier = modifier
             .dashedBorder(color = strokeColor, cornerRadius = 8.dp)
@@ -411,13 +402,15 @@ private fun ImageSlot(
             .clickable { onClick(CameraScreenTapType.Highlight) },
         contentAlignment = Alignment.Center
     ) {
-        if (bitmap != null) {
-            Image(
-                bitmap = bitmap,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+        val uri = imageViewModel.imageSource?.build()
+        if (uri != null) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(uri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "",
+                modifier = Modifier.fillMaxSize())
             IconButton(
                 onClick = { onClick(CameraScreenTapType.Delete) },
                 modifier = Modifier

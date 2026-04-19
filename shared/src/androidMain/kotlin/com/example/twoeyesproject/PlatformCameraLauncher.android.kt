@@ -1,42 +1,51 @@
 package com.example.twoeyesproject
 
-import android.graphics.Bitmap
-import androidx.activity.result.ActivityResultLauncher
+import android.net.Uri
+import android.os.Environment
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.decodeToImageBitmap
+import androidx.core.content.FileProvider
 import com.example.twoeyesproject.image.CameraLauncher
-import com.example.twoeyesproject.image.CapturedImage
 import com.example.twoeyesproject.image.PickImageViewModel
-import java.io.ByteArrayOutputStream
+import java.io.File
 
 class PlatformCameraLauncher(
-    private val launcher: ActivityResultLauncher<Void?>
+    private val context: android.content.Context,
+    private val launcher: ActivityResultLauncher<Uri>
 ) : CameraLauncher {
+    var pendingUri: Uri? = null
+
     override fun launch() {
-        launcher.launch(null)
+        val imageFile = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "camera_${System.currentTimeMillis()}.jpg"
+        )
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            imageFile
+        )
+        pendingUri = uri
+        launcher.launch(uri)
     }
 }
 
 fun ComponentActivity.registerCameraLauncher(
     viewModel: PickImageViewModel
 ): PlatformCameraLauncher {
-    val launcher = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        bitmap?.let {
-            val stream = ByteArrayOutputStream()
-            it.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-            val bitmap = stream.toByteArray().decodeToImageBitmap()
+    lateinit var cameraLauncher: PlatformCameraLauncher
 
-            viewModel.setCapturedImage(CapturedImage(
-                image = bitmap.asAndroidBitmap(),
-                width = bitmap.width,
-                height = bitmap.height
-            ))
-        }
+    val launcher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (!success) return@registerForActivityResult
+        val uri = cameraLauncher.pendingUri ?: return@registerForActivityResult
+        cameraLauncher.pendingUri = null
+
+        viewModel.setCameraImage(uri.buildUpon())
     }
 
-    return PlatformCameraLauncher(launcher)
+    cameraLauncher = PlatformCameraLauncher(applicationContext, launcher)
+    return cameraLauncher
 }

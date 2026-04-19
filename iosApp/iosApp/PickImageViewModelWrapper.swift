@@ -14,7 +14,6 @@ final class PickImageViewModelWrapper {
     let photoPickerLauncher: PlatformPhotoPickerLauncher
 
     private(set) var imageSources = [PHAsset]()
-    private(set) var capturedImage: UIImage?
     private(set) var target: PickImageViewModel.TargetModel
     
     var leading: PickImageViewModel.ImageViewModel {
@@ -26,7 +25,7 @@ final class PickImageViewModelWrapper {
     
     typealias ImageSourcesCollector = Collector<[PHAsset]>
     typealias TargetCollector = Collector<PickImageViewModel.TargetModel>
-    typealias CapturedImageCollector = Collector<CapturedImage?>
+    typealias CapturedImageCollector = Collector<PHAsset?>
 
     init() {
         self.cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
@@ -42,11 +41,6 @@ final class PickImageViewModelWrapper {
         viewModel.target
             .collect(collector: TargetCollector(callback: { [weak self] model in
                 self?.target = model
-            })) { _ in }
-        
-        viewModel.capturedImage
-            .collect(collector: CapturedImageCollector(callback: { [weak self] image in
-                self?.capturedImage = image?.image
             })) { _ in }
     }
 }
