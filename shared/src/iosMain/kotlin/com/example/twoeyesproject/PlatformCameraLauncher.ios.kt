@@ -4,12 +4,17 @@ import com.example.twoeyesproject.image.CameraLauncher
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Photos.PHAsset
+import platform.Photos.PHAssetChangeRequest
+import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIApplication
+import platform.UIKit.UIImage
 import platform.UIKit.UIImagePickerController
 import platform.UIKit.UIImagePickerControllerDelegateProtocol
-import platform.UIKit.UIImagePickerControllerPHAsset
+import platform.UIKit.UIImagePickerControllerOriginalImage
 import platform.UIKit.UIImagePickerControllerSourceType
 import platform.UIKit.UINavigationControllerDelegateProtocol
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.darwin.NSObject
 
 // Objective-C 델리게이트: NSObject + ObjC 프로토콜만 상속
@@ -23,7 +28,6 @@ private class CameraPickerDelegate(
                 UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera
             ).not()
         ) {
-            // 카메라 사용 불가
             return
         }
 
@@ -41,10 +45,34 @@ private class CameraPickerDelegate(
     ) {
         picker.dismissViewControllerAnimated(true, null)
 
-        val imageSource = didFinishPickingMediaWithInfo[UIImagePickerControllerPHAsset]
-            as? PHAsset ?: return
+        // 카메라 촬영 시 UIImagePickerControllerPHAsset 은 nil — UIImage 로 받아야 함
+        val image = didFinishPickingMediaWithInfo[UIImagePickerControllerOriginalImage]
+            as? UIImage ?: return
 
-        viewModel.setCameraImage(imageSource)
+        // Photos 라이브러리에 저장 후 PHAsset 으로 변환
+        var savedIdentifier: String? = null
+
+        PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+            savedIdentifier = PHAssetChangeRequest
+                .creationRequestForAssetFromImage(image)
+                .placeholderForCreatedAsset
+                ?.localIdentifier
+        }) { success, _ ->
+            if (!success) return@performChanges
+            val id = savedIdentifier ?: return@performChanges
+
+            val fetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(listOf(id), null)
+            val asset = fetchResult.firstObject as? PHAsset ?: return@performChanges
+
+            // ViewModel 호출은 메인 스레드에서
+            dispatch_async(dispatch_get_main_queue()) {
+                if (viewModel.isGalleryLoaded.value) {
+                    viewModel.setImageFromSource(asset)
+                } else {
+                    viewModel.setCameraImage(asset)
+                }
+            }
+        }
     }
 
     override fun imagePickerControllerDidCancel(picker: UIImagePickerController) {

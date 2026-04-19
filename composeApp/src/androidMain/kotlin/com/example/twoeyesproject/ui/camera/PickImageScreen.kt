@@ -38,6 +38,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +46,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -109,9 +111,11 @@ fun PickImageScreen(
 
     // 갤러리 목록은 ViewModel의 imageSources StateFlow로 수집
     val imageSources by viewModel.imageSources.collectAsStateWithLifecycle()
+    val isGalleryLoaded by viewModel.isGalleryLoaded.collectAsStateWithLifecycle()
 
     // MergeScreen 이동용 URI 추적 (ViewModel에는 저장소 없음)
     var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+    var showHighlightAlert by remember { mutableStateOf(false) }
 
     val goNextEnabled = target.leading.imageSource != null
             && target.trailing.imageSource != null
@@ -130,8 +134,13 @@ fun PickImageScreen(
         val uri = pendingCameraUri
         pendingCameraUri = null
         if (result.resultCode == android.app.Activity.RESULT_OK && uri != null) {
-            scope.launch(Dispatchers.IO) {
-                viewModel.setCameraImage(uri.buildUpon())
+            // GetAll 로 갤러리를 로드한 상태이면 리스트에도 추가, 아니면 슬롯에만 지정
+            scope.launch {
+                if (isGalleryLoaded) {
+                    viewModel.setImageFromSource(uri.buildUpon())
+                } else {
+                    viewModel.setCameraImage(uri.buildUpon())
+                }
             }
         }
     }
@@ -145,6 +154,14 @@ fun PickImageScreen(
         takePictureLauncher.launch(
             Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, uri) }
         )
+    }
+    // 하이라이트 확인 후 카메라 실행
+    fun launchCameraIfHighlighted() {
+        if (target.leading.isHighlighted || target.trailing.isHighlighted) {
+            launchCamera()
+        } else {
+            showHighlightAlert = true
+        }
     }
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -292,6 +309,17 @@ fun PickImageScreen(
             }
 
             // ── 하단 버튼 바 (iOS: Camera / Pick / GetAll / Next, Spacer 균등 배분) ──
+            if (showHighlightAlert) {
+                AlertDialog(
+                    onDismissRequest = { showHighlightAlert = false },
+                    title = { Text("슬롯을 먼저 선택하세요") },
+                    text  = { Text("카메라를 열기 전에 이미지를 배치할 슬롯을 먼저 탭해주세요.") },
+                    confirmButton = {
+                        TextButton(onClick = { showHighlightAlert = false }) { Text("확인") }
+                    }
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -305,7 +333,7 @@ fun PickImageScreen(
                     onClick = {
                         val hasCamera = context.checkSelfPermission(Manifest.permission.CAMERA) ==
                             PackageManager.PERMISSION_GRANTED
-                        if (hasCamera) launchCamera()
+                        if (hasCamera) launchCameraIfHighlighted()
                         else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
                 )

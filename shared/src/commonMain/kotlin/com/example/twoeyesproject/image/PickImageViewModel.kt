@@ -14,13 +14,18 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class PickImageViewModel: ViewModel() {
-    private var _target = MutableStateFlow<TargetModel>(TargetModel(
+    private val _target = MutableStateFlow<TargetModel>(TargetModel(
         ImageViewModel(Uuid.random(), null, false),
         ImageViewModel(Uuid.random(), null, false),
     ))
     val target: StateFlow<TargetModel> = _target.asStateFlow()
-    private var _imageSources = MutableStateFlow<List<ImageSource>>(listOf())
+
+    private val _imageSources = MutableStateFlow<List<ImageSource>>(listOf())
     val imageSources: StateFlow<List<ImageSource>> = _imageSources.asStateFlow()
+
+    // GetAll 버튼으로 갤러리를 로드한 적이 있는지 추적
+    private val _isGalleryLoaded = MutableStateFlow(false)
+    val isGalleryLoaded: StateFlow<Boolean> = _isGalleryLoaded.asStateFlow()
 
     data class TargetModel(
         val leading: ImageViewModel,
@@ -32,10 +37,11 @@ class PickImageViewModel: ViewModel() {
         val isHighlighted: Boolean
     )
 
+    /** 썸네일 리스트에서 선택 — 하이라이트된 슬롯에 이미지 지정 + 리스트에 추가 */
     fun setImageFromSource(imageSource: ImageSource) {
         val status = target.value
 
-        if (target.value.leading.isHighlighted) {
+        if (status.leading.isHighlighted) {
             _target.value = target.value.copy(leading = status.leading.copy(imageSource = imageSource))
         }
 
@@ -48,20 +54,29 @@ class PickImageViewModel: ViewModel() {
         }
     }
 
-    fun deleteImage(model: ImageViewModel) {
+    /** 카메라 촬영 후 슬롯에만 지정 — 리스트에는 추가하지 않음 */
+    fun setCameraImage(imageSource: ImageSource) {
         val status = target.value
-
-        when (model.uuid) {
-            target.value.leading.uuid ->
-                _target.value = target.value.copy(leading = status.leading.copy(imageSource = null))
-            target.value.trailing.uuid ->
-                _target.value = target.value.copy(trailing = status.trailing.copy(imageSource = null))
+        _target.value = when {
+            status.leading.isHighlighted  -> status.copy(leading  = status.leading.copy(imageSource  = imageSource))
+            status.trailing.isHighlighted -> status.copy(trailing = status.trailing.copy(imageSource = imageSource))
+            else -> status
         }
     }
 
-    fun loadAllImages() {
-        val fetcher = PickImageFetcher(this)
+    fun deleteImage(model: ImageViewModel) {
+        val status = target.value
+        _target.value = when (model.uuid) {
+            status.leading.uuid  -> target.value.copy(leading  = status.leading.copy(imageSource  = null))
+            status.trailing.uuid -> target.value.copy(trailing = status.trailing.copy(imageSource = null))
+            else -> status
+        }
+    }
 
+    /** GetAll — 전체 갤러리 로드. 이후 카메라 이미지도 리스트에 추가됨 */
+    fun loadAllImages() {
+        _isGalleryLoaded.value = true
+        val fetcher = PickImageFetcher(this)
         viewModelScope.launch(Dispatchers.IO) {
             val sources = fetcher.loadPlatformSourceOfImages()
             _imageSources.value = sources
@@ -70,21 +85,14 @@ class PickImageViewModel: ViewModel() {
 
     fun highlightImageView(model: ImageViewModel) {
         val status = target.value
-
-        val newStatus = when (model.uuid) {
+        _target.value = when (model.uuid) {
             status.leading.uuid -> status.copy(
-                leading = status.leading.copy(isHighlighted = !status.leading.isHighlighted),
+                leading  = status.leading.copy(isHighlighted  = !status.leading.isHighlighted),
                 trailing = status.trailing.copy(isHighlighted = false))
             status.trailing.uuid -> status.copy(
-                leading = status.leading.copy(isHighlighted = false),
+                leading  = status.leading.copy(isHighlighted  = false),
                 trailing = status.trailing.copy(isHighlighted = !status.trailing.isHighlighted))
             else -> status
         }
-
-        _target.value = newStatus
-    }
-
-    fun setCameraImage(imageSource: ImageSource) {
-        loadAllImages()
     }
 }

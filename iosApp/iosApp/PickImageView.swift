@@ -13,7 +13,8 @@ struct PickImageView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     
     @State private var wrapper = PickImageViewModelWrapper()
-    
+    @State private var showHighlightAlert = false
+
     private var viewModel: PickImageViewModel { wrapper.viewModel }
     
     var goNextEnabled: Bool {
@@ -65,7 +66,7 @@ struct PickImageView: View {
             .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             
             HStack {
-                Button { wrapper.cameraLauncher.launch() } label: {
+                Button { launchCameraIfHighlighted() } label: {
                     BottomButtonImage(image: Image(systemName: "camera"), title: "Camera")
                 }
                 
@@ -94,8 +95,22 @@ struct PickImageView: View {
             .frame(height: 48)
             .padding(.horizontal)
         }}
+        .alert("슬롯을 먼저 선택하세요", isPresented: $showHighlightAlert) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("카메라를 열기 전에 이미지를 배치할 슬롯을 먼저 탭해주세요.")
+        }
     }
     
+    private func launchCameraIfHighlighted() {
+        let isAnyHighlighted = wrapper.leading.isHighlighted || wrapper.trailing.isHighlighted
+        if isAnyHighlighted {
+            wrapper.cameraLauncher.launch()
+        } else {
+            showHighlightAlert = true
+        }
+    }
+
     private func requestAlbumAccess() {
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         switch status {
