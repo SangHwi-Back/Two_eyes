@@ -30,6 +30,12 @@ struct PHAssetImage: View {
         .onAppear {
             fetchImage()
         }
+        .onChange(of: asset) {
+            // asset 프로퍼티가 교체되면 onAppear 는 재호출되지 않으므로
+            // 직접 감지해서 이전 요청을 취소하고 새 이미지를 fetch 합니다.
+            cancelAndClear()
+            fetchImage()
+        }
         .onDisappear {
             cancelAndClear()
         }
