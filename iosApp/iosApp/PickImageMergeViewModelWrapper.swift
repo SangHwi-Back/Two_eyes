@@ -14,12 +14,16 @@ import Shared
 final class PickImageMergeViewModelWrapper {
     let viewModel = PickImageMergeViewModel()
 
-    private(set) var mergedImage: UIImage?
+    var mergedImage: UIImage?
 
     // 위치 상태 — ViewModel Flow 를 관찰해 동기화
-    private(set) var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1)
-    private(set) var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1)
-    private(set) var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]
+    var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1) {
+        didSet { tryRender() }
+    }
+    var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1) {
+        didSet { tryRender() }
+    }
+    var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]
 
     // 합성에 사용할 원본 이미지 (PHImageManager 로 로드)
     private var leadingImage:  UIImage?
@@ -42,21 +46,18 @@ final class PickImageMergeViewModelWrapper {
         viewModel.leading.collect(
             collector: MergeCollector<PickImageMergeViewModel.ImageState> { [weak self] state in
                 self?.leadingState = state
-                self?.tryRender()
             }
         ) { _ in }
 
         viewModel.trailing.collect(
             collector: MergeCollector<PickImageMergeViewModel.ImageState> { [weak self] state in
                 self?.trailingState = state
-                self?.tryRender()
             }
         ) { _ in }
 
         viewModel.zOrder.collect(
             collector: MergeCollector<[PickImageMergeViewModel.ImageOrder]> { [weak self] order in
                 self?.zOrder = order
-                self?.tryRender()
             }
         ) { _ in }
     }

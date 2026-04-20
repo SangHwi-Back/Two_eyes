@@ -20,12 +20,6 @@ struct PickImageMergeView: View {
 
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 
-    // @GestureState 는 제스처 종료 시 리셋되므로 누적 위치는 @State 로 관리
-    @State private var leadingOffset: CGSize = .zero
-    @State private var leadingScale: CGFloat = 1.0
-    @State private var trailingOffset: CGSize = .zero   // onAppear 에서 오른쪽 끝으로 설정
-    @State private var trailingScale: CGFloat = 1.0
-
     init(model: PickImageMergeModel) {
         self._wrapper = State(initialValue: PickImageMergeViewModelWrapper(model: model))
         self.leadingSource = model.leading
@@ -37,31 +31,21 @@ struct PickImageMergeView: View {
             // GeometryReader 는 자식을 모두 (0,0) 에 쌓으므로 VStack 으로 감쌈
             VStack(spacing: 0) {
                 ZStack {
-                    PHAssetImage(asset: leadingSource, size: thumbnailSize * leadingScale)
-                        .draggableAndScalable(
-                            offset: $leadingOffset,
-                            scale: $leadingScale,
-                            onUpdate: { offset, scale in
-                                wrapper.viewModel.updateLeading(
-                                    offsetX: Float(offset.width),
-                                    offsetY: Float(offset.height),
-                                    scale:   Float(scale))
-                            }
-                        )
+                    PHAssetImage(asset: leadingSource, size: thumbnailSize * CGFloat(wrapper.leadingState.scale))
+                        .draggableAndScalable($wrapper.leadingState)
                         .zIndex(bottomZIndex)
 
-                    PHAssetImage(asset: trailingSource, size: thumbnailSize * trailingScale)
-                        .draggableAndScalable(
-                            offset: $trailingOffset,
-                            scale: $trailingScale,
-                            onUpdate: { offset, scale in
-                                wrapper.viewModel.updateTrailing(
-                                    offsetX: Float(offset.width),
-                                    offsetY: Float(offset.height),
-                                    scale:   Float(scale))
-                            }
-                        )
+                    PHAssetImage(asset: trailingSource, size: thumbnailSize * CGFloat(wrapper.trailingState.scale))
+                        .draggableAndScalable($wrapper.trailingState)
                         .zIndex(topZIndex)
+
+                    SwapButton(canvasSize: proxy.canvasSize) {
+                        wrapper.viewModel.swapOrder()
+                    }
+                    .offset(
+                        x: (proxy.canvasSize.width / 2) - 20 - 10,
+                        y: (proxy.canvasSize.height / 2) - 20 - 10
+                    )
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
@@ -69,16 +53,11 @@ struct PickImageMergeView: View {
                     let canvasSize = CGSize(width: proxy.size.width, height: 300)
                     wrapper.setCanvasSize(canvasSize)
 
-                    // leading 초기 위치: ZStack 중심에서 왼쪽 절반 중앙
-                    leadingOffset  = CGSize(width: -proxy.size.width / 4, height: 0)
-                    // trailing 초기 위치: ZStack 중심에서 오른쪽 절반 중앙
-                    trailingOffset = CGSize(width:  proxy.size.width / 4, height: 0)
-
                     // ViewModel 초기 상태 동기화
-                    wrapper.viewModel.updateLeading(
-                        offsetX: Float(-proxy.size.width / 4), offsetY: 0, scale: 1)
-                    wrapper.viewModel.updateTrailing(
-                        offsetX: Float( proxy.size.width / 4), offsetY: 0, scale: 1)
+                    wrapper.leadingState = .init(
+                        offsetX: -Float(proxy.size.width) / 4, offsetY: 0, scale: 1)
+                    wrapper.trailingState = .init(
+                        offsetX:  Float(proxy.size.width) / 4, offsetY: 0, scale: 1)
                 }
 
                 Divider()
@@ -93,7 +72,7 @@ struct PickImageMergeView: View {
                                 .stroke(Color.gray, lineWidth: 1)
                         )
 
-                    if let image = wrapper.mergedImage {
+                    if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
                             .frame(maxWidth: proxy.size.width, maxHeight: proxy.size.width * 0.75)
@@ -110,28 +89,37 @@ struct PickImageMergeView: View {
             }
         }
     }
+}
+
+private struct SwapButton: View {
+    var canvasSize: CGSize, action: () -> Void
     
-    
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle()
+                    .border(Color.primary, width: 2)
+                    .frame(width: 40, height: 40)
+                Image(systemName: "arrow.left.arrow.right")
+                    .resizable()
+                    .frame(width: 25, height: 25)
+            }
+        }
+        .frame(width: 40, height: 40)
+        .glassEffect(.identity.interactive())
+        .foregroundStyle(Color.primary)
+    }
 }
 
-precedencegroup SizePrecedence {
-    higherThan: AdditionPrecedence // 우선순위 수준 설정
-    lowerThan: MultiplicationPrecedence
-    associativity: left // 결합 방향: left, right, none
-    assignment: false // 할당 연산자 여부
+private extension PickImageMergeViewModel.ImageState {
+    var offset: CGSize {
+        CGSize(width: CGFloat(offsetX), height: CGFloat(offsetY))
+    }
 }
-
-// 1. 연산자 선언
-infix operator * : SizePrecedence
-
-fileprivate func * (left: CGSize, right: CGFloat) -> CGSize {
-    return CGSize(width: left.width * right, height: left.height * right)
-}
-
 
 private extension GeometryProxy {
     var canvasSize: CGSize {
-        CGSize(width: size.width, height: size.width * 1.6)
+        CGSize(width: size.width, height: 300)
     }
 }
 
@@ -139,76 +127,80 @@ private extension GeometryProxy {
 
 private extension PHAssetImage {
     /// 드래그(위치 누적) + 핀치 줌을 동시에 지원하는 modifier
-    func draggableAndScalable(
-        offset: Binding<CGSize>,
-        scale: Binding<CGFloat>,
-        onUpdate: @escaping (CGSize, CGFloat) -> Void
-    ) -> some View {
-        self.modifier(DraggableScalableModifier(
-            accumulatedOffset: offset,
-            accumulatedScale: scale,
-            onUpdate: onUpdate
-        ))
+    func draggableAndScalable(_ state: Binding<PickImageMergeViewModel.ImageState>) -> some View {
+        self.modifier(DraggableScalableModifier(imageState: state))
     }
 
     struct DraggableScalableModifier: ViewModifier {
-        // 현재 제스처 중의 임시 델타 (제스처 종료 시 자동 리셋)
-        @GestureState private var dragDelta: CGSize = .zero
-        @GestureState private var magnificationDelta: CGFloat = 1.0
+        // 제스처 시작 시점의 상태를 캡처해두는 base — onChanged마다 base + delta 로 계산
+        @State private var baseState: PickImageMergeViewModel.ImageState?
 
-        // 누적 값 (제스처 종료 후에도 유지)
-        @Binding var accumulatedOffset: CGSize
-        @Binding var accumulatedScale: CGFloat
-
-        let onUpdate: (CGSize, CGFloat) -> Void
+        @Binding var imageState: PickImageMergeViewModel.ImageState
 
         func body(content: Content) -> some View {
-            let currentOffset = CGSize(
-                width: accumulatedOffset.width + dragDelta.width,
-                height: accumulatedOffset.height + dragDelta.height
-            )
-            let currentScale = accumulatedScale * magnificationDelta
-
             content
-                .scaleEffect(currentScale)  // 핀치 줌 시각 적용
-                .offset(currentOffset)       // 드래그 위치 시각 적용
+                .scaleEffect(CGFloat(imageState.scale))
+                .offset(x: CGFloat(imageState.offsetX), y: CGFloat(imageState.offsetY))
                 .simultaneousGesture(
                     DragGesture()
-                        .updating($dragDelta) { value, state, _ in
-                            state = value.translation
-                            onUpdate(
-                                CGSize(
-                                    width: accumulatedOffset.width + value.translation.width,
-                                    height: accumulatedOffset.height + value.translation.height
-                                ),
-                                accumulatedScale * magnificationDelta
+                        .onChanged { value in
+                            if baseState == nil { baseState = imageState }
+                            guard let base = baseState else { return }
+                            imageState = .init(
+                                offsetX: base.offsetX + Float(value.translation.width),
+                                offsetY: base.offsetY + Float(value.translation.height),
+                                scale: base.scale
                             )
                         }
                         .onEnded { value in
-                            accumulatedOffset = CGSize(
-                                width: accumulatedOffset.width + value.translation.width,
-                                height: accumulatedOffset.height + value.translation.height
+                            guard let base = baseState else { return }
+                            imageState = .init(
+                                offsetX: base.offsetX + Float(value.translation.width),
+                                offsetY: base.offsetY + Float(value.translation.height),
+                                scale: base.scale
                             )
-                            onUpdate(accumulatedOffset, accumulatedScale)
+                            baseState = nil
                         }
                 )
                 .simultaneousGesture(
                     MagnifyGesture()
-                        .updating($magnificationDelta) { value, state, _ in
-                            state = value.magnification
-                            onUpdate(
-                                CGSize(
-                                    width: accumulatedOffset.width + dragDelta.width,
-                                    height: accumulatedOffset.height + dragDelta.height
-                                ),
-                                accumulatedScale * value.magnification
+                        .onChanged { value in
+                            if baseState == nil { baseState = imageState }
+                            guard let base = baseState else { return }
+                            imageState = .init(
+                                offsetX: base.offsetX,
+                                offsetY: base.offsetY,
+                                scale: base.scale * Float(value.magnification)
                             )
                         }
                         .onEnded { value in
-                            accumulatedScale *= value.magnification
-                            onUpdate(accumulatedOffset, accumulatedScale)
+                            guard let base = baseState else { return }
+                            imageState = .init(
+                                offsetX: base.offsetX,
+                                offsetY: base.offsetY,
+                                scale: base.scale * Float(value.magnification)
+                            )
+                            baseState = nil
                         }
                 )
         }
     }
+}
+
+// 0. 연산자 우선순위 그룹 정의
+precedencegroup SizePrecedence {
+    higherThan: AdditionPrecedence // 우선순위 수준 설정
+    lowerThan: MultiplicationPrecedence
+    associativity: left // 결합 방향: left, right, none
+    assignment: false // 할당 연산자 여부
+}
+// 1. 연산자 선언
+infix operator * : SizePrecedence
+infix operator + : SizePrecedence
+// 2. 연산자 정의
+fileprivate func * (left: CGSize, right: CGFloat) -> CGSize {
+    return CGSize(width: left.width * right, height: left.height * right)
+}
+fileprivate func + (left: CGSize, right: CGSize) -> CGSize {
+    return CGSize(width: left.width * right.width, height: left.height * right.height)
 }
