@@ -95,6 +95,13 @@ struct PickImageView: View {
             .frame(height: 48)
             .padding(.horizontal)
         }}
+        .onAppear {
+            // 루트 뷰는 popToRoot() 후에도 파괴되지 않으므로
+            // NavigationPathObject 에 콜백을 등록해 상태를 초기화합니다.
+            navHost.onPopToRoot = {
+                wrapper = PickImageViewModelWrapper()
+            }
+        }
         .alert("슬롯을 먼저 선택하세요", isPresented: $showHighlightAlert) {
             Button("확인", role: .cancel) {}
         } message: {

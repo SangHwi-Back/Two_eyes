@@ -92,6 +92,10 @@ extension View {
 class NavigationPathObject<T: Hashable>: ObservableObject {
     @Published var path: [T]
     
+    /// popToRoot() 호출 시 실행할 콜백.
+    /// 루트 뷰의 onAppear 에서 등록해 두면 onChange 없이 상태를 초기화할 수 있습니다.
+    var onPopToRoot: (() -> Void)?
+    
     @MainActor func push(to type: T) {
         self.path.append(type)
     }
@@ -102,6 +106,7 @@ class NavigationPathObject<T: Hashable>: ObservableObject {
     
     @MainActor func popToRoot() {
         self.path.removeAll()
+        onPopToRoot?()
     }
     
     init(path: [T]) {
