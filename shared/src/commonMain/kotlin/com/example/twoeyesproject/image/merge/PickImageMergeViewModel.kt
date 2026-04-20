@@ -26,8 +26,16 @@ class PickImageMergeViewModel : ViewModel() {
         _leading.value = ImageState(offsetX, offsetY, scale)
     }
 
+    fun updateLeading(imageState: ImageState) {
+        updateLeading(imageState.offsetX, imageState.offsetY, imageState.scale)
+    }
+
     fun updateTrailing(offsetX: Float, offsetY: Float, scale: Float) {
         _trailing.value = ImageState(offsetX, offsetY, scale)
+    }
+
+    fun updateTrailing(imageState: ImageState) {
+        updateTrailing(imageState.offsetX, imageState.offsetY, imageState.scale)
     }
 
     fun swapOrder() {
