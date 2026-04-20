@@ -12,6 +12,10 @@ import Shared
 struct PickImageMergeView: View {
     // @Observable 클래스는 @State 로 관리해야 부모 뷰 재생성 시 재초기화되지 않음
     @State private var wrapper: PickImageMergeViewModelWrapper
+    
+    @State private var mergeDoneAlert = false
+    
+    @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
 
     let bottomZIndex: Double = 999
     let topZIndex: Double = 1000
@@ -88,14 +92,44 @@ struct PickImageMergeView: View {
                 .padding(.bottom)
                 
                 HStack {
-                    Button("확인", systemImage: "check") {
-                        if let mergedImage = wrapper.mergedImage {
-                            wrapper.viewModel.saveMergedImage(image: mergedImage)
+                    Spacer()
+                    BottomButton(
+                        image: Image(systemName: "check"),
+                        title: "확인",
+                        disabled: wrapper.mergedImage == nil
+                    ).onTapGesture {
+                        let isSuccess = wrapper.mergeDone()
+                        
+                        if isSuccess {
+                            navHost.popToRoot()
+                        } else {
+                            mergeDoneAlert = true
                         }
                     }
                 }
             }
         }
+        .alert("경고!", isPresented: $mergeDoneAlert) {
+            Button("확인", role: .confirm) {}
+        } message: {
+            Text("이미지 결과에 이상이 발생하였습니다.")
+        }
+    }
+}
+
+private struct BottomButton: View {
+    let image: Image
+    let title: String
+    let disabled: Bool
+    
+    var body: some View {
+        VStack {
+            image
+            Text(title)
+        }
+        .frame(idealWidth: 50, maxWidth: 100, idealHeight: 80, maxHeight: 80, alignment: .center)
+        .foregroundStyle(disabled ? Color.secondary : Color.primary)
+        .glassEffect(in: .rect(cornerRadius: 8))
     }
 }
 

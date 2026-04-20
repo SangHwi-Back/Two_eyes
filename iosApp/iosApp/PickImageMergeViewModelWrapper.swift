@@ -155,6 +155,15 @@ final class PickImageMergeViewModelWrapper {
             cgCtx.restoreGState()
         }
     }
+    
+    func mergeDone() -> Bool {
+        guard let mergedImage else {
+            return false
+        }
+        
+        viewModel.saveMergedImage(image: mergedImage)
+        return true
+    }
 }
 
 // MARK: - Collector (KMP Flow → Swift 브릿지)
