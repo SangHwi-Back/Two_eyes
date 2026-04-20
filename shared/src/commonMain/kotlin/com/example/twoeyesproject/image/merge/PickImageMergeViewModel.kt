@@ -1,6 +1,8 @@
 package com.example.twoeyesproject.image.merge
 
 import androidx.lifecycle.ViewModel
+import com.example.twoeyesproject.platformspecific.PlatformImage
+import com.example.twoeyesproject.platformspecific.PlatformPersistImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -42,6 +44,10 @@ class PickImageMergeViewModel : ViewModel() {
         val current = _zOrder.value.toMutableList()
         current.add(current.removeFirst())
         _zOrder.value = current
+    }
+
+    fun saveMergedImage(image: PlatformImage) {
+        PlatformPersistImage().persistImage(image)
     }
 
     enum class ImageOrder { TOP, BOTTOM }

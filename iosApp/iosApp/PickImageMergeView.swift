@@ -39,12 +39,12 @@ struct PickImageMergeView: View {
                         .draggableAndScalable($wrapper.trailingState)
                         .zIndex(topZIndex)
 
-                    SwapButton(canvasSize: proxy.canvasSize) {
+                    SwapButton {
                         wrapper.viewModel.swapOrder()
                     }
                     .offset(
                         x: (proxy.canvasSize.width / 2) - 20 - 10,
-                        y: (proxy.canvasSize.height / 2) - 20 - 10
+                        y: (proxy.canvasSize.height / -2) - 20 - 10
                     )
                 }
                 .frame(maxWidth: .infinity)
@@ -86,13 +86,21 @@ struct PickImageMergeView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: proxy.size.width * 0.75)
                 .padding(.bottom)
+                
+                HStack {
+                    Button("확인", systemImage: "check") {
+                        if let mergedImage = wrapper.mergedImage {
+                            wrapper.viewModel.saveMergedImage(image: mergedImage)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 private struct SwapButton: View {
-    var canvasSize: CGSize, action: () -> Void
+    var action: () -> Void
     
     var body: some View {
         Button(action: action) {
@@ -106,8 +114,8 @@ private struct SwapButton: View {
             }
         }
         .frame(width: 40, height: 40)
-        .glassEffect(.identity.interactive())
         .foregroundStyle(Color.primary)
+        .glassEffect(.identity.interactive())
     }
 }
 

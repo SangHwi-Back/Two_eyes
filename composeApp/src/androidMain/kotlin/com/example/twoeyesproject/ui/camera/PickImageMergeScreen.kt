@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -217,9 +218,9 @@ fun PickImageMergeScreen(
                 .padding(horizontal = 16.dp)
                 .aspectRatio(16f / 10f)
                 .border(
-                    width  = 1.dp,
-                    color  = MaterialTheme.colorScheme.outline,
-                    shape  = RoundedCornerShape(8.dp)
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(8.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -252,7 +253,10 @@ fun PickImageMergeScreen(
                 modifier = Modifier.weight(1f)
             ) { Text("취소") }
             Button(
-                onClick  = onConfirm,
+                onClick = {
+                    if (previewBitmap != null)
+                        viewModel.saveMergedImage((previewBitmap as ImageBitmap).asAndroidBitmap())
+                    onConfirm() },
                 modifier = Modifier.weight(1f)
             ) { Text("확인") }
         }
