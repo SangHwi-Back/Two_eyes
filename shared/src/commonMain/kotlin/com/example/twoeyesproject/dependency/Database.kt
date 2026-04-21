@@ -8,7 +8,7 @@ import androidx.room.RoomDatabaseConstructor
 @Database(entities = [MergeResultEntity::class], version = 1)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun getDao(): MergeResultEntity
+    abstract fun getMergeResultDao(): MergeResultDao
 }
 
 // The Room compiler generates the `actual` implementations.
