@@ -53,6 +53,25 @@ struct ContentView: View {
     }
 }
 
+extension EnvironmentValues {
+    @Entry var database = Database_iosKt.getAppDatabase()
+    @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
+}
+
+// Kotlin/Native 가 object 에 대해 .shared 를 자동 생성하므로 별도 extension 불필요
+
+extension Int64 {
+    // Kotlin ARGB Long (0xFFRRGGBBL) → SwiftUI Color
+    var color: Color {
+        let argb = UInt32(self & 0xFFFFFFFF)
+        let alpha = Double((argb >> 24) & 0xFF) / 255.0
+        let red   = Double((argb >> 16) & 0xFF) / 255.0
+        let green = Double((argb >> 8)  & 0xFF) / 255.0
+        let blue  = Double(argb         & 0xFF) / 255.0
+        return Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
+    }
+}
+
 enum NavHost {
     case feed(Feed)
     case camera(Camera)

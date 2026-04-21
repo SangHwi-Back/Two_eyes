@@ -7,12 +7,15 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
-fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
+private fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val dbFilePath = documentDirectory() + "/my_room.db"
     return Room.databaseBuilder<AppDatabase>(
         name = dbFilePath,
     )
 }
+
+// Swift에서 제네릭 타입은 접근 불가하므로, AppDatabase를 직접 반환하는 함수를 노출
+fun getAppDatabase(): AppDatabase = getRoomDatabase(getDatabaseBuilder())
 
 @OptIn(ExperimentalForeignApi::class)
 private fun documentDirectory(): String {
