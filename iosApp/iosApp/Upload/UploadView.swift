@@ -7,18 +7,17 @@
 
 import SwiftUI
 import Shared
+import Photos
 
+private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 enum UploadableListViewType { case small, large }
-enum UploadViewTapType { case delete, upload }
+enum UploadViewTapType { case delete(MergeResultEntity), upload(MergeResultEntity) }
 
 struct UploadView: View {
-    
-    @Environment(\.mergeResultDao) var dao
     
     @Namespace var namespace
     
     @State var listType = UploadableListViewType.small
-    @State var entities = [MergeResultEntity]()
     
     private var wrapper: UploadViewModelWrapper
     
@@ -30,39 +29,34 @@ struct UploadView: View {
         List(wrapper.entities, id: \.id) { entity in
             switch listType {
             case .small:
-                UploadListSmallCard(entity: entity) { tap in
-                    
-                }
+                UploadListSmallCard(entity: entity, onTap: onTap)
             case .large:
-                UploadListLargeCard(entity: entity)
+                UploadListLargeCard(entity: entity, onTap: onTap)
             }
         }
         .navigationTitle("Upload")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button { listType = .small } label: {
-                    Image(systemName: "list.dash")
-                        .resizable()
-                        .scaledToFit()
-                        .padding(4)
-                        .frame(width: 40, height: 40)
-                        .allowsHitTesting(false)
+                GlassIconButton(systemName: "list.dash") {
+                    listType = .small
                 }
-                .buttonStyle(.glass)
-                Button { listType = .large } label: {
-                    Image(systemName: "list.dash.header.rectangle")
-                        .resizable()
-                        .scaledToFit()
-                        .padding(4)
-                        .frame(width: 40, height: 40)
-                        .allowsHitTesting(false)
+                GlassIconButton(systemName: "list.dash.header.rectangle") {
+                    listType = .large
                 }
-                .buttonStyle(.glass)
             }
         }
         .overlay {
             Text("No Entity enabled")
+        }
+    }
+    
+    func onTap(_ tap: UploadViewTapType) {
+        switch tap {
+        case .delete(let entity):
+            wrapper.viewModel.deleteEntity(entity: entity)
+        case .upload(let entity):
+            wrapper.viewModel.uploadEntity(entity: entity)
         }
     }
 }
@@ -72,43 +66,60 @@ struct UploadListSmallCard: View {
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
         HStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(AppColors.shared.Background.color)
-                .border(Color.red, width: 1)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            TwoEyesCard {
+                HStack {
+                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize)
+                    Spacer()
+                    Image(systemName: "plus")
+                    Spacer()
+                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize)
+                    Spacer()
+                    Image(systemName: "equal")
+                    Spacer()
+                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
+                }
+                .padding()
+            }
             
             GlassIconButton(systemName: "trash.circle") {
-                onTap(.delete)
+                onTap(.delete(entity))
             }
             GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                onTap(.upload)
+                onTap(.upload(entity))
             }
         }
-        .frame(height: 100)
+        .frame(height: thumbnailSize.height + 20)
     }
 }
 
 struct UploadListLargeCard: View {
     let entity: MergeResultEntity
+    let onTap: (UploadViewTapType) -> Void
     var body: some View {
         HStack {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(lineWidth: 1)
-                .fill(AppColors.shared.Background.color)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            TwoEyesCard {
+                HStack {
+                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 1.6)
+                    Spacer()
+                    Image(systemName: "plus")
+                    Spacer()
+                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 1.6)
+                    Spacer()
+                    Image(systemName: "equal")
+                    Spacer()
+                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 1.6)
+                }
+                .padding()
+            }
             
-            Button("", systemImage: "trash.circle") {
-                print("")
+            GlassIconButton(systemName: "trash.circle") {
+                onTap(.delete(entity))
             }
-            .frame(width: 48, height: 48, alignment: .center)
-            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
-            Button("", systemImage: "square.and.arrow.up.circle") {
-                print("")
+            GlassIconButton(systemName: "square.and.arrow.up.circle") {
+                onTap(.upload(entity))
             }
-            .frame(width: 48, height: 48, alignment: .center)
-            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
         }
-        .frame(height: 160)
+        .frame(height: thumbnailSize.height * 1.6 + 20)
     }
 }
 

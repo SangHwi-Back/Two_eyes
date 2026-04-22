@@ -5,7 +5,7 @@
 //  Created by SangHwiBack on 4/22/26.
 //
 
-import Foundation
+import SwiftUI
 import Shared
 
 @Observable
@@ -20,7 +20,9 @@ class UploadViewModelWrapper {
         self.viewModel = UploadViewModel(db: db)
         
         viewModel.mergeEntities.collect(collector: EntityCollector { [weak self] entities in
-            self?.entities = entities
+            withAnimation {
+                self?.entities = entities
+            }
         }) { _ in }
     }
 }
