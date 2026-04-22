@@ -26,6 +26,7 @@ final class PickImageMergeViewModelWrapper {
     var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]
 
     // 합성에 사용할 원본 이미지 (PHImageManager 로 로드)
+    private let imageSourceModel: PickImageMergeModel
     private var leadingImage:  UIImage?
     private var trailingImage: UIImage?
 
@@ -34,6 +35,8 @@ final class PickImageMergeViewModelWrapper {
     private let thumbnailSize = CGSize(width: 120, height: 190)
 
     init(model: PickImageMergeModel) {
+        self.imageSourceModel = model
+        
         fetchImage(asset: model.leading) { [weak self] image in
             self?.leadingImage = image
             self?.tryRender()
@@ -156,12 +159,19 @@ final class PickImageMergeViewModelWrapper {
         }
     }
     
-    func mergeDone() -> Bool {
+    func mergeDone(dao: MergeResultDao) -> Bool {
         guard let mergedImage else {
             return false
         }
         
-        viewModel.saveMergedImage(image: mergedImage)
+        viewModel.saveMergedImage(
+            dao: dao,
+            mergedImage: mergedImage,
+            mergeId: "",
+            leadingImageId: imageSourceModel.leading.localIdentifier,
+            trailingImageId: imageSourceModel.trailing.localIdentifier,
+            name: "Testing")
+        
         return true
     }
 }

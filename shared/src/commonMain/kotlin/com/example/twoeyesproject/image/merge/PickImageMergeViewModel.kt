@@ -9,6 +9,7 @@ import com.example.twoeyesproject.platformspecific.PlatformPersistImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class PickImageMergeViewModel : ViewModel() {
 
@@ -54,8 +55,25 @@ class PickImageMergeViewModel : ViewModel() {
         PlatformPersistImage().persistImage(image)
     }
 
-    fun uploadEntity(dao: MergeResultDao, entity: MergeResultEntity) {
+    fun saveMergedImage(
+        dao: MergeResultDao,
+        mergedImage: PlatformImage,
+        mergeId: String,
+        leadingImageId: String,
+        trailingImageId: String,
+        name: String? = null
+    ) {
+        val entity = MergeResultEntity(
+            resultId = mergeId,
+            leadingImageId = leadingImageId,
+            trailingImageId = trailingImageId,
+            name = name,
+            date = Clock.System.now().toString(),
+            isUploaded = false
+        )
+
         viewModelScope.launch {
+            PlatformPersistImage().persistImage(mergedImage)
             dao.save(entity.copy(isUploaded = true))
         }
     }

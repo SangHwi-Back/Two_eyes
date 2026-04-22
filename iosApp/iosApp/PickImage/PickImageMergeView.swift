@@ -16,6 +16,7 @@ struct PickImageMergeView: View {
     @State private var mergeDoneAlert = false
     
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
+    @Environment(\.mergeResultDao) var dao
 
     let bottomZIndex: Double = 999
     let topZIndex: Double = 1000
@@ -98,7 +99,7 @@ struct PickImageMergeView: View {
                         title: "확인",
                         disabled: wrapper.mergedImage == nil
                     ).onTapGesture {
-                        let isSuccess = wrapper.mergeDone()
+                        let isSuccess = wrapper.mergeDone(dao: dao)
                         
                         if isSuccess {
                             navHost.popToRoot()
