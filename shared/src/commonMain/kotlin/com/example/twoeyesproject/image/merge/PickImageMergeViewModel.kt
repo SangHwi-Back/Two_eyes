@@ -1,10 +1,14 @@
 package com.example.twoeyesproject.image.merge
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.twoeyesproject.dependency.MergeResultDao
+import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import com.example.twoeyesproject.platformspecific.PlatformPersistImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class PickImageMergeViewModel : ViewModel() {
 
@@ -48,6 +52,12 @@ class PickImageMergeViewModel : ViewModel() {
 
     fun saveMergedImage(image: PlatformImage) {
         PlatformPersistImage().persistImage(image)
+    }
+
+    fun uploadEntity(dao: MergeResultDao, entity: MergeResultEntity) {
+        viewModelScope.launch {
+            dao.save(entity.copy(isUploaded = true))
+        }
     }
 
     enum class ImageOrder { TOP, BOTTOM }

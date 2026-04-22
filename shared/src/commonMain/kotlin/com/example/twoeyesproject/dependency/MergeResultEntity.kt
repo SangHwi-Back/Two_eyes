@@ -11,4 +11,5 @@ data class MergeResultEntity(
     val trailingImageId: String,
     val name: String?,
     val date: String,
+    var isUploaded: Boolean,
 )
