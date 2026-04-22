@@ -22,6 +22,8 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.coil3.network.okhttp)
             implementation(libs.androidx.material.icons.extended)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.room.ktx)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

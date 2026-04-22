@@ -52,29 +52,27 @@ class PickImageMergeViewModel : ViewModel() {
     }
 
     fun saveMergedImage(image: PlatformImage) {
-        PlatformPersistImage().persistImage(image)
     }
 
     fun saveMergedImage(
         dao: MergeResultDao,
         mergedImage: PlatformImage,
-        mergeId: String,
         leadingImageId: String,
         trailingImageId: String,
         name: String? = null
     ) {
-        val entity = MergeResultEntity(
-            resultId = mergeId,
-            leadingImageId = leadingImageId,
-            trailingImageId = trailingImageId,
-            name = name,
-            date = Clock.System.now().toString(),
-            isUploaded = false
-        )
-
-        viewModelScope.launch {
-            PlatformPersistImage().persistImage(mergedImage)
-            dao.save(entity.copy(isUploaded = true))
+        PlatformPersistImage().persistImage(mergedImage) {
+            val entity = MergeResultEntity(
+                resultId = it,
+                leadingImageId = leadingImageId,
+                trailingImageId = trailingImageId,
+                name = name,
+                date = Clock.System.now().toString(),
+                isUploaded = false
+            )
+            viewModelScope.launch {
+                dao.save(entity.copy(isUploaded = true))
+            }
         }
     }
 

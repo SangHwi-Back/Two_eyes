@@ -9,7 +9,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
 actual class PlatformPersistImage: KoinComponent {
-    actual fun persistImage(image: PlatformImage) {
+    actual fun persistImage(image: PlatformImage, completionHandler: (String) -> Unit) {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "ImageName.jpg")
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
@@ -24,6 +24,9 @@ actual class PlatformPersistImage: KoinComponent {
                 if (stream != null)
                     image.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             }
+            completionHandler(it.buildUpon().toString())
         }
+
+        completionHandler("")
     }
 }

@@ -167,7 +167,6 @@ final class PickImageMergeViewModelWrapper {
         viewModel.saveMergedImage(
             dao: dao,
             mergedImage: mergedImage,
-            mergeId: "",
             leadingImageId: imageSourceModel.leading.localIdentifier,
             trailingImageId: imageSourceModel.trailing.localIdentifier,
             name: "Testing")
