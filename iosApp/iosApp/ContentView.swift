@@ -3,6 +3,7 @@ import Photos
 import Shared
 
 struct ContentView: View {
+    @Environment(\.database) var database
     @State private var showContent = false
     
     @State var tabSelection: TabSelection = .feed
@@ -40,10 +41,10 @@ struct ContentView: View {
             }
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
                 NavigationStack(path: $uploadPath.path) {
-                    UploadView().navigationDestination(for: NavHost.Upload.self) { route in
+                    UploadView(database: database).navigationDestination(for: NavHost.Upload.self) { route in
                         switch route {
-                        case .main:
-                            UploadView()
+                        case .main(let database):
+                            UploadView(database: database)
                         }
                     }
                 }
@@ -88,7 +89,7 @@ enum NavHost {
     }
     
     enum Upload: Hashable {
-        case main
+        case main(AppDatabase)
     }
 }
 
