@@ -31,6 +31,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
+            implementation(libs.ktor.server.netty)
+            implementation(libs.ktor.client.cio)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
