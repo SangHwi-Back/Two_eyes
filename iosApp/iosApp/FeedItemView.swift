@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Shared
-import Kingfisher
 
 struct FeedItemView: View {
     let model: FeedItemModel
