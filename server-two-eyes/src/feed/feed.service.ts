@@ -83,6 +83,7 @@ export class FeedService {
     const feed = this.feedRepository.create({
       user,
       content: dto.content,
+      tags: dto.tags ?? [],
     });
     const savedFeed = await this.feedRepository.save(feed);
 
@@ -134,6 +135,7 @@ export class FeedService {
     return {
       id: feed.id,
       content: feed.content,
+      tags: feed.tags ?? [],
       likeCount,
       isLiked,
       user: {
