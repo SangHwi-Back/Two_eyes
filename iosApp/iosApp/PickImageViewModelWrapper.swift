@@ -3,7 +3,7 @@
 //
 
 import Observation
-import UIKit
+import SwiftUI
 import Shared
 import Photos
 
@@ -21,6 +21,9 @@ final class PickImageViewModelWrapper {
     }
     var trailing: PickImageViewModel.ImageViewModel {
         target.trailing
+    }
+    var goNextEnabled: Bool {
+        target.goNextEnabled
     }
     
     typealias ImageSourcesCollector = MergeCollector<[PHAsset]>
@@ -40,7 +43,15 @@ final class PickImageViewModelWrapper {
         
         viewModel.target
             .collect(collector: TargetCollector(callback: { [weak self] model in
-                self?.target = model
+                withAnimation {
+                    self?.target = model
+                }
             })) { _ in }
+    }
+}
+
+extension PickImageViewModel.TargetModel {
+    var goNextEnabled: Bool {
+        leading.imageSource != nil && trailing.imageSource != nil
     }
 }

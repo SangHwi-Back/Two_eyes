@@ -14,13 +14,10 @@ struct PickImageView: View {
     
     @State private var wrapper = PickImageViewModelWrapper()
     @State private var showHighlightAlert = false
+    
+    @Namespace private var namespace
 
     private var viewModel: PickImageViewModel { wrapper.viewModel }
-    
-    var goNextEnabled: Bool {
-        wrapper.leading.imageSource != nil
-        && wrapper.trailing.imageSource != nil
-    }
     
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
     
@@ -37,7 +34,7 @@ struct PickImageView: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .aspectRatio(0.9, contentMode: .fill)
+            .aspectRatio(1.05, contentMode: .fill)
             
             if wrapper.imageSources.isEmpty {
                 VStack {
@@ -66,33 +63,35 @@ struct PickImageView: View {
             .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             
             HStack {
-                Button { launchCameraIfHighlighted() } label: {
-                    BottomButtonImage(image: Image(systemName: "camera"), title: "Camera")
-                }
-                
                 Spacer()
                 
-                Button { wrapper.photoPickerLauncher.launch() } label: {
-                    BottomButtonImage(image: Image(systemName: "hand.rays"), title: "Pick")
+                VStack {
+                    HStack(spacing: 8) {
+                        GlassIconButton(systemName: "camera") {
+                            launchCameraIfHighlighted()
+                        }
+                        
+                        GlassIconButton(systemName: "hand.rays") {
+                            wrapper.photoPickerLauncher.launch()
+                        }
+                    }
+                    GlassEffectContainer(spacing: 8) {
+                        HStack(spacing: 8) {
+                            GlassIconButton(systemName: "photo.on.rectangle.angled") {
+                                requestAlbumAccess()
+                            }
+                            .glassEffectID("photo", in: namespace)
+                            
+                            if wrapper.target.goNextEnabled {
+                                GlassIconButton(systemName: "arrowshape.forward") {
+                                    goNext()
+                                }
+                                .glassEffectID("arrowshape", in: namespace)
+                            }
+                        }
+                    }
                 }
-                
-                Spacer()
-                
-                Button { requestAlbumAccess() } label: {
-                    BottomButtonImage(image: Image(systemName: "photo.on.rectangle.angled"), title: "GetAll")
-                }
-                Spacer()
-                
-                Button { goNext() } label: {
-                    let color = goNextEnabled ? Color.black : Color.secondary
-                    BottomButtonImage(
-                        image: Image(systemName: "arrowshape.forward"),
-                        title: "Next",
-                        foregroundColor: color)
-                }
-                .disabled(!goNextEnabled)
             }
-            .frame(height: 48)
             .padding(.horizontal)
         }}
         .onAppear {
