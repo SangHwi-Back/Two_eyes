@@ -4,11 +4,14 @@ package com.example.twoeyesproject.dependency
 import com.example.twoeyesproject.platformspecific.platformHttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -38,6 +41,32 @@ data class UserResponse(
     val email: String? = null,
     val name: String? = null,
     val profileImage: String? = null
+)
+
+@Serializable
+data class FeedResponse(
+    val data: List<Data>,
+    val meta: Meta
+) {
+    data class Data(
+        val id: String, val content: String?, val tags: List<String>,
+        val likeCount: Int, val isLiked: Boolean, val user: User,
+        val images: List<Image>, val createdAt: String, val updatedAt: String,
+    )
+    data class User(
+        val id: String, val name: String?, val profileImage: String?
+    )
+    data class Image(
+        val id: String, val url: String, val order: Int
+    )
+    data class Meta(
+        val total: Int, val page: Int, val limit: Int, val totalPages: Int,
+    )
+}
+
+@Serializable
+data class LikeResponse(
+    val feedId: String, val likeCount: Int, val isLiked: Boolean
 )
 
 // ── 클라이언트 ─────────────────────────────────────────────────────
@@ -80,5 +109,27 @@ class ApiClient {
                 })
             }
         ))
+    }
+
+    suspend fun getFeed(
+        accessToken: String,
+        page: Int,
+        count: Int? = null,
+    ): FeedResponse = client.get("$baseUrl/feed") {
+        header(HttpHeaders.Authorization, "Bearer $accessToken")
+    }.body()
+    
+    suspend fun postLike(
+        accessToken: String,
+        tobe: Boolean,
+        feedId: String,
+    ): HttpResponse = if (tobe == true) {
+        client.post("feed/$feedId/like") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+    } else {
+        client.delete("feed/$feedId/like") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
     }
 }
