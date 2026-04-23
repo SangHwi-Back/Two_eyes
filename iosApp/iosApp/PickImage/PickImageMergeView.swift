@@ -44,7 +44,7 @@ struct PickImageMergeView: View {
                         .draggableAndScalable($wrapper.trailingState)
                         .zIndex(topZIndex)
 
-                    SwapButton {
+                    GlassIconButton(systemName: "arrow.left.arrow.right") {
                         wrapper.viewModel.swapOrder()
                     }
                     .offset(
@@ -94,11 +94,7 @@ struct PickImageMergeView: View {
                 
                 HStack {
                     Spacer()
-                    BottomButton(
-                        image: Image(systemName: "check"),
-                        title: "확인",
-                        disabled: wrapper.mergedImage == nil
-                    ).onTapGesture {
+                    GlassIconButton(systemName: "checkmark.circle") {
                         let isSuccess = wrapper.mergeDone(dao: dao)
                         
                         if isSuccess {
