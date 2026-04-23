@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.ViewList
@@ -85,10 +86,10 @@ fun UploadScreen(
             TopAppBar(
                 title = { Text("Upload") },
                 actions = {
-                    IconButton(onClick = { listType = UploadListType.LIST }) {
-                        Icon(Icons.Outlined.ViewList, contentDescription = "리스트 보기")
+                    IconButton(onClick = { UploadListType.LIST }) {
+                        Icon(Icons.AutoMirrored.Outlined.ViewList, contentDescription = "리스트 보기")
                     }
-                    IconButton(onClick = { listType = UploadListType.GRID }) {
+                    IconButton(onClick = { UploadListType.GRID }) {
                         Icon(Icons.Outlined.GridView, contentDescription = "그리드 보기")
                     }
                 }
