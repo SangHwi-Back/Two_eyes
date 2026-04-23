@@ -1,6 +1,5 @@
 package com.example.twoeyesproject.ui.camera
 
-import android.database.DatabaseUtils
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -44,15 +43,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.twoeyesproject.dependency.getDatabaseBuilder
-import com.example.twoeyesproject.dependency.getRoomDatabase
+import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.ImageFrame
 import com.example.twoeyesproject.image.ImageMerger
@@ -60,7 +57,7 @@ import com.example.twoeyesproject.image.ImageMergerModel
 import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
+import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
 private val ThumbnailWidth  = 120.dp
@@ -74,7 +71,7 @@ fun PickImageMergeScreen(
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    val dao = getRoomDatabase(getDatabaseBuilder(LocalContext.current)).getMergeResultDao()
+    val db: AppDatabase = koinInject()
     val source1 = remember { uri1String.toUri().buildUpon() }
     val source2 = remember { uri2String.toUri().buildUpon() }
 
@@ -262,7 +259,7 @@ fun PickImageMergeScreen(
                 onClick = {
                     if (previewBitmap != null)
                         viewModel.saveMergedImage(
-                            dao = dao,
+                            dao = db.getMergeResultDao(),
                             mergedImage = (previewBitmap as ImageBitmap).asAndroidBitmap(),
                             leadingImageId = source1.toString(),
                             trailingImageId = source2.toString(),

@@ -18,12 +18,13 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.koin.android.v411)
             implementation(libs.androidx.navigation.compose)
             implementation(libs.coil3.network.okhttp)
             implementation(libs.androidx.material.icons.extended)
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.room.ktx)
+            implementation(libs.insert.koin.koin.android)
+            implementation(libs.io.insert.koin.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
