@@ -4,34 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class UploadViewModel(db: AppDatabase): ViewModel() {
-    private var _mergeEntities = MutableStateFlow<List<MergeResultEntity>>(listOf())
-    val mergeEntities: StateFlow<List<MergeResultEntity>>
 
     private val dao = db.getMergeResultDao()
 
-    init {
-        mergeEntities = dao.getAllAsFlow().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = listOf())
-    }
-
-    fun getAllEntities() {
-        viewModelScope.launch {
-            _mergeEntities.value = dao.getAll()
-        }
-    }
+    // dao.getAllAsFlow() 가 Room 변경(insert/delete)을 자동으로 emit하므로
+    // 별도 MutableStateFlow나 getAllEntities() 호출이 필요 없음
+    val mergeEntities: StateFlow<List<MergeResultEntity>> = dao.getAllAsFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = listOf()
+    )
 
     fun deleteEntity(entity: MergeResultEntity) {
         viewModelScope.launch {
-            _mergeEntities.value = dao.deleteAndGetAll(entity)
+            dao.delete(entity)
+            // Flow가 Room 변경을 자동 감지하므로 mergeEntities 별도 갱신 불필요
         }
     }
 

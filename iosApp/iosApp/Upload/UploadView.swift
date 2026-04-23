@@ -14,33 +14,34 @@ enum UploadableListViewType { case small, large }
 enum UploadViewTapType { case delete(MergeResultEntity), upload(MergeResultEntity) }
 
 struct UploadView: View {
-    
-    
+
     @State var listType = UploadableListViewType.small
-    
-    private var wrapper: UploadViewModelWrapper
-    
+
+    // @State로 선언해야 SwiftUI가 부모 재렌더링 시 기존 인스턴스를 보존함
+    @State private var wrapper: UploadViewModelWrapper
+
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
-    
+
     init(database: AppDatabase) {
-        wrapper = UploadViewModelWrapper(db: database)
+        _wrapper = State(wrappedValue: UploadViewModelWrapper(db: database))
     }
-    
+
     var body: some View {
         Group {
             if wrapper.entities.isEmpty {
                 Text("No Entities!!")
-            }
-            switch listType {
-            case .small:
-                List(wrapper.entities, id: \.id) { entity in
-                    UploadListSmallCard(entity: entity, onTap: onTap)
-                }
-            case .large:
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(wrapper.entities, id: \.id) { entity in
-                            UploadGridCard(entity: entity, onTap: onTap)
+            } else {
+                switch listType {
+                case .small:
+                    List(wrapper.entities, id: \.id) { entity in
+                        UploadListSmallCard(entity: entity, onTap: onTap)
+                    }
+                case .large:
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: 8) {
+                            ForEach(wrapper.entities, id: \.id) { entity in
+                                UploadGridCard(entity: entity, onTap: onTap)
+                            }
                         }
                     }
                 }
@@ -59,7 +60,7 @@ struct UploadView: View {
             }
         }
     }
-    
+
     func onTap(_ tap: UploadViewTapType) {
         switch tap {
         case .delete(let entity):
@@ -74,25 +75,23 @@ struct UploadListSmallCard: View {
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        GeometryReader { proxy in
-            HStack {
-                TwoEyesCard {
-                    HStack {
-                        PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 0.9)
-                        PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 0.9)
-                        PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 0.9)
-                    }
-                    .padding(10)
+        HStack {
+            TwoEyesCard {
+                HStack {
+                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 0.9)
+                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 0.9)
+                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 0.9)
                 }
-                .frame(height: thumbnailSize.height + 20)
-                
-                GlassIconButton(systemName: "trash.circle") {
-                    onTap(.delete(entity))
-                }
-                
-                GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                    onTap(.upload(entity))
-                }
+                .padding(10)
+            }
+            .frame(height: thumbnailSize.height + 20)
+
+            GlassIconButton(systemName: "trash.circle") {
+                onTap(.delete(entity))
+            }
+
+            GlassIconButton(systemName: "square.and.arrow.up.circle") {
+                onTap(.upload(entity))
             }
         }
     }
@@ -103,23 +102,23 @@ struct UploadGridCard: View {
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        GeometryReader { proxy in
-            VStack {
-                PHAssetImage(assetIdentifier: entity.resultId,
-                             size: thumbnailSize * (thumbnailSize.width / proxy.size.width))
-                
-                GlassEffectContainer(spacing: 20) {
-                    HStack(spacing: 20) {
-                        GlassIconButton(systemName: "trash.circle") {
-                            onTap(.delete(entity))
-                        }
-                        .glassEffectUnion(id: "1", namespace: namespace)
-                        
-                        GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                            onTap(.upload(entity))
-                        }
-                        .glassEffectUnion(id: "1", namespace: namespace)
+        VStack {
+            PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fill)
+                .clipped()
+
+            GlassEffectContainer(spacing: 20) {
+                HStack(spacing: 20) {
+                    GlassIconButton(systemName: "trash.circle") {
+                        onTap(.delete(entity))
                     }
+                    .glassEffectUnion(id: "card-actions", namespace: namespace)
+
+                    GlassIconButton(systemName: "square.and.arrow.up.circle") {
+                        onTap(.upload(entity))
+                    }
+                    .glassEffectUnion(id: "card-actions", namespace: namespace)
                 }
             }
         }
