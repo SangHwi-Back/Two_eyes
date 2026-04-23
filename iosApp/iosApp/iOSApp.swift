@@ -10,6 +10,11 @@ struct iOSApp: App {
             ContentView()
                 .environment(\.database, database)
                 .environment(\.mergeResultDao, database.getMergeResultDao())
+                .onAppear {
+                    Task {
+                        try? await database.getMergeResultDao().deleteAll()
+                    }
+                }
         }
     }
 }

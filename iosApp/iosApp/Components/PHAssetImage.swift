@@ -24,7 +24,7 @@ struct PHAssetImage: View {
     
     init(assetIdentifier: String, size: CGSize, image: UIImage? = nil, requestID: PHImageRequestID? = nil) {
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
-
+        
         if let asset = fetchResult.firstObject {
             // Successfully retrieved the PHAsset
             self.asset = asset
@@ -70,10 +70,13 @@ struct PHAssetImage: View {
 
         requestID = PHImageManager.default().requestImage(
             for: asset,
-            targetSize: size,
+            targetSize: PHImageManagerMaximumSize,
             contentMode: .aspectFill,
             options: options
-        ) { result, _ in
+        ) { result, info in
+            if let error = info?[PHImageErrorKey] {
+                print("err")
+            }
             self.image = result
         }
     }

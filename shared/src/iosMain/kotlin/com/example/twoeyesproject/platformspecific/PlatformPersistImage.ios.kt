@@ -22,11 +22,8 @@ actual class PlatformPersistImage {
                 return@performChanges
             }
 
-            val fetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(listOf(id), null)
-            val asset = fetchResult.firstObject as? PHAsset ?: return@performChanges
-
             dispatch_async(dispatch_get_main_queue()) {
-                completionHandler(asset.localIdentifier)
+                completionHandler(id!!)
             }
         }
     }

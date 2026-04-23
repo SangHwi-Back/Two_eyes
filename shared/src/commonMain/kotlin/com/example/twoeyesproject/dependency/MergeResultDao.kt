@@ -30,6 +30,12 @@ interface MergeResultDao {
         return getAll()
     }
 
+    @Delete
+    @Transaction
+    suspend fun deleteAll() {
+        for (item in getAll()) { delete(item) }
+    }
+
     @Query("SELECT count(*) FROM MergeResultEntity")
     suspend fun count(): Int
 

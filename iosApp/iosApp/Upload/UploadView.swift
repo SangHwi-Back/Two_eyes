@@ -15,23 +15,35 @@ enum UploadViewTapType { case delete(MergeResultEntity), upload(MergeResultEntit
 
 struct UploadView: View {
     
-    @Namespace var namespace
     
     @State var listType = UploadableListViewType.small
     
     private var wrapper: UploadViewModelWrapper
+    
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     init(database: AppDatabase) {
         wrapper = UploadViewModelWrapper(db: database)
     }
     
     var body: some View {
-        List(wrapper.entities, id: \.id) { entity in
+        Group {
+            if wrapper.entities.isEmpty {
+                Text("No Entities!!")
+            }
             switch listType {
             case .small:
-                UploadListSmallCard(entity: entity, onTap: onTap)
+                List(wrapper.entities, id: \.id) { entity in
+                    UploadListSmallCard(entity: entity, onTap: onTap)
+                }
             case .large:
-                UploadListLargeCard(entity: entity, onTap: onTap)
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        ForEach(wrapper.entities, id: \.id) { entity in
+                            UploadGridCard(entity: entity, onTap: onTap)
+                        }
+                    }
+                }
             }
         }
         .navigationTitle("Upload")
@@ -45,9 +57,6 @@ struct UploadView: View {
                     listType = .large
                 }
             }
-        }
-        .overlay {
-            Text("No Entity enabled")
         }
     }
     
@@ -65,61 +74,55 @@ struct UploadListSmallCard: View {
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        HStack {
-            TwoEyesCard {
-                HStack {
-                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize)
-                    Spacer()
-                    Image(systemName: "plus")
-                    Spacer()
-                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize)
-                    Spacer()
-                    Image(systemName: "equal")
-                    Spacer()
-                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
+        GeometryReader { proxy in
+            HStack {
+                TwoEyesCard {
+                    HStack {
+                        PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 0.9)
+                        PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 0.9)
+                        PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 0.9)
+                    }
+                    .padding(10)
                 }
-                .padding()
-            }
-            
-            GlassIconButton(systemName: "trash.circle") {
-                onTap(.delete(entity))
-            }
-            GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                onTap(.upload(entity))
+                .frame(height: thumbnailSize.height + 20)
+                
+                GlassIconButton(systemName: "trash.circle") {
+                    onTap(.delete(entity))
+                }
+                
+                GlassIconButton(systemName: "square.and.arrow.up.circle") {
+                    onTap(.upload(entity))
+                }
             }
         }
-        .frame(height: thumbnailSize.height + 20)
     }
 }
 
-struct UploadListLargeCard: View {
+struct UploadGridCard: View {
+    @Namespace var namespace
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        HStack {
-            TwoEyesCard {
-                HStack {
-                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 1.6)
-                    Spacer()
-                    Image(systemName: "plus")
-                    Spacer()
-                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 1.6)
-                    Spacer()
-                    Image(systemName: "equal")
-                    Spacer()
-                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 1.6)
+        GeometryReader { proxy in
+            VStack {
+                PHAssetImage(assetIdentifier: entity.resultId,
+                             size: thumbnailSize * (thumbnailSize.width / proxy.size.width))
+                
+                GlassEffectContainer(spacing: 20) {
+                    HStack(spacing: 20) {
+                        GlassIconButton(systemName: "trash.circle") {
+                            onTap(.delete(entity))
+                        }
+                        .glassEffectUnion(id: "1", namespace: namespace)
+                        
+                        GlassIconButton(systemName: "square.and.arrow.up.circle") {
+                            onTap(.upload(entity))
+                        }
+                        .glassEffectUnion(id: "1", namespace: namespace)
+                    }
                 }
-                .padding()
-            }
-            
-            GlassIconButton(systemName: "trash.circle") {
-                onTap(.delete(entity))
-            }
-            GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                onTap(.upload(entity))
             }
         }
-        .frame(height: thumbnailSize.height * 1.6 + 20)
     }
 }
 
