@@ -3911,6 +3911,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "이 앱은 창의력을 표현할 사진을 사용자가 직접 촬영할 수 있도록 카메라에 접근합니다. 이를 인지하셨나요?";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "이 앱은 창의력을 표현한 사진을 사용자가 저장하는 것을 요구합니다. 이를 인지하셨나요?";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "이 앱은 창의력을 표현할 사진을 사용자의 앨범을 통해 가져옵니다. 앨범의 사진을 공유할 수 있음을 인지하셨나요?";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -3940,6 +3943,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "이 앱은 창의력을 표현할 사진을 사용자가 직접 촬영할 수 있도록 카메라에 접근합니다. 이를 인지하셨나요?";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "이 앱은 창의력을 표현한 사진을 사용자가 저장하는 것을 요구합니다. 이를 인지하셨나요?";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "이 앱은 창의력을 표현할 사진을 사용자의 앨범을 통해 가져옵니다. 앨범의 사진을 공유할 수 있음을 인지하셨나요?";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

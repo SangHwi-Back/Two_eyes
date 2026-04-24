@@ -1,5 +1,6 @@
 import SwiftUI
 import Shared
+import GoogleSignIn
 
 @main
 struct iOSApp: App {
@@ -12,6 +13,9 @@ struct iOSApp: App {
                 .environment(\.database, database)
                 .environment(\.mergeResultDao, database.getMergeResultDao())
                 .environment(\.apiClient, apiClient)
+                .onOpenURL(perform:{ url in
+                    GIDSignIn.sharedInstance.handle(url)
+                })
         }
     }
 }
