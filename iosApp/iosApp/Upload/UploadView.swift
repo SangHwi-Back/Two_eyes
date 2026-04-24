@@ -11,7 +11,7 @@ import Photos
 
 private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 enum UploadableListViewType { case small, large }
-enum UploadViewTapType { case delete(MergeResultEntity), upload(MergeResultEntity) }
+enum UploadViewTapType { case delete, upload }
 
 struct UploadView: View {
 
@@ -34,13 +34,17 @@ struct UploadView: View {
                 switch listType {
                 case .small:
                     List(wrapper.entities, id: \.id) { entity in
-                        UploadListSmallCard(entity: entity, onTap: onTap)
+                        UploadListSmallCard(entity: entity) { tapType in
+                            onTap(tapType, entity: entity)
+                        }
                     }
                 case .large:
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 8) {
                             ForEach(wrapper.entities, id: \.id) { entity in
-                                UploadGridCard(entity: entity, onTap: onTap)
+                                UploadGridCard(entity: entity) { tapType in
+                                    onTap(tapType, entity: entity)
+                                }
                             }
                         }
                     }
@@ -61,11 +65,11 @@ struct UploadView: View {
         }
     }
 
-    func onTap(_ tap: UploadViewTapType) {
+    func onTap(_ tap: UploadViewTapType, entity: MergeResultEntity) {
         switch tap {
-        case .delete(let entity):
+        case .delete:
             wrapper.viewModel.deleteEntity(entity: entity)
-        case .upload(let entity):
+        case .upload:
             wrapper.viewModel.uploadEntity(entity: entity)
         }
     }
@@ -87,11 +91,11 @@ struct UploadListSmallCard: View {
             .frame(height: thumbnailSize.height + 20)
 
             GlassIconButton(systemName: "trash.circle") {
-                onTap(.delete(entity))
+                onTap(.delete)
             }
 
             GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                onTap(.upload(entity))
+                onTap(.upload)
             }
         }
     }
@@ -111,12 +115,12 @@ struct UploadGridCard: View {
             GlassEffectContainer(spacing: 20) {
                 HStack(spacing: 20) {
                     GlassIconButton(systemName: "trash.circle") {
-                        onTap(.delete(entity))
+                        onTap(.delete)
                     }
                     .glassEffectUnion(id: "card-actions", namespace: namespace)
 
                     GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                        onTap(.upload(entity))
+                        onTap(.upload)
                     }
                     .glassEffectUnion(id: "card-actions", namespace: namespace)
                 }
