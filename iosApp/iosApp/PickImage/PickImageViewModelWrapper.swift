@@ -11,7 +11,7 @@ import Photos
 final class PickImageViewModelWrapper {
     let viewModel = PickImageViewModel()
     let cameraLauncher: PlatformCameraLauncher
-    let photoPickerLauncher: PlatformPhotoPickerLauncher
+    let photoPickerLauncher: PlatformPhotoPickerLauncher!
 
     private(set) var imageSources = [PHAsset]()
     private(set) var target: PickImageViewModel.TargetModel
@@ -32,7 +32,7 @@ final class PickImageViewModelWrapper {
 
     init() {
         self.cameraLauncher = PlatformCameraLauncher(viewModel: viewModel)
-        self.photoPickerLauncher = PlatformPhotoPickerLauncher(viewModel: viewModel)
+        self.photoPickerLauncher = PlatformPhotoPickerLauncher(imageSourceDelegate: viewModel)
         
         self.target = viewModel.target.value as! PickImageViewModel.TargetModel
         

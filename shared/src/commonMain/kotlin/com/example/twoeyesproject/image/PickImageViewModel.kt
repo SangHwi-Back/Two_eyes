@@ -13,7 +13,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class PickImageViewModel: ViewModel() {
+class PickImageViewModel: ViewModel(), PickerImageSourceDelegate {
     private val _target = MutableStateFlow<TargetModel>(TargetModel(
         ImageViewModel(Uuid.random(), null, false),
         ImageViewModel(Uuid.random(), null, false),
@@ -94,5 +94,15 @@ class PickImageViewModel: ViewModel() {
                 trailing = status.trailing.copy(isHighlighted = !status.trailing.isHighlighted))
             else -> status
         }
+    }
+
+    override fun addImageSource(imageSource: ImageSource) {
+        if (!imageSources.value.contains(imageSource)) {
+            _imageSources.value += imageSource
+        }
+    }
+
+    override fun addImageSources(sources: List<ImageSource>) {
+        _imageSources.value = sources
     }
 }

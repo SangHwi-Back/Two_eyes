@@ -7,6 +7,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.twoeyesproject.image.PhotoPickerLauncher
 import com.example.twoeyesproject.image.PickImageViewModel
+import com.example.twoeyesproject.image.PickerImageSourceDelegate
 import kotlinx.coroutines.runBlocking
 
 class PlatformPhotoPickerLauncher(
@@ -18,14 +19,14 @@ class PlatformPhotoPickerLauncher(
 }
 
 fun ComponentActivity.registerPhotoPickerLauncher(
-    viewModel: PickImageViewModel
+    delegate: PickerImageSourceDelegate
 ) : PlatformPhotoPickerLauncher {
     val launcher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         runBlocking {
             if (uri != null)
-                viewModel.setImageFromSource(uri.buildUpon())
+                delegate.addImageSource(uri.buildUpon())
         }
 
     }

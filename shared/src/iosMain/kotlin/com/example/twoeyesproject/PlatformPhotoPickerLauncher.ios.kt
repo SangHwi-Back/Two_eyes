@@ -1,7 +1,7 @@
 package com.example.twoeyesproject
 
 import com.example.twoeyesproject.image.PhotoPickerLauncher
-import com.example.twoeyesproject.image.PickImageViewModel
+import com.example.twoeyesproject.image.PickerImageSourceDelegate
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Photos.PHAsset
 import platform.PhotosUI.PHPickerConfiguration
@@ -14,7 +14,7 @@ import platform.darwin.NSObject
 
 @OptIn(ExperimentalForeignApi::class)
 class PhotoPickerDelegate(
-    private val viewModel: PickImageViewModel
+    private val imageSourceDelegate: PickerImageSourceDelegate
 ): NSObject(), PHPickerViewControllerDelegateProtocol {
     fun presentPicker() {
         val configuration = PHPickerConfiguration()
@@ -33,20 +33,19 @@ class PhotoPickerDelegate(
 
         val results = didFinishPicking as? List<PHPickerResult> ?: return
         val identifiers: List<String> = results.mapNotNull { it.assetIdentifier }
-        val imageSource = mutableListOf<PHAsset>()
         val fetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(identifiers, options = null)
-        fetchResult.enumerateObjectsUsingBlock { asset, index, stop ->
+        fetchResult.enumerateObjectsUsingBlock { asset, _, _ ->
             if (asset is PHAsset) {
-                imageSource.add(asset)
+                imageSourceDelegate.addImageSource(asset)
             }
         }
     }
 }
 
 class PlatformPhotoPickerLauncher(
-    viewModel: PickImageViewModel
+    imageSourceDelegate: PickerImageSourceDelegate
 ): PhotoPickerLauncher {
-    private val delegate = PhotoPickerDelegate(viewModel)
+    private val delegate = PhotoPickerDelegate(imageSourceDelegate)
     override fun launch() {
         delegate.presentPicker()
     }
