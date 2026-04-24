@@ -4,6 +4,7 @@ import Shared
 
 struct ContentView: View {
     @Environment(\.database) var database
+    @Environment(\.apiClient) var apiClient
     @State private var showContent = false
     
     @State var tabSelection: TabSelection = .feed
@@ -15,10 +16,10 @@ struct ContentView: View {
         TabView(selection: $tabSelection) {
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
                 NavigationStack(path: $feedPath.path) {
-                    FeedListView().navigationDestination(for: NavHost.Feed.self) { route in
+                    FeedListView(apiClient: apiClient).navigationDestination(for: NavHost.Feed.self) { route in
                         switch route {
                         case .main:
-                            FeedListView()
+                            FeedListView(apiClient: apiClient)
                         case .feedDetail(let model):
                             FeedItemView(model: model)
                         }
@@ -57,6 +58,7 @@ struct ContentView: View {
 extension EnvironmentValues {
     @Entry var database = Database_iosKt.getAppDatabase()
     @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
+    @Entry var apiClient = ApiClient()
 }
 
 // Kotlin/Native 가 object 에 대해 .shared 를 자동 생성하므로 별도 extension 불필요
