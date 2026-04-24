@@ -10,11 +10,14 @@ import Shared
 
 struct FeedItemView: View {
     let model: FeedItemModel
+    let onTapGesture: (FeedListViewTapType) -> Void
 
+    @Namespace var namespace
     @State var showReply: Bool
 
-    init(model: FeedItemModel) {
+    init(model: FeedItemModel, onTapGesture: @escaping (FeedListViewTapType) -> Void) {
         self.model = model
+        self.onTapGesture = onTapGesture
         self.showReply = model.showReply
     }
 
@@ -32,14 +35,21 @@ struct FeedItemView: View {
             .aspectRatio(1, contentMode: .fit)
             .padding(.bottom)
             
-            HStack(spacing: 18) {
-                Button("", systemImage: "heart") {}
-                    .tint(Color.primary)
-                Button("", systemImage: "arrowshape.turn.up.left") {}
-                    .tint(Color.primary)
-                Button("", systemImage: "square.and.arrow.up") {}
-                    .tint(Color.primary)
-                Spacer()
+            GlassEffectContainer(spacing: 8) {
+                HStack(spacing: 8) {
+                    GlassIconButton(systemName: "heart") {
+                        onTapGesture(.like)
+                    }
+                    .glassEffectID("feed", in: namespace)
+                    GlassIconButton(systemName: "arrowshape.turn.up.left") {
+                        onTapGesture(.comment)
+                    }
+                    .glassEffectID("feed", in: namespace)
+                    GlassIconButton(systemName: "square.and.arrow.up") {
+                        onTapGesture(.share)
+                    }
+                    .glassEffectID("feed", in: namespace)
+                }
             }
             .padding(.bottom)
             .padding(.leading)
