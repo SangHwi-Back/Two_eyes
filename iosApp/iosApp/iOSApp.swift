@@ -15,3 +15,12 @@ struct iOSApp: App {
         }
     }
 }
+
+extension EnvironmentValues {
+    @Entry var database = Database_iosKt.getAppDatabase()
+    @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
+    @Entry var apiClient = ApiClient()
+    @Entry var feedPath = "FeedPath"
+    @Entry var cameraPath = [NavHost.Camera]()
+    @Entry var uploadPath = [NavHost.Upload]()
+}

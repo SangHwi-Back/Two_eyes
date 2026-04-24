@@ -5,27 +5,18 @@ import Shared
 struct ContentView: View {
     @Environment(\.database) var database
     @Environment(\.apiClient) var apiClient
+    
     @State private var showContent = false
     
     @State var tabSelection: TabSelection = .feed
-    @State var feedPath = NavigationPathObject(path: [NavHost.Feed]())
+    
     @StateObject var cameraPath = NavigationPathObject(path: [NavHost.Camera]())
-    @State var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
+    @StateObject var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
     
     var body: some View {
         TabView(selection: $tabSelection) {
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
-                NavigationStack(path: $feedPath.path) {
-                    FeedListView(apiClient: apiClient).navigationDestination(for: NavHost.Feed.self) { route in
-                        switch route {
-                        case .main:
-                            FeedListView(apiClient: apiClient)
-                        case .feedDetail(let model):
-                            FeedItemView(model: model)
-                        }
-                    }
-                }
-                .environmentObject(feedPath)
+                FeedListView(apiClient: apiClient)
             }
             Tab("Camera", systemImage: "camera", value: .camera) {
                 NavigationStack(path: $cameraPath.path) {
@@ -46,6 +37,8 @@ struct ContentView: View {
                         switch route {
                         case .main(let database):
                             UploadView(database: database)
+                        case .upload(let entity):
+                            UploadCreateFeedView(entity: entity)
                         }
                     }
                 }
@@ -53,12 +46,6 @@ struct ContentView: View {
             }
         }
     }
-}
-
-extension EnvironmentValues {
-    @Entry var database = Database_iosKt.getAppDatabase()
-    @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
-    @Entry var apiClient = ApiClient()
 }
 
 // Kotlin/Native 가 object 에 대해 .shared 를 자동 생성하므로 별도 extension 불필요
@@ -82,7 +69,6 @@ enum NavHost {
     
     enum Feed: Hashable {
         case main
-        case feedDetail(FeedItemModel)
     }
     
     enum Camera: Hashable {
@@ -92,23 +78,12 @@ enum NavHost {
     
     enum Upload: Hashable {
         case main(AppDatabase)
+        case upload(MergeResultEntity)
     }
 }
 
 enum TabSelection: Hashable {
     case feed, camera, upload
-}
-
-extension EnvironmentValues {
-    @Entry var feedPath = "FeedPath"
-    @Entry var cameraPath = [NavHost.Camera]()
-    @Entry var uploadPath = "UploadPath"
-}
-
-extension View {
-    func cameraPath(_ path: [NavHost.Camera]) -> some View {
-        environment(\.cameraPath, path)
-    }
 }
 
 class NavigationPathObject<T: Hashable>: ObservableObject {

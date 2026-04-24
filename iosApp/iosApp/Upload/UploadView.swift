@@ -14,7 +14,8 @@ enum UploadableListViewType { case small, large }
 enum UploadViewTapType { case delete, upload }
 
 struct UploadView: View {
-
+    @EnvironmentObject var navHost: NavigationPathObject<NavHost.Upload>
+    
     @State var listType = UploadableListViewType.small
 
     // @State로 선언해야 SwiftUI가 부모 재렌더링 시 기존 인스턴스를 보존함
