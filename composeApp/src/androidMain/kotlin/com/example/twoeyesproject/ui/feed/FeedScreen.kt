@@ -43,6 +43,10 @@ import coil3.compose.AsyncImage
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 
+enum class FeedScreenTapType {
+    LIKE, COMMENT, SHARE, FEED
+}
+
 @Composable
 fun FeedScreen(
     viewModel: FeedListViewModel = viewModel(),
@@ -52,21 +56,30 @@ fun FeedScreen(
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
-            FeedItemCard(item = item, onClick = { onFeedClick(item) })
+            FeedItemCard(item = item, onClick = {
+                when (it) {
+                    FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
+                    FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
+                    FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
+                    else -> onFeedClick(item)
+                }
+            })
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun FeedItemCard(item: FeedItemModel, onClick: () -> Unit) {
+private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Unit) {
     val pagerState = rememberPagerState { item.imageUrls.size }
     var showReply by remember { mutableStateOf(item.showReply) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable {
+                onClick(FeedScreenTapType.FEED)
+            }
     ) {
         // 이미지 페이저 (ViewPager2 대응)
         HorizontalPager(
@@ -111,13 +124,19 @@ private fun FeedItemCard(item: FeedItemModel, onClick: () -> Unit) {
 
         // 좋아요 / 댓글 / 공유 버튼
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                onClick(FeedScreenTapType.LIKE)
+            }) {
                 Icon(Icons.Outlined.FavoriteBorder, contentDescription = "좋아요")
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                onClick(FeedScreenTapType.COMMENT)
+            }) {
                 Icon(Icons.AutoMirrored.Outlined.Comment, contentDescription = "댓글")
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                onClick(FeedScreenTapType.SHARE)
+            }) {
                 Icon(Icons.Outlined.Share, contentDescription = "공유")
             }
         }

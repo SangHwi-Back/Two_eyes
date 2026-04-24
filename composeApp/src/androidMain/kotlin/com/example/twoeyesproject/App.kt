@@ -23,7 +23,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
+import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
@@ -53,6 +55,7 @@ private fun AppScaffold(navController: NavHostController) {
     // BottomNav와 FAB는 카메라/병합 화면에서 숨김
     val showBottomBar = currentRoute !in listOf(ROUTE_CAMERA, ROUTE_MERGE)
     val db: AppDatabase = koinInject()
+    val apiClient: ApiClient = koinInject()
 
     Scaffold(
         bottomBar = {
@@ -105,6 +108,7 @@ private fun AppScaffold(navController: NavHostController) {
         ) {
             composable(ROUTE_FEED) {
                 FeedScreen(
+                    viewModel = FeedListViewModel(apiClient),
                     onFeedClick = { /* 상세 화면은 추후 구현 */ }
                 )
             }

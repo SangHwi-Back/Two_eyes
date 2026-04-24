@@ -1,10 +1,17 @@
 package com.example.twoeyesproject.feed
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.twoeyesproject.dependency.ApiClient
+import com.example.twoeyesproject.dependency.FeedResponse
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlin.collections.listOf
 
-class FeedListViewModel: ViewModel() {
+class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
+    var mergeEntities = MutableStateFlow<List<FeedResponse.Data>>(listOf())
     private var _listMockData = MutableStateFlow(listOf(
         FeedItemModel(
             imageUrls = listOf(
@@ -38,5 +45,30 @@ class FeedListViewModel: ViewModel() {
         ),
     ))
     val listData = _listMockData.asStateFlow()
+
+    init {
+        getAllFeeds()
+    }
+    fun getAllFeeds() {
+        viewModelScope.launch {
+            val response = apiClient.getFeed("", 1)
+            mergeEntities.value = response.data
+        }
+    }
+
+    fun updateLike(like: Boolean, feedId: String) {
+        viewModelScope.launch {
+            val response = apiClient.postLike("", like, feedId)
+            if (response.status == HttpStatusCode.OK) {
+                mergeEntities.value.indexOfFirst { it.id == feedId }.let { index ->
+                    if (index > -1) {
+                        val entities = mergeEntities.value.toMutableList()
+                        entities[index] = entities[index].copy(isLiked = like)
+                        mergeEntities.value = entities
+                    }
+                }
+            }
+        }
+    }
 }
 
