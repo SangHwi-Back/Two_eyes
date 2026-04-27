@@ -10,33 +10,63 @@ import AuthenticationServices
 import GoogleSignInSwift
 import GoogleSignIn
 
+enum ProviderIdentifier {
+    case apple, google
+}
+
+struct LoginErrorStatus {
+    let identifier: ProviderIdentifier
+    let error: any Error
+}
+
+enum LoginStatusCheckResult {
+case authorized, needToSignIn(ProviderIdentifier)
+}
+
 struct LoginView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.userData) var userData
     
-    @State private var isPresentedGoogleModal: Bool = false
-    @State private var googleUserData: GoogleUserData
+    @State private var isAppleLoggedIn: Bool = false
     @State private var isGoogleLoggedIn: Bool = false
     
-    init(googleUserData: GoogleUserData) {
-        self.googleUserData = googleUserData
-    }
+    @State private var errorStatus: LoginErrorStatus? = nil
+    
+    @State private var appleLoginContext: AppleAuthorizationControllerUIContext?
+    @State private var appleLoginDelegate: AppleAuthorizationControllerDelegate?
     
     var body: some View {
         VStack {
             Spacer()
+            
+            if let errorStatus {
+                switch errorStatus.identifier {
+                case .apple:
+                    GlassIconTitleButton(
+                        systemName: "apple.logo",
+                        title: errorStatus.error.localizedDescription
+                    ) {
+                        withAnimation(.easeOut(duration: 2.0)) {
+                            self.errorStatus = nil
+                        }
+                    }
+                case .google:
+                    GlassIconTitleButton(title: errorStatus.error.localizedDescription) {
+                        withAnimation(.easeOut(duration: 2.0)) {
+                            self.errorStatus = nil
+                        }
+                    }
+                }
+            }
+            
             SignInWithAppleButton { request in
                 request.requestedScopes = [.email, .fullName]
             } onCompletion: { result in
                 switch result {
                 case .success(let authorization):
                     if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                        // 계정 정보 가져오기
-                        let UserIdentifier = appleIDCredential.user
-                        let fullName = appleIDCredential.fullName
-                        let name =  (fullName?.familyName ?? "") + (fullName?.givenName ?? "")
-                        let email = appleIDCredential.email
-                        let IdentityToken = String(data: appleIDCredential.identityToken!, encoding: .utf8)
-                        let AuthorizationCode = String(data: appleIDCredential.authorizationCode!, encoding: .utf8)
+                        self.userData.wrappedValue = .apple(
+                            AppleUserData(credential: appleIDCredential))
                     }
                 case .failure(let error):
                     // Handle error (e.g., user cancelled)
@@ -61,48 +91,76 @@ struct LoginView: View {
             Spacer()
         }
         .onAppear {
-            googleCheckState()
-            appleCheckState()
+            self.appleLoginContext = .init()
+            self.appleLoginDelegate = AppleAuthorizationControllerDelegate(errorStatus: $errorStatus)
         }
-        .alert("구글 로그인 실패", isPresented: $isPresentedGoogleModal) {
-            Text("확인")
-        } message: {
-            Text("다시 시도해주세요")
+        .task {
+            await checkStatus()
         }
-
     }
     
-    func appleCheckState() {
-        ASAuthorizationAppleIDProvider().getCredentialState(forUserID: "") { credentialState, error in
-            guard error == nil else {
-                return
-            }
+    func checkStatus() async {
+        do {
+            let appleCredentialStatus = try await appleCheckState()
             
-            switch credentialState {
+            switch appleCredentialStatus {
             case .authorized:
                 dismiss()
-            default:
-                return
+            case .needToSignIn(_):
+                do {
+                    let _ = try await googleCheckState()
+                    dismiss()
+                } catch let googleError {
+                    self.errorStatus = .init(identifier: .google, error: googleError)
+                }
             }
+        } catch let appleError {
+            self.errorStatus = .init(identifier: .apple, error: appleError)
         }
     }
     
-    func googleCheckState() {
-        GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
-            if error != nil || user == nil {
-                print("Not Sign In")
-            } else {
-                guard let profile = user?.profile else {
-                    return
-                }
-                
-                let data = GoogleUserData(profile: profile)
-                googleUserData = data
-                isGoogleLoggedIn = true
-                
-                dismiss()
-            }
+    func appleCheckState() async throws -> LoginStatusCheckResult {
+        guard case .apple(let userData) = userData.wrappedValue else {
+            return .needToSignIn(.apple)
         }
+        
+        let state = try await ASAuthorizationAppleIDProvider()
+            .credentialState(forUserID: userData.user)
+        
+        switch state {
+        case .authorized:
+            return .authorized
+        default:
+            return .needToSignIn(.apple)
+        }
+    }
+    
+    func googleCheckState() async throws -> LoginStatusCheckResult {
+        let user = try await GIDSignIn.sharedInstance.restorePreviousSignIn()
+        
+        guard let profile = user.profile else {
+            return .needToSignIn(.google)
+        }
+        
+        let data = GoogleUserData(profile: profile)
+        self.userData.wrappedValue = .google(data)
+        dismiss()
+        return .authorized
+    }
+    
+    func appleLogin() {
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        
+        if case .apple(let userData) = userData.wrappedValue {
+            request.user = userData.user
+        }
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = appleLoginDelegate
+        authorizationController.presentationContextProvider = appleLoginContext
+        authorizationController.performRequests()
     }
     
     func googleLogin() {
@@ -114,7 +172,7 @@ struct LoginView: View {
             .sharedInstance
             .signIn(withPresenting: presentingViewController) { signInResult, error in
                 guard let result = signInResult else {
-                    isPresentedGoogleModal = true
+                    errorStatus = .init(identifier: .google, error: error ?? LoginError.unknown)
                     return
                 }
                 
@@ -123,7 +181,7 @@ struct LoginView: View {
                 }
                 
                 let data = GoogleUserData(profile: profile)
-                googleUserData = data
+                self.userData.wrappedValue = .google(data)
                 isGoogleLoggedIn = true
                 
                 dismiss()
@@ -135,15 +193,11 @@ struct LoginView: View {
     }
 }
 
-struct GoogleUserData {
-    let url: URL?
-    let name: String
-    let email: String
+private enum LoginError: LocalizedError {
+    case unknown
     
-    init(profile: GIDProfileData) {
-        self.url = profile.imageURL(withDimension: 180)
-        self.name = profile.name
-        self.email = profile.email
+    var errorDescription: String? {
+        return "Try again please!"
     }
 }
 
