@@ -25,9 +25,9 @@ kotlin {
             implementation(libs.androidx.room.ktx)
             implementation(libs.insert.koin.koin.android)
             implementation(libs.io.insert.koin.koin.androidx.compose)
-            implementation("com.google.android.gms:play-services-auth:21.3.0")
-            implementation("com.squareup.okhttp3:okhttp:4.12.0")
-            implementation("com.auth0.android:jwtdecode:2.0.2")
+            implementation(libs.play.services.auth)
+            implementation(libs.okhttp)
+            implementation(libs.jwtdecode)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -76,6 +76,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.googleid)
+    implementation(libs.play.services.auth)
     debugImplementation(libs.compose.uiTooling)
 }
 
