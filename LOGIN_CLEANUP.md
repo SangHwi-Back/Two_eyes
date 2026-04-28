@@ -1,6 +1,6 @@
 # Login 화면 정리 작업 목록
 
-> 작성일: 2026-04-22  
+> 최초 작성: 2026-04-22 / 최종 갱신: 2026-04-28  
 > 대상: iOS `LoginView.swift` / Android `LoginScreen.kt`  
 > 범위: 서버 코드 제외, 클라이언트 로그인 화면만
 
@@ -96,108 +96,88 @@ func checkStatus() async {
 
 ### 🔴 버그 — 반드시 수정
 
-#### 1. Google Client ID 소스 코드에 하드코딩
+#### 1. `getIDToken() == null` 조건이 절대 `true`가 되지 않음
 
 ```kotlin
-// LoginScreen.kt:34~35 — ❌ 현재
-BottomSheet("527516655053-906f0v9q6j3ve03omisf9ohitcjq0g3i.apps.googleusercontent.com")
-ButtonUI("527516655053-906f0v9q6j3ve03omisf9ohitcjq0g3i.apps.googleusercontent.com")
+// LoginViewModel.kt
+fun getIDToken() = pref.getString(ID_TOKEN_KEY, "")  // 토큰 없으면 "" 반환
+
+// LoginScreen.kt
+if (viewmodel.getIDToken() == null)   // "" != null → 항상 false
 ```
 
-`strings.xml` 또는 `local.properties` → `BuildConfig`로 분리해야 한다.
-
-```xml
-<!-- res/values/strings.xml -->
-<string name="google_web_client_id">527516655053-....apps.googleusercontent.com</string>
-```
+`EncryptedSharedPreferences.getString()`의 기본값이 `""`이므로  
+토큰이 없어도 `null`이 아닌 빈 문자열이 반환된다.  
+결과적으로 `BottomSheet`가 이미 로그인된 상태에서도 항상 표시된다.
 
 ```kotlin
-// 사용처
-val clientId = context.getString(R.string.google_web_client_id)
+// ✅ 수정 — 둘 중 하나 선택
+// 방법 A: 기본값을 null로
+fun getIDToken() = pref.getString(ID_TOKEN_KEY, null)
+
+// 방법 B: LoginScreen에서 비어있는지까지 확인
+if (viewmodel.getIDToken().isNullOrEmpty())
 ```
 
 ---
 
-#### 2. 로그인 성공 후 idToken 추출 및 서버 전송 로직 없음
-
-`signIn()` 성공 시 `Toast`와 `Log`만 출력하고,  
-`GoogleIdTokenCredential`에서 `idToken`을 추출해 서버에 전달하는 로직이 없다.  
-현재 로그인이 **실제로 동작하지 않는 상태.**
+#### 2. `signIn()` 성공 시 idToken이 잘못 추출됨
 
 ```kotlin
-// signIn() 성공 블록에 추가해야 할 내용
+// LoginScreen.kt:148 — ❌ 현재
+completionHandler(null, result.toString())   // GetCredentialResponse 객체의 toString()
+```
+
+`result.toString()`은 객체 문자열 표현이지 실제 Google ID 토큰이 아니다.  
+`GoogleIdTokenCredential`에서 `.idToken`을 꺼내야 한다.
+
+```kotlin
+// ✅ 수정
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+
 val credential = result.credential
 if (credential is GoogleIdTokenCredential) {
-    val idToken = credential.idToken
-    // TODO: POST /auth/google { idToken } 호출 → accessToken, refreshToken 저장
+    completionHandler(null, credential.idToken)
+} else {
+    completionHandler(IllegalStateException("Unexpected credential type: ${credential::class}"), null)
 }
 ```
-
----
-
-#### 3. `signIn()`의 반환값이 항상 `null` (버그)
-
-```kotlin
-// MainActivity.kt:102
-val e: Exception? = null   // 항상 null로 초기화
-// ... try/catch (각 catch 블록의 e는 파라미터 — 외부 e를 변경하지 않음)
-return e   // 항상 null 반환
-```
-
-catch 블록의 `e`는 지역 파라미터이므로 외부 `val e`를 덮어쓰지 않는다.  
-`NoCredentialException` catch에서만 `return e`로 명시적 반환이 있어 일관성이 없다.  
-반환 타입을 `Boolean` 또는 sealed class로 교체하거나 콜백 방식으로 변경해야 한다.
-
----
-
-#### 4. `BottomSheet` + `ButtonUI` 중복 호출
-
-`LoginScreen`에서 자동 로그인(`BottomSheet`, LaunchedEffect)과  
-수동 버튼 로그인(`ButtonUI`)을 동시에 호출한다.  
-`BottomSheet`는 화면 진입 즉시 자동으로 로그인 UI를 트리거하므로  
-버튼 클릭 전에 이미 bottom sheet가 뜬다.
-
-의도에 맞게 역할을 하나로 정리해야 한다.
-
----
-
-#### 5. `@RequiresApi(UPSIDE_DOWN_CAKE)` — Android 14 미만 동작 불가
-
-`BottomSheet`, `ButtonUI`, `signIn()`이 모두 API 34 이상 전용이다.  
-`LoginScreen`에서 `@SuppressLint("NewApi")`로 억제하고 있지만  
-minSdk가 34 미만이면 런타임 크래시가 발생할 수 있다.  
-minSdk 확인 후 하위 버전 대응 분기 또는 minSdk 34 상향을 결정해야 한다.
 
 ---
 
 ### 🟡 구조 개선
 
-#### 6. 로그인 로직이 `MainActivity.kt`에 혼재
-
-`BottomSheet()`, `ButtonUI()`, `signIn()`, `generateSecureRandomNonce()`가  
-`MainActivity.kt`에 정의되어 있다.  
-`LoginScreen.kt` 또는 별도 `LoginViewModel`로 이동시켜야 한다.
-
----
-
-#### 7. 비어있는 버튼
+#### 3. NoCredentialException 폴백 로직이 UI에 혼재
 
 ```kotlin
-// LoginScreen.kt:30
-Button({}) {  // ← onClick 비어있음
-    Text("Google Sign in")
+// LoginScreen.kt — BottomSheet completionHandler 내부
+} else if (exception is NoCredentialException) {
+    val googleIdOptionFalse = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(false)
+        ...
+    scope.launch { signIn(requestFalse, context) { ... } }
 }
 ```
 
-`ButtonUI`와 역할이 중복되며 실제 동작이 없다. 제거하거나 통합한다.
+새 request를 직접 생성하고 `signIn()`을 재호출하는 로직은 UI 책임이 아니다.  
+`BottomSheet` 또는 `LoginViewModel`로 이동시켜야 한다.
 
 ---
 
-#### 8. 에러 처리를 `Toast`로만 처리
+#### 6. `@RequiresApi(UPSIDE_DOWN_CAKE)` / `@SuppressLint("NewApi")` 미해결
+
+`ButtonUI`, `BottomSheet`, `signIn()` 모두 API 34 이상 전용이다.  
+`LoginScreen`에서 `@SuppressLint("NewApi")`로 억제 중이나  
+minSdk 34 미만 기기에서는 런타임 크래시가 발생할 수 있다.  
+`build.gradle`의 `minSdk` 값을 확인하고, 34 미만이면 분기 처리 또는 상향을 결정해야 한다.
+
+---
+
+#### 7. 에러 처리를 `Toast`로만 처리
 
 `signIn()` 실패 시 `Toast`와 `Log`만 사용한다.  
-`LoginScreen`의 UI 상태(`StateFlow` 또는 `State<String?>`)로 에러를 노출해  
-화면에 표시하는 방식으로 개선한다.
+`LoginScreen`의 UI 상태(`StateFlow` 또는 `mutableStateOf<String?>`)로 에러를 노출해  
+화면에 텍스트로 표시하는 방식으로 개선한다.
 
 ---
 
@@ -219,15 +199,14 @@ Button({}) {  // ← onClick 비어있음
 
 | 우선순위 | 플랫폼 | 항목 |
 |:--------:|--------|------|
+| 1 | Android | `getIDToken()` 기본값 `""` → `null` 로 수정 (BottomSheet 조건 버그) |
+| 1 | Android | `signIn()` 성공 시 `GoogleIdTokenCredential.idToken` 올바르게 추출 |
 | 1 | iOS | `identityToken!` 강제 언래핑 제거 |
 | 1 | iOS | `onCompletion`에 Keychain 저장 추가 |
-| 1 | Android | `signIn()` 반환값 버그 수정 |
-| 1 | Android | 로그인 성공 후 idToken 추출 로직 추가 |
 | 2 | iOS | `checkStatus()` 로직 수정 (provider별 분기) |
 | 2 | iOS | `googleCheckState()` 중복 `dismiss()` 제거 |
-| 2 | Android | Client ID `strings.xml` 분리 |
-| 2 | Android | `BottomSheet` + `ButtonUI` 중복 정리 |
 | 2 | 공통 | 서버 API 호출 + 토큰 저장 구현 |
 | 3 | iOS | 데드 코드 9개 제거 |
-| 3 | Android | 로그인 로직 `MainActivity.kt`에서 분리 |
+| 3 | Android | NoCredentialException 폴백 로직 LoginViewModel로 이동 |
+| 3 | Android | `minSdk` 확인 후 `@RequiresApi` 대응 방법 결정 |
 | 3 | Android | 에러 처리 UI 상태로 교체 |
