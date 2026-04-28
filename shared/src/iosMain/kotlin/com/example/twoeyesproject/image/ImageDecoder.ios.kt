@@ -4,6 +4,7 @@ package com.example.twoeyesproject.image
 
 import com.example.twoeyesproject.platformspecific.ImageSource
 import com.example.twoeyesproject.platformspecific.PlatformImage
+import com.example.twoeyesproject.platformspecific.PlatformUri
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.CoreGraphics.CGSizeMake
 import platform.Photos.PHImageContentModeAspectFill
@@ -15,7 +16,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 actual class ImageDecoder {
-    actual suspend fun decode(source: ImageSource): PlatformImage {
+    actual suspend fun decode(source: PlatformUri): PlatformImage {
         val manager = PHImageManager.defaultManager()
         val options = PHImageRequestOptions()
 
