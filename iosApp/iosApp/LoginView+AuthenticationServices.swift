@@ -16,7 +16,7 @@ class AppleAuthorizationControllerDelegate: NSObject, ASAuthorizationControllerD
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: any Error) {
-        self.errorStatus = .init(identifier: .apple, error: error)
+        self.errorStatus = .init(provider: .apple, error: error)
     }
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         switch authorization.credential {

@@ -43,8 +43,8 @@ struct AppleUserData: Codable, KeychainSendable {
         self.password = nil
         self.nameComponents = credential.fullName
         self.email = credential.email
-        self.identityToken = String(data: credential.identityToken!, encoding: .utf8)
-        self.authorizationCode = String(data: credential.authorizationCode!, encoding: .utf8)
+        self.identityToken = credential.identityToken?.utf8String
+        self.authorizationCode = credential.authorizationCode?.utf8String
     }
     
     init(credential: ASPasswordCredential) {
