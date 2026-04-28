@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.koin.androidx.navigation)
             implementation(libs.io.insert.koin.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.security.crypto.ktx)
         }
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)

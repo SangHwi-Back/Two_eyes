@@ -23,6 +23,7 @@ coreKtx = "1.7.0"
 coil3 = "3.1.0"
 navigationCompose = "2.8.9"
 room = "2.8.4"
+securityCryptoKtx = "1.1.0"
 sqlite = "2.6.2"
 ksp = "2.3.4"
 googleid = "1.2.0"
@@ -32,6 +33,7 @@ playServicesAuth = "21.5.1"
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-security-crypto-ktx = { module = "androidx.security:security-crypto-ktx", version.ref = "securityCryptoKtx" }
 insert-koin-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroidVersion" }
 io-insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidVersion" }
 jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecode" }
