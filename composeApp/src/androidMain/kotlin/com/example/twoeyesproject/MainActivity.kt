@@ -116,24 +116,24 @@ suspend fun signIn(request: GetCredentialRequest, context: Context): Exception? 
 
     } catch (e: GetCredentialException) {
         Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, failureMessage + ": Failure getting credentials", e)
+        Log.e(TAG, "$failureMessage: Failure getting credentials", e)
 
     } catch (e: GoogleIdTokenParsingException) {
         Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, failureMessage + ": Issue with parsing received GoogleIdToken", e)
+        Log.e(TAG, "$failureMessage: Issue with parsing received GoogleIdToken", e)
 
     } catch (e: NoCredentialException) {
         Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, failureMessage + ": No credentials found", e)
+        Log.e(TAG, "$failureMessage: No credentials found", e)
         return e
 
     } catch (e: GetCredentialCustomException) {
         Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, failureMessage + ": Issue with custom credential request", e)
+        Log.e(TAG, "$failureMessage: Issue with custom credential request", e)
 
     } catch (e: GetCredentialCancellationException) {
         Toast.makeText(context, ": Sign-in cancelled", Toast.LENGTH_SHORT).show()
-        Log.e(TAG, failureMessage + ": Sign-in was cancelled", e)
+        Log.e(TAG, "$failureMessage: Sign-in was cancelled", e)
     }
     return e
 }

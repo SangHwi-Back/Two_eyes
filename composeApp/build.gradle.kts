@@ -1,10 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+}
+
+val properties = Properties().apply {
+    load(project.rootProject.file("local.properties").inputStream())
 }
 
 kotlin {
@@ -51,13 +56,16 @@ kotlin {
 android {
     namespace = "com.example.twoeyesproject"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.twoeyesproject"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "GIS_CLIENT_ID", "\"${properties.getProperty("gis.client.id")}\"")
     }
     packaging {
         resources {

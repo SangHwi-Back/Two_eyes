@@ -31,8 +31,8 @@ fun LoginScreen() {
             Text("Google Sign in")
         }
 
-        BottomSheet("WILL_ADD_LATER")
-        ButtonUI("WILL_ADD_LATER")
+        BottomSheet(BuildConfig.GIS_CLIENT_ID)
+        ButtonUI(BuildConfig.GIS_CLIENT_ID)
     }
 }
 
