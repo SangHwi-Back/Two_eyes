@@ -16,7 +16,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 actual class ImageDecoder {
-    actual suspend fun decode(source: PlatformUri): PlatformImage {
+    actual suspend fun decode(source: ImageSource): PlatformImage {
         val manager = PHImageManager.defaultManager()
         val options = PHImageRequestOptions()
 
