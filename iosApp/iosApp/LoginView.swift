@@ -75,11 +75,10 @@ struct LoginView: View {
                 case .success(let authorization):
                     do {
                         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                            
                             let userData = AppleUserData(credential: appleIDCredential)
                             
-                            self.userData.wrappedValue = .apple(userData)
                             try KeychainModel<AppleUserData>().saveItem(userData)
+                            self.userData.wrappedValue = .apple(userData)
                         }
                         else {
                             throw LoginError.noLoginData

@@ -6,7 +6,6 @@ import android.content.Context
 import android.credentials.GetCredentialException
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -16,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,6 +36,7 @@ import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -49,26 +52,36 @@ fun LoginScreen() {
         mutableStateOf(LoginViewModel(context))
     }
     val scope = rememberCoroutineScope()
+    var errorStatus by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.fillMaxHeight())
+
+        if (errorStatus) {
+            Button({
+                errorStatus = false
+            }) {
+                Text("Remove Error")
+            }
+        }
+
         ButtonUI(BuildConfig.GIS_CLIENT_ID) { request, context ->
             scope.launch {
                 signIn(request, context) { exception, idToken ->
-                    if (idToken != null) {
+                    if (exception is NoCredentialException) {
+                        viewmodel.clearIDToken()
+                    }
+                    else if (exception != null || idToken == null) {
+                        errorStatus = true
+                    }
+                    else {
                         viewmodel.saveIDToken(idToken)
-                    } else {
-                        Toast.makeText(
-                            context,
-                            exception?.toString() ?: "Unknown Error occurs!",
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
                 }
             }
         }
 
-        if (viewmodel.getIDToken() == null) {
+        if (viewmodel.getIDToken().isNullOrEmpty()) {
             BottomSheet(BuildConfig.GIS_CLIENT_ID) { exception, idToken ->
                 if (idToken != null) {
                     viewmodel.saveIDToken(idToken)
@@ -86,8 +99,11 @@ fun LoginScreen() {
 
                     //We will build out this function in a moment
                     scope.launch {
-                        signIn(requestFalse, context) { _, idToken ->
-                            if (idToken != null) {
+                        signIn(requestFalse, context) { exception, idToken ->
+                            if (exception == null || idToken == null) {
+                                errorStatus = true
+                            }
+                            else {
                                 viewmodel.saveIDToken(idToken)
                             }
                         }
@@ -128,51 +144,44 @@ fun ButtonUI(webClientId: String, completionHandler: (GetCredentialRequest, Cont
     )
 }
 
-//This code will not work on Android versions < UPSIDE_DOWN_CAKE when GetCredentialException is
-// thrown.
+// This code will not work on Android versions < UPSIDE_DOWN_CAKE when GetCredentialException is thrown.
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 suspend fun signIn(request: GetCredentialRequest, context: Context, completionHandler: (Exception?, String?) -> Unit) {
-    val credentialManager = CredentialManager.create(context)
-    val failureMessage = "Sign in failed!"
     var e: Exception?
-    //using delay() here helps prevent NoCredentialException when the BottomSheet Flow is triggered
-    //on the initial running of our app
+    // Using delay() here helps prevent NoCredentialException when the BottomSheet Flow is triggered on the initial running of our app
     delay(250)
     try {
+        val credentialManager = CredentialManager.create(context)
         // The getCredential is called to request a credential from Credential Manager.
-        val result = credentialManager.getCredential(
-            request = request,
-            context = context,
-        )
-        completionHandler(null, result.toString())
+        val credential = credentialManager.getCredential(request = request, context = context).credential
 
-        Toast.makeText(context, "Sign in successful!", Toast.LENGTH_SHORT).show()
-        Log.i(TAG, "(☞ﾟヮﾟ)☞  Sign in Successful!  ☜(ﾟヮﾟ☜)")
+        if (credential is GoogleIdTokenCredential) {
+            completionHandler(null, credential.idToken)
+        } else {
+            completionHandler(IllegalStateException("Unexpected credential type: ${credential::class}"), null)
+        }
+
+        Log.i(TAG, "Sign in Successful!")
         return
 
     } catch (exception: GetCredentialException) {
-        Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "$failureMessage: Failure getting credentials", exception)
+        Log.e(TAG, "Sign in failed!: Failure getting credentials", exception)
         e = exception
 
     } catch (exception: GoogleIdTokenParsingException) {
-        Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "$failureMessage: Issue with parsing received GoogleIdToken", exception)
+        Log.e(TAG, "Sign in failed!: Issue with parsing received GoogleIdToken", exception)
         e = exception
 
     } catch (exception: NoCredentialException) {
-        Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "$failureMessage: No credentials found", exception)
+        Log.e(TAG, "Sign in failed!: No credentials found", exception)
         e = exception
 
     } catch (exception: GetCredentialCustomException) {
-        Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "$failureMessage: Issue with custom credential request", exception)
+        Log.e(TAG, "Sign in failed!: Issue with custom credential request", exception)
         e = exception
 
     } catch (exception: GetCredentialCancellationException) {
-        Toast.makeText(context, ": Sign-in cancelled", Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "$failureMessage: Sign-in was cancelled", exception)
+        Log.e(TAG, "Sign in failed!: Sign-in was cancelled", exception)
         e = exception
     }
 

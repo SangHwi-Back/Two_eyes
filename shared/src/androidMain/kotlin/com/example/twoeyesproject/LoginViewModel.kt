@@ -26,6 +26,9 @@ class LoginViewModel(context: Context) {
         putString(ID_TOKEN_KEY, idToken)
     }
 
-    fun getIDToken() = pref.getString(ID_TOKEN_KEY, "")
-}
+    fun clearIDToken() = pref.edit {
+        putString(ID_TOKEN_KEY, null)
+    }
 
+    fun getIDToken() = pref.getString(ID_TOKEN_KEY, null)
+}
