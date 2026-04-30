@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Shared
 import Photos
 
 struct GlassIconButton: View {

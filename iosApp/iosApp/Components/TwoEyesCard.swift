@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Shared
+import shared
 
 struct TwoEyesCard<T: View>: View {
     

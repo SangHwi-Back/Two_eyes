@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Shared
+import shared
 
 @Observable
 class UploadViewModelWrapper {

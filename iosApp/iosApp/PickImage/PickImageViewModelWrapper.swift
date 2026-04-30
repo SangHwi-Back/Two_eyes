@@ -4,7 +4,7 @@
 
 import Observation
 import SwiftUI
-import Shared
+import shared
 import Photos
 
 @Observable

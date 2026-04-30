@@ -66,6 +66,7 @@ kotlin {
         }
     }
     cocoapods {
+        name = "Shared"
         summary = "Shared Module"
         homepage = "https://example.com"
         version = "1.0"

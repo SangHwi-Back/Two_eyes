@@ -7,8 +7,7 @@
 
 import SwiftUI
 import AuthenticationServices
-import GoogleSignInSwift
-import GoogleSignIn
+import shared
 
 enum ProviderIdentifier {
     case apple, google
@@ -95,15 +94,15 @@ struct LoginView: View {
             .frame(maxWidth: .infinity)
             .padding()
             
-            GoogleSignInButton(
-                scheme: .light,
-                style: .wide,
-                state: .normal
-            ) {
-                googleLogin()
-            }
-            .frame(height: 60)
-            .frame(maxWidth: .infinity)
+//            GoogleSignInButton(
+//                scheme: .light,
+//                style: .wide,
+//                state: .normal
+//            ) {
+//                googleLogin()
+//            }
+//            .frame(height: 60)
+//            .frame(maxWidth: .infinity)
             
             Spacer()
         }
@@ -151,42 +150,42 @@ struct LoginView: View {
         }
     }
     
-    func googleCheckState() async throws -> LoginStatusCheckResult {
-        let user = try await GIDSignIn.sharedInstance.restorePreviousSignIn()
-        
-        guard let profile = user.profile else {
-            return .needToSignIn(.google)
-        }
-        
-        let data = GoogleUserData(profile: profile)
-        self.userData.wrappedValue = .google(data)
-        return .authorized
-    }
-    
-    func googleLogin() {
-        guard let presentingViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController else {
-            return
-        }
-        
-        GIDSignIn
-            .sharedInstance
-            .signIn(withPresenting: presentingViewController) { signInResult, error in
-                guard let result = signInResult else {
-                    errorStatus = .init(provider: .google, error: error ?? LoginError.unknown)
-                    return
-                }
-                
-                guard let profile = result.user.profile else {
-                    errorStatus = .init(provider: .google, error: LoginError.noLoginData)
-                    return
-                }
-                
-                let data = GoogleUserData(profile: profile)
-                self.userData.wrappedValue = .google(data)
-                
-                dismiss()
-            }
-    }
+//    func googleCheckState() async throws -> LoginStatusCheckResult {
+//        let user = try await GIDSignIn.sharedInstance.restorePreviousSignIn()
+//        
+//        guard let profile = user.profile else {
+//            return .needToSignIn(.google)
+//        }
+//        
+//        let data = GoogleUserData(profile: profile)
+//        self.userData.wrappedValue = .google(data)
+//        return .authorized
+//    }
+//    
+//    func googleLogin() {
+//        guard let presentingViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController else {
+//            return
+//        }
+//        
+//        GIDSignIn
+//            .sharedInstance
+//            .signIn(withPresenting: presentingViewController) { signInResult, error in
+//                guard let result = signInResult else {
+//                    errorStatus = .init(provider: .google, error: error ?? LoginError.unknown)
+//                    return
+//                }
+//                
+//                guard let profile = result.user.profile else {
+//                    errorStatus = .init(provider: .google, error: LoginError.noLoginData)
+//                    return
+//                }
+//                
+//                let data = GoogleUserData(profile: profile)
+//                self.userData.wrappedValue = .google(data)
+//                
+//                dismiss()
+//            }
+//    }
 }
 
 private enum LoginError: LocalizedError {
@@ -197,19 +196,3 @@ private enum LoginError: LocalizedError {
         return "Try again please!"
     }
 }
-
-/**
- Gradle Sync 하니까 에러가 납니다.
- 
- Executing of '/Users/sanghwiback/.rbenv/shims/pod install' failed with code 1 and message:
-
- Analyzing dependencies
- Downloading dependencies
- Installing AppAuth (1.7.6)
-
- [!] Error installing AppAuth
- [!] /usr/bin/git clone https://github.com/openid/AppAuth-iOS.git /var/folders/vh/zdsm9_k90fb1kmzk26f5f8m40000gn/T/d20260430-5414-rj5v1y --template= --single-branch --depth 1 --branch 1.7.6
-
- Cloning into '/var/folders/vh/zdsm9_k90fb1kmzk26f5f8m40000gn/T/d20260430-5414-rj5v1y'...
- fatal: unable to access 'https://github.com/openid/AppAuth-iOS.git/': Could not resolve host: github.com
- */

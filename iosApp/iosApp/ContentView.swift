@@ -1,6 +1,6 @@
 import SwiftUI
 import Photos
-import Shared
+import shared
 
 struct ContentView: View {
     @Environment(\.database) var database

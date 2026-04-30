@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Shared
+import shared
 
 struct FeedItemView: View {
     let model: FeedItemModel
