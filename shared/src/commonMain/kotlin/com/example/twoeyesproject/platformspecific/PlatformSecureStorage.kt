@@ -18,25 +18,27 @@ inline fun <reified T>PlatformSecureStorage.getObject(key: String): T? {
     return runCatching { Json.decodeFromString<T>(json) }.getOrNull()
 }
 
-@Serializable
-data class AppleUserData(
-    val user: String,
-    val password: String?,
-    val givenName: String?,
-    val familyName: String?,
-    val email: String?,
-    val identityToken: String?,
-    val authorizationCode: String?,
-) {
-    val name: String =
-        (familyName ?: "") + (if (givenName.isNullOrEmpty()) " " else "") + (givenName ?: "")
-}
+sealed class SecureUserData {
+    @Serializable
+    data class AppleUserData(
+        val user: String,
+        val password: String?,
+        val givenName: String?,
+        val familyName: String?,
+        val email: String?,
+        val identityToken: String?,
+        val authorizationCode: String?,
+    ): SecureUserData() {
+        val name: String =
+            (familyName ?: "") + (if (givenName.isNullOrEmpty()) " " else "") + (givenName ?: "")
+    }
 
-@Serializable
-data class GoogleUserData(
-    val url: PlatformUri?,
-    val name: String,
-    val givenName: String?,
-    val familyName: String?,
-    val email: String,
-)
+    @Serializable
+    data class GoogleUserData(
+        val url: PlatformUri?,
+        val name: String,
+        val givenName: String?,
+        val familyName: String?,
+        val email: String,
+    ): SecureUserData()
+}

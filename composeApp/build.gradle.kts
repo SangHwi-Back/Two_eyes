@@ -30,9 +30,6 @@ kotlin {
             implementation(libs.androidx.room.ktx)
             implementation(libs.insert.koin.koin.android)
             implementation(libs.io.insert.koin.koin.androidx.compose)
-            implementation(libs.play.services.auth)
-            implementation(libs.okhttp)
-            implementation(libs.jwtdecode)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

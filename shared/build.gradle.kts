@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    kotlin("native.cocoapods")
     id("kotlin-parcelize")
 }
 
@@ -45,6 +46,10 @@ kotlin {
             implementation(libs.io.insert.koin.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.security.crypto.ktx)
+            implementation(libs.play.services.auth)
+            implementation(libs.okhttp)
+            implementation(libs.jwtdecode)
+            implementation(libs.googleid)
         }
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)
@@ -58,6 +63,16 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+    }
+    cocoapods {
+        summary = "Shared Module"
+        homepage = "https://example.com"
+        version = "1.0"
+        ios.deploymentTarget = "14.0"
+
+        pod("GoogleSignIn") {
+            version = "7.1.0"
         }
     }
 }

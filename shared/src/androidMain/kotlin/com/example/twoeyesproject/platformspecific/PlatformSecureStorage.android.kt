@@ -12,8 +12,6 @@ private const val PREFS_FILE_NAME = "gis_pref_file"
 actual class PlatformSecureStorage: KoinComponent {
     val context: Context = get()
     private val prefs by lazy {
-        // lateinit var context 대신 androidApplicationContext 사용
-        // (Application.onCreate 에서 initPlatformContext 를 반드시 먼저 호출해야 함)
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()

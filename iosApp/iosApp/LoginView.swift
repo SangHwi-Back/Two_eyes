@@ -197,3 +197,19 @@ private enum LoginError: LocalizedError {
         return "Try again please!"
     }
 }
+
+/**
+ Gradle Sync 하니까 에러가 납니다.
+ 
+ Executing of '/Users/sanghwiback/.rbenv/shims/pod install' failed with code 1 and message:
+
+ Analyzing dependencies
+ Downloading dependencies
+ Installing AppAuth (1.7.6)
+
+ [!] Error installing AppAuth
+ [!] /usr/bin/git clone https://github.com/openid/AppAuth-iOS.git /var/folders/vh/zdsm9_k90fb1kmzk26f5f8m40000gn/T/d20260430-5414-rj5v1y --template= --single-branch --depth 1 --branch 1.7.6
+
+ Cloning into '/var/folders/vh/zdsm9_k90fb1kmzk26f5f8m40000gn/T/d20260430-5414-rj5v1y'...
+ fatal: unable to access 'https://github.com/openid/AppAuth-iOS.git/': Could not resolve host: github.com
+ */
