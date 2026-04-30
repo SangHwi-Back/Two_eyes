@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import shared
+import Shared
 
 struct UploadCreateFeedView: View {
     let entity: MergeResultEntity

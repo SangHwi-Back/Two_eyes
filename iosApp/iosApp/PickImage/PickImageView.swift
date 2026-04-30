@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import shared
+import Shared
 import Photos
 
 struct PickImageView: View {

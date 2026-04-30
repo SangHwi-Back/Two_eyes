@@ -7,19 +7,19 @@
 
 import SwiftUI
 import AuthenticationServices
-import shared
+import Shared
 
-@Observable
-class LoginViewModelWrapper {
-    let viewController: UIViewController?
-    
-    private var viewModel: LoginViewModel
-    
-    init(viewController: UIViewController?) {
-        self.viewController = viewController
-        self.viewModel = LoginViewModel(uiContext: viewController)
-    }
-}
+//@Observable
+//class LoginViewModelWrapper {
+//    let viewController: UIViewController?
+//    
+//    private var viewModel: LoginViewModel
+//    
+//    init(viewController: UIViewController?) {
+//        self.viewController = viewController
+//        self.viewModel = LoginViewModel(uiContext: viewController)
+//    }
+//}
 
 struct LoginView: View {
     @Environment(\.dismiss) var dismiss

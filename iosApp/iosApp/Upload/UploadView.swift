@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import shared
+import Shared
 import Photos
 
 private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)

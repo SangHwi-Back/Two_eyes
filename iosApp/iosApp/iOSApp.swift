@@ -1,5 +1,5 @@
 import SwiftUI
-import shared
+import Shared
 import GoogleSignIn
 
 enum TwoEyesUserData {

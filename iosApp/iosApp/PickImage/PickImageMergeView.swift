@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Photos
-import shared
+import Shared
 
 struct PickImageMergeView: View {
     // @Observable 클래스는 @State 로 관리해야 부모 뷰 재생성 시 재초기화되지 않음

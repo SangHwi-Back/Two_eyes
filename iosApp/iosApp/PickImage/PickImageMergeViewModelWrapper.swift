@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 import Photos
-import shared
+import Shared
 
 @Observable
 final class PickImageMergeViewModelWrapper {

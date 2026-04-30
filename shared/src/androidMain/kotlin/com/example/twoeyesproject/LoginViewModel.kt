@@ -2,6 +2,7 @@ package com.example.twoeyesproject
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
@@ -20,11 +21,11 @@ const val GOOGLE_SECURE_USER_DATA_KEY = "GoogleUserData"
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class LoginViewModel(
-    uiContext: PlatformUIContext?
-) {
+    context: PlatformUIContext?
+): ViewModel() {
     val storage = PlatformSecureStorage()
     val checkWorker = PlatformAuthorizationStatusCheckWorker()
-    val signInWorker = PlatformSignInWorker(uiContext)
+    val signInWorker = PlatformSignInWorker(context)
 
     private val _errorStatus = MutableStateFlow<LoginViewErrorStatus?>(null)
     val errorStatus = _errorStatus.asStateFlow()
