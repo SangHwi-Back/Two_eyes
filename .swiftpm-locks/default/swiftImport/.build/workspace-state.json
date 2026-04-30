@@ -9,12 +9,12 @@
         "packageRef" : {
           "identity" : "_shared",
           "kind" : "fileSystem",
-          "location" : "/Users/sanghwiback/Desktop/Developer/private/Two_eyes/.swiftpm-locks/default/swiftImport/subpackages/_shared",
+          "location" : "/Volumes/Mac_SSD/Developer/Two_eyes/.swiftpm-locks/default/swiftImport/subpackages/_shared",
           "name" : "_shared"
         },
         "state" : {
           "name" : "fileSystem",
-          "path" : "/Users/sanghwiback/Desktop/Developer/private/Two_eyes/.swiftpm-locks/default/swiftImport/subpackages/_shared"
+          "path" : "/Volumes/Mac_SSD/Developer/Two_eyes/.swiftpm-locks/default/swiftImport/subpackages/_shared"
         },
         "subpath" : "_shared"
       },
