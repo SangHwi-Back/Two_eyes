@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.jetbrains.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)

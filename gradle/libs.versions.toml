@@ -13,6 +13,7 @@ koinAndroidVersion = "4.2.0"
 kotlin = "2.3.0"
 kotlinxCoroutinesCore = "1.10.2"
 kotlinxCoroutinesTest = "1.9.0"
+kotlinxSerializationJson = "1.9.0"
 ktor = "3.4.1"
 lifecycleViewmodelKtx = "2.10.0"
 material3 = "1.10.0-alpha05"
@@ -36,6 +37,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-security-crypto-ktx = { module = "androidx.security:security-crypto-ktx", version.ref = "securityCryptoKtx" }
 insert-koin-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroidVersion" }
 io-insert-koin-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidVersion" }
+jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecode" }
 koin-android-compat = { module = "io.insert-koin:koin-android-compat", version.ref = "koinAndroidVersion" }
 koin-android-v411 = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }

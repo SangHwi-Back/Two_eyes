@@ -1,34 +1,39 @@
 package com.example.twoeyesproject
 
-import android.content.Context
-import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import com.example.twoeyesproject.platformspecific.AppleUserData
+import com.example.twoeyesproject.platformspecific.GoogleUserData
+import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
+import com.example.twoeyesproject.platformspecific.getObject
+import com.example.twoeyesproject.platformspecific.putObject
 
 const val ID_TOKEN_KEY = "idToken"
-const val GIS_FILE_NAME = "gis_pref_file"
+const val APPLE_SECURE_USER_DATA_KEY = "AppleUserData"
+const val GOOGLE_SECURE_USER_DATA_KEY = "GoogleUserData"
 
-class LoginViewModel(context: Context) {
-    val masterKeyAlias = MasterKey
-        .Builder(context, MasterKey.DEFAULT_MASTER_KEY_ALIAS)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
+class LoginViewModel {
+    private val storage = PlatformSecureStorage()
 
-    val pref = EncryptedSharedPreferences.create(
-        context,
-        GIS_FILE_NAME,
-        masterKeyAlias,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-    )
+    // SAVE Data
+    fun saveIDToken(idToken: String) =
+        storage.putString(ID_TOKEN_KEY, idToken)
+    fun saveAppleUserData(appleUserData: AppleUserData) =
+        storage.putObject(APPLE_SECURE_USER_DATA_KEY, appleUserData)
+    fun saveGoogleUserData(googleUserData: GoogleUserData) =
+        storage.putObject(GOOGLE_SECURE_USER_DATA_KEY, googleUserData)
 
-    fun saveIDToken(idToken: String) = pref.edit {
-        putString(ID_TOKEN_KEY, idToken)
-    }
+    // REMOVE Data
+    fun clearIDToken() =
+        storage.remove(ID_TOKEN_KEY)
+    fun clearAppleUserData() =
+        storage.remove(APPLE_SECURE_USER_DATA_KEY)
+    fun clearGoogleUserData() =
+        storage.remove(GOOGLE_SECURE_USER_DATA_KEY)
 
-    fun clearIDToken() = pref.edit {
-        putString(ID_TOKEN_KEY, null)
-    }
-
-    fun getIDToken() = pref.getString(ID_TOKEN_KEY, null)
+    // FETCH Data
+    fun getIDToken() =
+        storage.getString(ID_TOKEN_KEY)
+    fun getAppleUserData() =
+        storage.getObject<AppleUserData>(APPLE_SECURE_USER_DATA_KEY)
+    fun getGoogleUserData() =
+        storage.getObject<GoogleUserData>(GOOGLE_SECURE_USER_DATA_KEY)
 }

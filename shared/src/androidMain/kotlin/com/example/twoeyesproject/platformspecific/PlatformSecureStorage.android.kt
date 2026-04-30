@@ -7,7 +7,7 @@ import androidx.security.crypto.MasterKey
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-private const val PREFS_FILE_NAME = "two_eyes_secure_prefs"
+private const val PREFS_FILE_NAME = "gis_pref_file"
 
 actual class PlatformSecureStorage: KoinComponent {
     val context: Context = get()

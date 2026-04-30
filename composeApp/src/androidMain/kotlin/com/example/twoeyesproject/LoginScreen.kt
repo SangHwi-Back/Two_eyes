@@ -49,7 +49,7 @@ import java.util.Base64
 fun LoginScreen() {
     val context = LocalContext.current
     val viewmodel: LoginViewModel by remember {
-        mutableStateOf(LoginViewModel(context))
+        mutableStateOf(LoginViewModel())
     }
     val scope = rememberCoroutineScope()
     var errorStatus by remember { mutableStateOf(false) }
