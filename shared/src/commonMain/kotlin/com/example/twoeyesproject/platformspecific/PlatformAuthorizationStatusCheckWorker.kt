@@ -1,6 +1,6 @@
 package com.example.twoeyesproject.platformspecific
 
-expect class PlatformAuthorizationStatusCheckWorker {
+expect class PlatformAuthorizationStatusCheckWorker() {
     suspend fun appleCheckState(userCredential: String): LoginStatusCheckResult
     suspend fun googleCheckState(userCredential: String): LoginStatusCheckResult
 }

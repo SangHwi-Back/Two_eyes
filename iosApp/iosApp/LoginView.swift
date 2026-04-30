@@ -8,45 +8,44 @@
 import SwiftUI
 import AuthenticationServices
 import Shared
-
-//@Observable
-//class LoginViewModelWrapper {
-//    let viewController: UIViewController?
-//    
-//    private var viewModel: LoginViewModel
-//    
-//    init(viewController: UIViewController?) {
-//        self.viewController = viewController
-//        self.viewModel = LoginViewModel(uiContext: viewController)
-//    }
-//}
+import GoogleSignInSwift
 
 struct LoginView: View {
+    
     @Environment(\.dismiss) var dismiss
     @Environment(\.userData) var userData
-//    
-//    @State private var wrapper = LoginViewModelWrapper(viewController: (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController)
+    
+    @State private var wrapper: LoginViewModelWrapper
+    
+    init() {
+        let rootViewController = (
+            UIApplication.shared.connectedScenes.first as? UIWindowScene
+        )?.windows.first?.rootViewController
+        wrapper = .init(viewController: rootViewController)
+    }
     
     var body: some View {
         VStack {
             Spacer()
             
-//            if let errorStatus {
-//                switch errorStatus.provider {
-//                case .apple:
-//                    GlassIconTitleButton(systemName: "apple.logo", title: errorStatus.description) {
-//                        withAnimation(.easeOut(duration: 2.0)) {
-//                            self.errorStatus = nil
-//                        }
-//                    }
-//                case .google:
-//                    GlassIconTitleButton(title: errorStatus.description) {
-//                        withAnimation(.easeOut(duration: 2.0)) {
-//                            self.errorStatus = nil
-//                        }
-//                    }
-//                }
-//            }
+            if let errorStatus = wrapper.errorStatus {
+                switch errorStatus.providerIdentifier {
+                case .apple:
+                    GlassIconTitleButton(systemName: "apple.logo", title: errorStatus.description) {
+                        withAnimation(.easeOut(duration: 2.0)) {
+                            self.wrapper.errorStatus = nil
+                        }
+                    }
+                case .google:
+                    GlassIconTitleButton(title: errorStatus.description) {
+                        withAnimation(.easeOut(duration: 2.0)) {
+                            self.wrapper.errorStatus = nil
+                        }
+                    }
+                default:
+                    EmptyView()
+                }
+            }
             
             SignInWithAppleButton { request in
                 request.requestedScopes = [.email, .fullName]
@@ -56,7 +55,7 @@ struct LoginView: View {
 //                    do {
 //                        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
 //                            let userData = AppleUserData(credential: appleIDCredential)
-//                            
+//
 //                            try KeychainModel<AppleUserData>().saveItem(userData)
 //                            self.userData.wrappedValue = .apple(userData)
 //                        }
@@ -75,19 +74,20 @@ struct LoginView: View {
             .frame(maxWidth: .infinity)
             .padding()
             
-//            GoogleSignInButton(
-//                scheme: .light,
-//                style: .wide,
-//                state: .normal
-//            ) {
-//                googleLogin()
-//            }
-//            .frame(height: 60)
-//            .frame(maxWidth: .infinity)
+            GoogleSignInButton(
+                scheme: .light,
+                style: .wide,
+                state: .normal
+            ) {
+                
+            }
+            .frame(height: 60)
+            .frame(maxWidth: .infinity)
             
             Spacer()
         }
         .task {
+            
 //            await checkStatus()
         }
     }

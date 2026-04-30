@@ -3,7 +3,7 @@ package com.example.twoeyesproject.platformspecific
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-expect class PlatformSecureStorage {
+expect class PlatformSecureStorage() {
     fun putString(key: String, value: String)
     fun getString(key: String): String?
     fun remove(key: String)

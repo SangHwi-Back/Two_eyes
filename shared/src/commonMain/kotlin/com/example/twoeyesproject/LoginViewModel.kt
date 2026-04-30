@@ -1,13 +1,11 @@
 package com.example.twoeyesproject
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
-import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
-import com.example.twoeyesproject.platformspecific.PlatformSignInWorker
 import com.example.twoeyesproject.platformspecific.PlatformUIContext
+import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
+import com.example.twoeyesproject.platformspecific.PlatformSignInWorker
 import com.example.twoeyesproject.platformspecific.ProviderIdentifier
 import com.example.twoeyesproject.platformspecific.SecureUserData
 import com.example.twoeyesproject.platformspecific.getObject
@@ -19,7 +17,6 @@ const val ID_TOKEN_KEY = "idToken"
 const val APPLE_SECURE_USER_DATA_KEY = "AppleUserData"
 const val GOOGLE_SECURE_USER_DATA_KEY = "GoogleUserData"
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class LoginViewModel(
     context: PlatformUIContext?
 ): ViewModel() {

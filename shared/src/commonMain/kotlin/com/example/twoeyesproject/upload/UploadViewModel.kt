@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
-import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.URIByteEncoder
-import com.example.twoeyesproject.platformspecific.parseUri
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
