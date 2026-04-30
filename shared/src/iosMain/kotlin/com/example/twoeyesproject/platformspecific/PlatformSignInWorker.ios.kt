@@ -1,6 +1,5 @@
 package com.example.twoeyesproject.platformspecific
 
-import cocoapods.GoogleSignIn.GIDSignIn
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
@@ -8,6 +7,7 @@ import platform.AuthenticationServices.ASAuthorizationController
 import platform.AuthenticationServices.ASAuthorizationControllerPresentationContextProvidingProtocol
 import platform.AuthenticationServices.ASAuthorizationScopeEmail
 import platform.AuthenticationServices.ASAuthorizationScopeFullName
+import swiftPMImport.TwoEyesProject.shared.GIDSignIn
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 

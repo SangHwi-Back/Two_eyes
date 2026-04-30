@@ -9,85 +9,66 @@ import SwiftUI
 import AuthenticationServices
 import shared
 
-enum ProviderIdentifier {
-    case apple, google
-}
-
-struct LoginErrorStatus: CustomStringConvertible {
-    let provider: ProviderIdentifier
-    let error: any Error
+@Observable
+class LoginViewModelWrapper {
+    let viewController: UIViewController?
     
-    var description: String {
-        "[\(provider)] \(error.localizedDescription)"
-    }
-}
-
-enum LoginStatusCheckResult: Equatable {
-    case authorized,
-         needToSignIn(ProviderIdentifier)
+    private var viewModel: LoginViewModel
     
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        switch lhs {
-        case .authorized:
-            return rhs == .authorized
-        case .needToSignIn(let provider):
-            if case .needToSignIn(let rhsProvider) = rhs {
-                return provider == rhsProvider
-            } else {
-                return false
-            }
-        }
+    init(viewController: UIViewController?) {
+        self.viewController = viewController
+        self.viewModel = LoginViewModel(uiContext: viewController)
     }
 }
 
 struct LoginView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.userData) var userData
-    
-    @State private var errorStatus: LoginErrorStatus? = nil
+//    
+//    @State private var wrapper = LoginViewModelWrapper(viewController: (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController)
     
     var body: some View {
         VStack {
             Spacer()
             
-            if let errorStatus {
-                switch errorStatus.provider {
-                case .apple:
-                    GlassIconTitleButton(systemName: "apple.logo", title: errorStatus.description) {
-                        withAnimation(.easeOut(duration: 2.0)) {
-                            self.errorStatus = nil
-                        }
-                    }
-                case .google:
-                    GlassIconTitleButton(title: errorStatus.description) {
-                        withAnimation(.easeOut(duration: 2.0)) {
-                            self.errorStatus = nil
-                        }
-                    }
-                }
-            }
+//            if let errorStatus {
+//                switch errorStatus.provider {
+//                case .apple:
+//                    GlassIconTitleButton(systemName: "apple.logo", title: errorStatus.description) {
+//                        withAnimation(.easeOut(duration: 2.0)) {
+//                            self.errorStatus = nil
+//                        }
+//                    }
+//                case .google:
+//                    GlassIconTitleButton(title: errorStatus.description) {
+//                        withAnimation(.easeOut(duration: 2.0)) {
+//                            self.errorStatus = nil
+//                        }
+//                    }
+//                }
+//            }
             
             SignInWithAppleButton { request in
                 request.requestedScopes = [.email, .fullName]
             } onCompletion: { result in
-                switch result {
-                case .success(let authorization):
-                    do {
-                        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                            let userData = AppleUserData(credential: appleIDCredential)
-                            
-                            try KeychainModel<AppleUserData>().saveItem(userData)
-                            self.userData.wrappedValue = .apple(userData)
-                        }
-                        else {
-                            throw LoginError.noLoginData
-                        }
-                    } catch {
-                        self.errorStatus = .init(provider: .apple, error: LoginError.unknown)
-                    }
-                case .failure(let error):
-                    self.errorStatus = .init(provider: .apple, error: error)
-                }
+//                switch result {
+//                case .success(let authorization):
+//                    do {
+//                        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+//                            let userData = AppleUserData(credential: appleIDCredential)
+//                            
+//                            try KeychainModel<AppleUserData>().saveItem(userData)
+//                            self.userData.wrappedValue = .apple(userData)
+//                        }
+//                        else {
+//                            throw LoginError.noLoginData
+//                        }
+//                    } catch {
+//                        self.errorStatus = .init(provider: .apple, error: LoginError.unknown)
+//                    }
+//                case .failure(let error):
+//                    self.errorStatus = .init(provider: .apple, error: error)
+//                }
             }
             .signInWithAppleButtonStyle(.black)
             .frame(height: 60)
@@ -107,48 +88,48 @@ struct LoginView: View {
             Spacer()
         }
         .task {
-            await checkStatus()
+//            await checkStatus()
         }
     }
     
-    func checkStatus() async {
-        switch userData.wrappedValue {
-        case .apple(_):
-            do {
-                let check = try await appleCheckState()
-                guard check == .authorized else { return }
-                dismiss()
-            } catch {
-                self.errorStatus = .init(provider: .apple, error: error)
-            }
-        case .google(_):
-            do {
-                let check = try await appleCheckState()
-                guard check == .authorized else { return }
-                dismiss()
-            } catch {
-                self.errorStatus = .init(provider: .google, error: error)
-            }
-        default:
-            return
-        }
-    }
-    
-    func appleCheckState() async throws -> LoginStatusCheckResult {
-        guard case .apple(let userData) = userData.wrappedValue else {
-            return .needToSignIn(.apple)
-        }
-        
-        let state = try await ASAuthorizationAppleIDProvider()
-            .credentialState(forUserID: userData.user)
-        
-        switch state {
-        case .authorized:
-            return .authorized
-        default:
-            return .needToSignIn(.apple)
-        }
-    }
+//    func checkStatus() async {
+//        switch userData.wrappedValue {
+//        case .apple(_):
+//            do {
+//                let check = try await appleCheckState()
+//                guard check == .authorized else { return }
+//                dismiss()
+//            } catch {
+//                self.errorStatus = .init(provider: .apple, error: error)
+//            }
+//        case .google(_):
+//            do {
+//                let check = try await appleCheckState()
+//                guard check == .authorized else { return }
+//                dismiss()
+//            } catch {
+//                self.errorStatus = .init(provider: .google, error: error)
+//            }
+//        default:
+//            return
+//        }
+//    }
+//    
+//    func appleCheckState() async throws -> LoginStatusCheckResult {
+//        guard case .apple(let userData) = userData.wrappedValue else {
+//            return .needToSignIn(.apple)
+//        }
+//        
+//        let state = try await ASAuthorizationAppleIDProvider()
+//            .credentialState(forUserID: userData.user)
+//        
+//        switch state {
+//        case .authorized:
+//            return .authorized
+//        default:
+//            return .needToSignIn(.apple)
+//        }
+//    }
     
 //    func googleCheckState() async throws -> LoginStatusCheckResult {
 //        let user = try await GIDSignIn.sharedInstance.restorePreviousSignIn()

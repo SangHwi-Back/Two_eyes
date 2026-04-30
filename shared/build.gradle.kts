@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -5,7 +6,6 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
-    kotlin("native.cocoapods")
     id("kotlin-parcelize")
 }
 
@@ -15,7 +15,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -25,7 +25,15 @@ kotlin {
             isStatic = true
         }
     }
-    
+
+    swiftPMDependencies {
+        swiftPackage(
+            url = url("https://github.com/google/GoogleSignIn-iOS.git"),
+            version = from("7.1.0"),
+            products = listOf(product("GoogleSignIn")),
+        )
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
@@ -63,17 +71,6 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
-        }
-    }
-    cocoapods {
-        name = "Shared"
-        summary = "Shared Module"
-        homepage = "https://example.com"
-        version = "1.0"
-        ios.deploymentTarget = "14.0"
-
-        pod("GoogleSignIn") {
-            version = "7.1.0"
         }
     }
 }

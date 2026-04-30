@@ -18,6 +18,3 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 /.claude/
-iosApp/Pods/*
-iosApp/Podfile.lock
-shared/shared.podspec
