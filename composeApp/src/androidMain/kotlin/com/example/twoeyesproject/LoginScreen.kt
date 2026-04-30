@@ -6,6 +6,7 @@ import android.content.Context
 import android.credentials.GetCredentialException
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -48,8 +49,9 @@ import java.util.Base64
 @Composable
 fun LoginScreen() {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val viewmodel: LoginViewModel by remember {
-        mutableStateOf(LoginViewModel())
+        mutableStateOf(LoginViewModel(activity))
     }
     val scope = rememberCoroutineScope()
     var errorStatus by remember { mutableStateOf(false) }

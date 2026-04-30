@@ -1,32 +1,31 @@
 package com.example.twoeyesproject
 
 import android.os.Build
-import android.provider.Settings
-import android.service.autofill.UserData
 import androidx.annotation.RequiresApi
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
-import com.example.twoeyesproject.platformspecific.PlatformUri
+import com.example.twoeyesproject.platformspecific.PlatformSignInWorker
+import com.example.twoeyesproject.platformspecific.PlatformUIContext
 import com.example.twoeyesproject.platformspecific.ProviderIdentifier
 import com.example.twoeyesproject.platformspecific.SecureUserData
 import com.example.twoeyesproject.platformspecific.getObject
 import com.example.twoeyesproject.platformspecific.putObject
-import io.ktor.util.reflect.instanceOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.serialization.Serializable
-import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
 
 const val ID_TOKEN_KEY = "idToken"
 const val APPLE_SECURE_USER_DATA_KEY = "AppleUserData"
 const val GOOGLE_SECURE_USER_DATA_KEY = "GoogleUserData"
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-class LoginViewModel {
+class LoginViewModel(
+    uiContext: PlatformUIContext?
+) {
     val storage = PlatformSecureStorage()
     val checkWorker = PlatformAuthorizationStatusCheckWorker()
+    val signInWorker = PlatformSignInWorker(uiContext)
+
     private val _errorStatus = MutableStateFlow<LoginViewErrorStatus?>(null)
     val errorStatus = _errorStatus.asStateFlow()
     private val _userData = MutableStateFlow<SecureUserData?>(null)
@@ -80,10 +79,6 @@ class LoginViewModel {
 
         val result = checkWorker.googleCheckState(googleUserData.email)
         return result
-    }
-
-    fun requestSignIn() {
-
     }
 }
 

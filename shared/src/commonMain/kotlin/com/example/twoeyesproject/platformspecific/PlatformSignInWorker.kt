@@ -1,5 +1,5 @@
 package com.example.twoeyesproject.platformspecific
 
-expect class PlatformSignInWorker {
-    suspend fun signIn(credential: String): SecureUserData
+expect class PlatformSignInWorker(uiContext: PlatformUIContext?) {
+    suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData
 }

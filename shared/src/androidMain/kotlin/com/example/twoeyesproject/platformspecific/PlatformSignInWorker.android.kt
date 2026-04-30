@@ -1,21 +1,21 @@
 package com.example.twoeyesproject.platformspecific
 
-import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import java.security.SecureRandom
 import java.util.Base64
 
 @RequiresApi(Build.VERSION_CODES.O)
-actual class PlatformSignInWorker: KoinComponent {
-    val context: Context = get()
-    actual suspend fun signIn(credential: String): SecureUserData {
+actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUIContext?) {
+    actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData {
+        if (uiContext == null) {
+            throw IllegalStateException("Activity Not Found")
+        }
+
         val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
             .Builder(serverClientId = credential)
             .setNonce(generateSecureRandomNonce())
@@ -25,9 +25,9 @@ actual class PlatformSignInWorker: KoinComponent {
             .addCredentialOption(signInWithGoogleOption)
             .build()
 
-        val credentialManager = CredentialManager.create(context)
+        val credentialManager = CredentialManager.create(uiContext)
         // The getCredential is called to request a credential from Credential Manager.
-        val credential = credentialManager.getCredential(request = request, context = context).credential
+        val credential = credentialManager.getCredential(request = request, context = uiContext).credential
 
         if (credential is GoogleIdTokenCredential) {
             return SecureUserData.GoogleUserData(
