@@ -3,20 +3,29 @@ package com.example.twoeyesproject
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.credentials.GetCredentialException
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,9 +34,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
@@ -45,68 +56,108 @@ import java.security.SecureRandom
 import java.util.Base64
 
 @SuppressLint("NewApi")
-@Preview(showBackground = true)
 @Composable
 fun LoginScreen() {
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val viewmodel: LoginViewModel by remember {
-        mutableStateOf(LoginViewModel(activity))
-    }
+
+    // ViewModel은 remember로 직접 생성 (lifecycle-viewmodel-compose 미사용 시)
+    val viewModel = remember { LoginViewModel(activity) }
     val scope = rememberCoroutineScope()
-    var errorStatus by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize()) {
-        Spacer(Modifier.weight(1f))
+    var isLoading by remember { mutableStateOf(false) }
+    var isSignedIn by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-        if (errorStatus) {
-            Button({
-                errorStatus = false
-            }) {
-                Text("Remove Error")
-            }
-        }
+    // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
+    LaunchedEffect(Unit) {
+        isSignedIn = !viewModel.getIDToken().isNullOrEmpty()
+        if (isSignedIn) return@LaunchedEffect
 
-        ButtonUI(BuildConfig.GIS_CLIENT_ID) { request, context ->
-            scope.launch {
-                signIn(request, context) { exception, idToken ->
-                    if (exception is NoCredentialException) {
-                        viewmodel.clearIDToken()
-                    }
-                    else if (exception != null || idToken == null) {
-                        errorStatus = true
-                    }
-                    else {
-                        viewmodel.saveIDToken(idToken)
-                    }
+        isLoading = true
+        BottomSheetSignIn(
+            webClientId = BuildConfig.GIS_CLIENT_ID,
+            context = context,
+        ) { exception, idToken ->
+            isLoading = false
+            when {
+                idToken != null -> {
+                    viewModel.saveIDToken(idToken)
+                    isSignedIn = true
+                }
+                exception is NoCredentialException -> { /* 저장된 계정 없음 — 수동 로그인 대기 */ }
+                exception != null -> {
+                    scope.launch { snackbarHostState.showSnackbar("로그인 중 오류가 발생했습니다.") }
                 }
             }
         }
+    }
 
-        if (viewmodel.getIDToken().isNullOrEmpty()) {
-            BottomSheet(BuildConfig.GIS_CLIENT_ID) { exception, idToken ->
-                if (idToken != null) {
-                    viewmodel.saveIDToken(idToken)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // 앱 이름 — 화면 중앙
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Two Eyes",
+                    style = MaterialTheme.typography.displayMedium,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "두 시선이 만나는 곳",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            // 하단 버튼 영역
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 40.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // 로딩 중
+                AnimatedVisibility(visible = isLoading, enter = fadeIn(), exit = fadeOut()) {
+                    CircularProgressIndicator(modifier = Modifier.size(36.dp))
                 }
-                else if (exception is NoCredentialException) {
-                    val googleIdOptionFalse: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(BuildConfig.GIS_CLIENT_ID)
-                        .setNonce(generateSecureRandomNonce())
-                        .build()
 
-                    val requestFalse: GetCredentialRequest = GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOptionFalse)
-                        .build()
-
-                    //We will build out this function in a moment
-                    scope.launch {
-                        signIn(requestFalse, context) { exception, idToken ->
-                            if (exception != null || idToken == null) {
-                                errorStatus = true
-                            }
-                            else {
-                                viewmodel.saveIDToken(idToken)
+                // Sign In With Google 버튼
+                AnimatedVisibility(visible = !isLoading && !isSignedIn, enter = fadeIn(), exit = fadeOut()) {
+                    SignInWithGoogleButton {
+                        isLoading = true
+                        scope.launch {
+                            signIn(
+                                request = buildGoogleSignInRequest(),
+                                context = context,
+                            ) { exception, idToken ->
+                                isLoading = false
+                                when {
+                                    idToken != null -> {
+                                        viewModel.saveIDToken(idToken)
+                                        isSignedIn = true
+                                    }
+                                    exception is NoCredentialException -> {
+                                        viewModel.clearIDToken()
+                                        scope.launch { snackbarHostState.showSnackbar("등록된 Google 계정이 없습니다.") }
+                                    }
+                                    exception is GetCredentialCancellationException -> { /* 사용자가 취소 — 아무것도 하지 않음 */ }
+                                    else -> {
+                                        scope.launch { snackbarHostState.showSnackbar("로그인에 실패했습니다. 다시 시도해주세요.") }
+                                    }
+                                }
                             }
                         }
                     }
@@ -116,110 +167,127 @@ fun LoginScreen() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+// MARK: - Sign In With Google 버튼 UI
+
 @Composable
-fun ButtonUI(webClientId: String, completionHandler: (GetCredentialRequest, Context) -> Unit) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
-    val onClick: () -> Unit = {
-        val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-            .Builder(serverClientId = webClientId)
-            .setNonce(generateSecureRandomNonce())
-            .build()
-
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
-            .build()
-
-        coroutineScope.launch {
-            completionHandler(request, context)
-        }
-    }
+private fun SignInWithGoogleButton(onClick: () -> Unit) {
     Image(
         painter = painterResource(id = R.drawable.siwg_button),
-        contentDescription = "",
+        contentDescription = "Sign in with Google",
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .clickable(enabled = true, onClick = onClick)
+            .height(56.dp)
+            .clickable(onClick = onClick)
     )
 }
 
-// This code will not work on Android versions < UPSIDE_DOWN_CAKE when GetCredentialException is thrown.
+// MARK: - Google Credential Manager 헬퍼
+
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-suspend fun signIn(request: GetCredentialRequest, context: Context, completionHandler: (Exception?, String?) -> Unit) {
-    var e: Exception?
-    // Using delay() here helps prevent NoCredentialException when the BottomSheet Flow is triggered on the initial running of our app
+private fun buildGoogleSignInRequest(): GetCredentialRequest {
+    val option = GetSignInWithGoogleOption
+        .Builder(serverClientId = BuildConfig.GIS_CLIENT_ID)
+        .setNonce(generateSecureRandomNonce())
+        .build()
+    return GetCredentialRequest.Builder().addCredentialOption(option).build()
+}
+
+// 저장된 계정으로 자동 로그인 시도 (LaunchedEffect 에서 사용)
+@SuppressLint("NewApi")
+private suspend fun BottomSheetSignIn(
+    webClientId: String,
+    context: Context,
+    completionHandler: (Exception?, String?) -> Unit,
+) {
+    val option = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(true)
+        .setServerClientId(webClientId)
+        .setNonce(generateSecureRandomNonce())
+        .build()
+    val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
+    signIn(request, context, completionHandler)
+}
+
+// 공통 Credential Manager 요청 실행
+@SuppressLint("NewApi")
+suspend fun signIn(
+    request: GetCredentialRequest,
+    context: Context,
+    completionHandler: (Exception?, String?) -> Unit,
+) {
+    // delay 는 초기 실행 시 NoCredentialException 을 방지하기 위해 필요
     delay(250)
     try {
-        val credentialManager = CredentialManager.create(context)
-        // The getCredential is called to request a credential from Credential Manager.
-        val credential = credentialManager.getCredential(request = request, context = context).credential
+        val credential = CredentialManager.create(context)
+            .getCredential(request = request, context = context)
+            .credential
 
         if (credential is GoogleIdTokenCredential) {
+            Log.i(TAG, "Sign in Successful!")
             completionHandler(null, credential.idToken)
         } else {
             completionHandler(IllegalStateException("Unexpected credential type: ${credential::class}"), null)
         }
 
-        Log.i(TAG, "Sign in Successful!")
-        return
-
-    } catch (exception: GetCredentialException) {
-        Log.e(TAG, "Sign in failed!: Failure getting credentials", exception)
-        e = exception
-
-    } catch (exception: GoogleIdTokenParsingException) {
-        Log.e(TAG, "Sign in failed!: Issue with parsing received GoogleIdToken", exception)
-        e = exception
-
-    } catch (exception: NoCredentialException) {
-        Log.e(TAG, "Sign in failed!: No credentials found", exception)
-        e = exception
-
-    } catch (exception: GetCredentialCustomException) {
-        Log.e(TAG, "Sign in failed!: Issue with custom credential request", exception)
-        e = exception
-
-    } catch (exception: GetCredentialCancellationException) {
-        Log.e(TAG, "Sign in failed!: Sign-in was cancelled", exception)
-        e = exception
-    }
-
-    completionHandler(e, null)
-}
-
-//This line is not needed for the project to build, but you will see errors if it is not present.
-//This code will not work on Android versions < UpsideDownCake
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@Composable
-fun BottomSheet(webClientId: String, completionHandler: (Exception?, String?) -> Unit) {
-    val context = LocalContext.current
-
-    // LaunchedEffect is used to run a suspend function when the composable is first launched.
-    LaunchedEffect(Unit) {
-        // Create a Google ID option with filtering by authorized accounts enabled.
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(true)
-            .setServerClientId(webClientId)
-            .setNonce(generateSecureRandomNonce())
-            .build()
-
-        // Create a credential request with the Google ID option.
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
-
-        // Attempt to sign in with the created request using an authorized account
-        signIn(request, context, completionHandler)
+    } catch (e: NoCredentialException) {
+        Log.e(TAG, "Sign in failed: No credentials found", e)
+        completionHandler(e, null)
+    } catch (e: GetCredentialCancellationException) {
+        Log.i(TAG, "Sign in cancelled by user")
+        completionHandler(e, null)
+    } catch (e: GoogleIdTokenParsingException) {
+        Log.e(TAG, "Sign in failed: GoogleIdToken parsing error", e)
+        completionHandler(e, null)
+    } catch (e: GetCredentialCustomException) {
+        Log.e(TAG, "Sign in failed: Custom credential exception", e)
+        completionHandler(e, null)
+    } catch (e: Exception) {
+        Log.e(TAG, "Sign in failed: ${e.message}", e)
+        completionHandler(e, null)
     }
 }
 
-//This function is used to generate a secure nonce to pass in with our request
+// 보안 nonce 생성
 @RequiresApi(Build.VERSION_CODES.O)
 fun generateSecureRandomNonce(byteLength: Int = 32): String {
     val randomBytes = ByteArray(byteLength)
     SecureRandom.getInstanceStrong().nextBytes(randomBytes)
     return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes)
+}
+
+// MARK: - Preview
+
+@SuppressLint("NewApi")
+@Preview(showBackground = true)
+@Composable
+private fun LoginScreenPreview() {
+    MaterialTheme {
+        // Preview 에서는 실제 로그인 동작 없이 레이아웃만 확인
+        Box(Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Two Eyes", style = MaterialTheme.typography.displayMedium)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "두 시선이 만나는 곳",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 40.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.siwg_button),
+                    contentDescription = "Sign in with Google",
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                )
+            }
+        }
+    }
 }
