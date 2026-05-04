@@ -379,7 +379,7 @@ enum class CameraScreenTapType {
 // ── BottomButton ──────────────────────────────────────────────────────────────
 // iOS의 BottomButtonImage: VStack { 아이콘 + 텍스트 } + glassEffect 대응
 @Composable
-private fun BottomButton(
+fun BottomButton(
     icon: @Composable () -> Unit,
     label: String,
     enabled: Boolean = true,

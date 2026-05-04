@@ -23,12 +23,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
+import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
+import com.example.twoeyesproject.ui.upload.UploadCreateFeedView
 import com.example.twoeyesproject.ui.upload.UploadScreen
 import com.example.twoeyesproject.upload.UploadViewModel
 import org.koin.compose.koinInject
@@ -114,7 +117,14 @@ private fun AppScaffold(navController: NavHostController) {
             }
 
             composable(ROUTE_UPLOAD) {
-                UploadScreen(viewModel = UploadViewModel(db))
+                UploadScreen(
+                    viewModel = UploadViewModel(db),
+                    onNext = { navController.navigate(it) }
+                )
+            }
+
+            composable<MergeResultEntity> { navBackStackEntry ->
+                UploadCreateFeedView(navBackStackEntry.toRoute<MergeResultEntity>())
             }
 
             composable(ROUTE_CAMERA) {

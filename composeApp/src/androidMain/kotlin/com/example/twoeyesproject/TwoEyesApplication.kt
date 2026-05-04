@@ -11,6 +11,7 @@ class TwoEyesApplication : Application() {
         startKoin {
             androidContext(this@TwoEyesApplication)
             modules(sharedAndroidModule)
+
         }
     }
 }

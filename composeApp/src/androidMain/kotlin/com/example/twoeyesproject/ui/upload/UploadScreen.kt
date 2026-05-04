@@ -23,9 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material.icons.outlined.ViewList
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -68,7 +66,8 @@ enum class UploadListType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadScreen(
-    viewModel: UploadViewModel = viewModel()
+    viewModel: UploadViewModel = viewModel(),
+    onNext: (MergeResultEntity) -> Unit,
 ) {
     val entities by viewModel.mergeEntities.collectAsStateWithLifecycle()
     // val → var: 전환 가능하도록
@@ -77,9 +76,7 @@ fun UploadScreen(
     fun onTap(type: UploadListTapType, entity: MergeResultEntity) {
         when (type) {
             UploadListTapType.DELETE -> viewModel.deleteEntity(entity)
-            UploadListTapType.LIST -> {
-                // TODO()
-            }
+            UploadListTapType.LIST -> onNext(entity)
         }
     }
 
