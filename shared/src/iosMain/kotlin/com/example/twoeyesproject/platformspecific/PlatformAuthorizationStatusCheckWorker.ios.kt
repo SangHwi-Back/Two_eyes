@@ -1,12 +1,16 @@
 package com.example.twoeyesproject.platformspecific
 
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.internal.resumeCancellableWith
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
 import platform.AuthenticationServices.ASAuthorizationAppleIDProviderCredentialState
 import platform.darwin.NSObject
+import swiftPMImport.TwoEyesProject.shared.GIDSignIn
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+@OptIn(ExperimentalForeignApi::class)
 actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
     actual suspend fun appleCheckState(userCredential: String): LoginStatusCheckResult = suspendCancellableCoroutine { continuation ->
         val provider = ASAuthorizationAppleIDProvider()
@@ -14,14 +18,32 @@ actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
             error != null
                 -> continuation.resumeWithException(IllegalStateException(error.toString()))
             state == ASAuthorizationAppleIDProviderCredentialState.ASAuthorizationAppleIDProviderCredentialAuthorized
-                -> continuation.resume(LoginStatusCheckResult.Authorized())
+                -> continuation.resume(LoginStatusCheckResult.Authorized(null))
             else
                 -> continuation.resume(LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE))
         } }
     }
 
-    actual suspend fun googleCheckState(userCredential: String): LoginStatusCheckResult {
-        return LoginStatusCheckResult.NotImplementedYet(ProviderIdentifier.APPLE)
+    actual suspend fun googleCheckState(userCredential: String): LoginStatusCheckResult = suspendCancellableCoroutine { continuation ->
+        GIDSignIn.sharedInstance.restorePreviousSignInWithCompletion { googleUser, error ->
+            if (error != null) {
+                continuation.resumeWithException(Throwable(error.localizedDescription))
+                return@restorePreviousSignInWithCompletion
+            }
+            val profile = googleUser?.profile
+
+            if (profile != null) {
+                continuation.resume(LoginStatusCheckResult.Authorized(SecureUserData.GoogleUserData(
+                    url = parseUri(profile.imageURLWithDimension(0u)?.absoluteString ?: ""),
+                    name = profile.name,
+                    givenName = profile.givenName,
+                    familyName = profile.familyName,
+                    email = profile.email
+                )))
+            } else {
+                continuation.resume(LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.GOOGLE))
+            }
+        }
     }
 }
 

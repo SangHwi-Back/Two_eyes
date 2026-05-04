@@ -2,6 +2,7 @@ package com.example.twoeyesproject
 
 import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
+import com.example.twoeyesproject.platformspecific.PlatformASAuthorizationControllerDelegate
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.PlatformUIContext
 import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
@@ -23,11 +24,14 @@ class LoginViewModel(
     val storage = PlatformSecureStorage()
     val checkWorker = PlatformAuthorizationStatusCheckWorker()
     val signInWorker = PlatformSignInWorker(context)
+    val delegate = PlatformASAuthorizationControllerDelegate()
 
     private val _errorStatus = MutableStateFlow<LoginViewErrorStatus?>(null)
     val errorStatus = _errorStatus.asStateFlow()
     private val _userData = MutableStateFlow<SecureUserData?>(null)
     val userData = _userData.asStateFlow()
+    private val _loginEffect = MutableStateFlow<LoginStatusCheckResult?>(null)
+    val loginEffect = _loginEffect.asStateFlow()
 
     // SAVE Data
     fun saveIDToken(idToken: String) =
@@ -68,6 +72,22 @@ class LoginViewModel(
             ?: return LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE)
 
         val result = checkWorker.appleCheckState(appleUserData.user)
+        if (result is LoginStatusCheckResult.Authorized) {
+            if (result.userInfo != null) {
+                storage.putObject(APPLE_SECURE_USER_DATA_KEY, result.userInfo)
+            } else {
+                delegate.authorizationHandler = { user ->
+                    if (user != null) {
+                        storage.putObject(APPLE_SECURE_USER_DATA_KEY, user)
+                        _loginEffect.value = LoginStatusCheckResult.Authorized(user)
+                    }
+                    else
+                        _loginEffect.value = LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE)
+                }
+                signInWorker.signInWithApple(delegate)
+            }
+        }
+
         return result
     }
 

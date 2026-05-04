@@ -46,4 +46,6 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         SecureRandom.getInstanceStrong().nextBytes(randomBytes)
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes)
     }
+
+    actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {}
 }

@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.platformspecific
 
 expect class PlatformSignInWorker(uiContext: PlatformUIContext?) {
+    fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate)
     suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData
 }

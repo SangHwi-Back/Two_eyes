@@ -8,7 +8,6 @@
 import SwiftUI
 import AuthenticationServices
 import Shared
-import GoogleSignInSwift
 
 struct LoginView: View {
     
@@ -74,15 +73,15 @@ struct LoginView: View {
             .frame(maxWidth: .infinity)
             .padding()
             
-            GoogleSignInButton(
-                scheme: .light,
-                style: .wide,
-                state: .normal
-            ) {
-                
-            }
-            .frame(height: 60)
-            .frame(maxWidth: .infinity)
+//            GoogleSignInButton(
+//                scheme: .light,
+//                style: .wide,
+//                state: .normal
+//            ) {
+//                
+//            }
+//            .frame(height: 60)
+//            .frame(maxWidth: .infinity)
             
             Spacer()
         }

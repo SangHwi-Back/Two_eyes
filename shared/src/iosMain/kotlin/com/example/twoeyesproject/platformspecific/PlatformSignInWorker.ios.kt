@@ -4,6 +4,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
 import platform.AuthenticationServices.ASAuthorizationController
+import platform.AuthenticationServices.ASAuthorizationControllerDelegateProtocol
 import platform.AuthenticationServices.ASAuthorizationControllerPresentationContextProvidingProtocol
 import platform.AuthenticationServices.ASAuthorizationScopeEmail
 import platform.AuthenticationServices.ASAuthorizationScopeFullName
@@ -42,13 +43,14 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
             }
         }
 
-    suspend fun signInWithApple(): SecureUserData.AppleUserData = suspendCancellableCoroutine {
+    actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {
         val provider = uiContext as? ASAuthorizationControllerPresentationContextProvidingProtocol
             ?: throw IllegalArgumentException("Please implement ASAuthorizationControllerPresentationContextProviding!!")
         val request = ASAuthorizationAppleIDProvider().createRequest().apply {
             requestedScopes = listOf(ASAuthorizationScopeEmail, ASAuthorizationScopeFullName)
         }
         val controller = ASAuthorizationController(listOf(request))
+        controller.delegate = delegate
         controller.presentationContextProvider = provider
         controller.performRequests()
     }

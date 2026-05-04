@@ -10,7 +10,7 @@ enum class ProviderIdentifier {
 }
 
 sealed class LoginStatusCheckResult {
-    class Authorized: LoginStatusCheckResult()
+    data class Authorized(val userInfo: SecureUserData?): LoginStatusCheckResult()
     data class NeedToSignIn(val identifier: ProviderIdentifier): LoginStatusCheckResult()
     class NotImplementedYet(val identifier: ProviderIdentifier): LoginStatusCheckResult()
 }
