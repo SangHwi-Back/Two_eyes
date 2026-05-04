@@ -25,4 +25,8 @@ class UploadViewModelWrapper {
             }
         }) { _ in }
     }
+    
+    func uploadEntity(_ dto: UploadMergedDTO) async throws {
+        
+    }
 }

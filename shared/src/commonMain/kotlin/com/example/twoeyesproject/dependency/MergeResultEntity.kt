@@ -2,6 +2,7 @@ package com.example.twoeyesproject.dependency
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.twoeyesproject.platformspecific.ImageSource
 
 @Entity
 data class MergeResultEntity(
@@ -12,4 +13,10 @@ data class MergeResultEntity(
     val name: String?,
     val date: String,
     var isUploaded: Boolean,
+)
+
+data class UploadMergedDTO(
+    var imageIds: List<ImageSource>,
+    var tags: List<String>,
+    var contents: String
 )

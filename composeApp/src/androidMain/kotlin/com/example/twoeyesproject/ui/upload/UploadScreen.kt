@@ -58,7 +58,7 @@ import com.example.twoeyesproject.upload.UploadViewModel
 private val ButtonSizeModifier = Modifier.size(width = 80.dp, height = 42.dp)
 
 enum class UploadListTapType {
-    DELETE, UPLOAD
+    DELETE, LIST
 }
 
 enum class UploadListType {
@@ -77,7 +77,9 @@ fun UploadScreen(
     fun onTap(type: UploadListTapType, entity: MergeResultEntity) {
         when (type) {
             UploadListTapType.DELETE -> viewModel.deleteEntity(entity)
-            UploadListTapType.UPLOAD -> viewModel.uploadEntity(entity)
+            UploadListTapType.LIST -> {
+                // TODO()
+            }
         }
     }
 
@@ -136,9 +138,15 @@ private fun UploadScreenListCard(
                 .border(1.dp, Color(AppColors.Primary.toInt()), RoundedCornerShape(8.dp)),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ImageSlot(uri = entity.leadingImageId.toUri(),  modifier = Modifier.weight(1f).fillMaxHeight())
-            ImageSlot(uri = entity.trailingImageId.toUri(), modifier = Modifier.weight(1f).fillMaxHeight())
-            ImageSlot(uri = entity.resultId.toUri(),        modifier = Modifier.weight(1f).fillMaxHeight())
+            ImageSlot(uri = entity.leadingImageId.toUri(),  modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight())
+            ImageSlot(uri = entity.trailingImageId.toUri(), modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight())
+            ImageSlot(uri = entity.resultId.toUri(),        modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight())
         }
 
         OutlinedButton(
@@ -146,13 +154,6 @@ private fun UploadScreenListCard(
             onClick = { onClick(UploadListTapType.DELETE) }
         ) {
             Text("Delete")
-        }
-
-        FilledTonalButton(
-            modifier = ButtonSizeModifier.padding(start = 8.dp),
-            onClick = { onClick(UploadListTapType.UPLOAD) }
-        ) {
-            Text("Upload")
         }
     }
 }
@@ -183,15 +184,6 @@ private fun UploadScreenGridCard(
             ) {
                 Icon(Icons.Outlined.Delete, contentDescription = "삭제")
             }
-        }
-
-        FilledTonalButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 8.dp),
-            onClick = { onClick(UploadListTapType.UPLOAD) }
-        ) {
-            Text("Upload")
         }
     }
 }

@@ -37,8 +37,8 @@ struct ContentView: View {
                         switch route {
                         case .main(let database):
                             UploadView(database: database)
-                        case .upload(let entity):
-                            UploadCreateFeedView(entity: entity)
+                        case .upload(let entity, let vm):
+                            UploadCreateFeedView(entity: entity, vm: vm)
                         }
                     }
                 }
@@ -78,7 +78,7 @@ enum NavHost {
     
     enum Upload: Hashable {
         case main(AppDatabase)
-        case upload(MergeResultEntity)
+        case upload(MergeResultEntity, UploadViewModel)
     }
 }
 

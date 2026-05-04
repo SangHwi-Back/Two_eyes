@@ -8,3 +8,5 @@ actual fun String.toImageSource(): ImageSource? {
     val fetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(listOf(this), null)
     return fetchResult.firstObject as PHAsset?
 }
+
+actual fun ImageSource.convertToString(): String = this.localIdentifier

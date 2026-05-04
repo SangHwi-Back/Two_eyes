@@ -11,7 +11,7 @@ import Photos
 
 private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 enum UploadableListViewType { case small, large }
-enum UploadViewTapType { case delete, upload }
+enum UploadViewTapType { case delete, list }
 
 struct UploadView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Upload>
@@ -70,8 +70,8 @@ struct UploadView: View {
         switch tap {
         case .delete:
             wrapper.viewModel.deleteEntity(entity: entity)
-        case .upload:
-            wrapper.viewModel.uploadEntity(entity: entity)
+        case .list:
+            navHost.push(to: .upload(entity, wrapper.viewModel))
         }
     }
 }
@@ -90,13 +90,12 @@ struct UploadListSmallCard: View {
                 .padding(10)
             }
             .frame(height: thumbnailSize.height + 20)
+            .onTapGesture {
+                onTap(.list)
+            }
 
             GlassIconButton(systemName: "trash.circle") {
                 onTap(.delete)
-            }
-
-            GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                onTap(.upload)
             }
         }
     }
@@ -117,11 +116,6 @@ struct UploadGridCard: View {
                 HStack(spacing: 20) {
                     GlassIconButton(systemName: "trash.circle") {
                         onTap(.delete)
-                    }
-                    .glassEffectUnion(id: "card-actions", namespace: namespace)
-
-                    GlassIconButton(systemName: "square.and.arrow.up.circle") {
-                        onTap(.upload)
                     }
                     .glassEffectUnion(id: "card-actions", namespace: namespace)
                 }

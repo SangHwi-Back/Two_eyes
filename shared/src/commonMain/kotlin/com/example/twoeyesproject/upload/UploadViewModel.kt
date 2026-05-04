@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
+import com.example.twoeyesproject.dependency.UploadMergedDTO
 import com.example.twoeyesproject.image.URIByteEncoder
+import com.example.twoeyesproject.platformspecific.convertToString
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -31,20 +33,19 @@ class UploadViewModel(db: AppDatabase): ViewModel() {
         }
     }
 
-    fun uploadEntity(entity: MergeResultEntity) {
+    fun uploadEntity(dto: UploadMergedDTO) {
         viewModelScope.launch {
             var result: ByteArray = byteArrayOf()
+            for (id in dto.imageIds) {
+                val item = URIByteEncoder(id.convertToString()).uriToByteArray()
+                if (item != null) {
+                    result += item
+                } else {
+                    throw RuntimeException()
+                }
+            }
 
-            val leading = URIByteEncoder(entity.leadingImageId).uriToByteArray()
-            if (leading != null) result += leading
-
-            val trailing = URIByteEncoder(entity.trailingImageId).uriToByteArray()
-            if (trailing != null) result += trailing
-
-            val merged = URIByteEncoder(entity.resultId).uriToByteArray()
-            if (merged != null) result += merged
-
-            client.createFeed(accessToken = "", content = null, tags = listOf(), imageBytes = result)
+            client.createFeed(accessToken = "", content = dto.contents, tags = dto.tags, imageBytes = result)
         }
     }
 }
