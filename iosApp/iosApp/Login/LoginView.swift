@@ -20,50 +20,39 @@ struct LoginView: View {
         let rootViewController = (
             UIApplication.shared.connectedScenes.first as? UIWindowScene
         )?.windows.first?.rootViewController
-        wrapper = .init(viewController: rootViewController)
-    }
-    
-    fileprivate func checkAppleStatus() async {
-        do {
-            let result = try await wrapper.checkStatus(.apple)
-            if result is LoginStatusCheckResult.Authorized {
-                dismiss()
-            }
-        } catch {
-            wrapper.errorStatus = .init(
-                providerIdentifier: .apple,
-                error: error as? KotlinException
-            )
-        }
+        _wrapper = State(initialValue: LoginViewModelWrapper(viewController: rootViewController))
     }
     
     var body: some View {
         VStack {
             Spacer()
             
+            // 로그인 오류 표시 — 탭하면 닫힘
             if let errorStatus = wrapper.errorStatus {
                 switch errorStatus.providerIdentifier {
                 case .apple:
                     GlassIconTitleButton(systemName: "apple.logo", title: errorStatus.description) {
                         withAnimation(.easeOut(duration: 2.0)) {
-                            self.wrapper.errorStatus = nil
+                            wrapper.errorStatus = nil
                         }
                     }
                 case .google:
                     GlassIconTitleButton(title: errorStatus.description) {
                         withAnimation(.easeOut(duration: 2.0)) {
-                            self.wrapper.errorStatus = nil
+                            wrapper.errorStatus = nil
                         }
                     }
                 default:
                     EmptyView()
                 }
             }
-            Button(action: {
+            
+            // Apple 로그인 버튼
+            Button {
                 wrapper.signInWithApple()
-            }) {
+            } label: {
                 HStack {
-                    Image(systemName: "applelogo")
+                    Image(systemName: "apple.logo")
                     Text("Sign in with Apple")
                 }
                 .padding()
@@ -75,6 +64,7 @@ struct LoginView: View {
                 .padding()
             }
             
+            // Google 로그인 버튼
             GlassIconTitleButton(title: "Google Sign In") {
                 wrapper.signInWithGoogle()
             }
@@ -86,14 +76,35 @@ struct LoginView: View {
         .task {
             await checkAppleStatus()
         }
+        // Apple Sign In 완료 시 _userData flow → wrapper.userData 변경 → 자동 dismiss
+        .onChange(of: wrapper.userData) { _, newValue in
+            guard let newValue else { return }
+            if let appleData = newValue as? SecureUserData.AppleUserData {
+                userData.wrappedValue = .apple(appleData)
+            } else if let googleData = newValue as? SecureUserData.GoogleUserData {
+                userData.wrappedValue = .google(googleData)
+            }
+            dismiss()
+        }
     }
-}
-
-private enum LoginError: LocalizedError {
-    case unknown
-    case noLoginData
     
-    var errorDescription: String? {
-        return "Try again please!"
+    // 앱 시작 시 저장된 Apple 자격증명이 여전히 유효한지 확인
+    private func checkAppleStatus() async {
+        do {
+            let result = try await wrapper.checkStatus(.apple)
+            
+            if result is LoginStatusCheckResult.Authorized {
+                // 유효하면 저장소에서 데이터를 읽어 앱 상태 갱신 후 dismiss
+                if let stored = PlatformSecureStorage().getObject(key: "AppleUserData") as? SecureUserData.AppleUserData {
+                    userData.wrappedValue = .apple(stored)
+                }
+                dismiss()
+            }
+        } catch {
+            wrapper.errorStatus = .init(
+                providerIdentifier: .apple,
+                error: error as? KotlinException
+            )
+        }
     }
 }

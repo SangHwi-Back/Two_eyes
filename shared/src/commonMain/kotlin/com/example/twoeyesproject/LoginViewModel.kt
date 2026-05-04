@@ -68,18 +68,20 @@ class LoginViewModel(
     suspend fun appleCheckStatus(): LoginStatusCheckResult {
         if (getPlatform().name.startsWith("Android"))
             return LoginStatusCheckResult.NotImplementedYet(ProviderIdentifier.APPLE)
-        val appleUserData = this.userData.value as? SecureUserData.AppleUserData
+
+        // _userData 가 null 이면 저장소에서 로드 (앱 재시작 후 flow 가 초기화된 경우)
+        val appleUserData = (_userData.value as? SecureUserData.AppleUserData)
+            ?: storage.getObject<SecureUserData.AppleUserData>(APPLE_SECURE_USER_DATA_KEY)
             ?: return LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE)
 
         val result = checkWorker.appleCheckState(appleUserData.user)
-        // iOS 의 경우 기존에 이미 로그인한 경우 SignInWithApple 을 통해 로그인 한 유저 정보를 불러와야 한다.
-        if (result is LoginStatusCheckResult.Authorized) {
-            if (result.userInfo != null) {
-                storage.putObject(APPLE_SECURE_USER_DATA_KEY, result.userInfo)
-                return LoginStatusCheckResult.Authorized(result.userInfo)
-            } else {
-                signInWithApple()
-            }
+
+        // Apple 은 재로그인 없이 자격증명 상태만 확인 (userInfo 는 최초 로그인 시에만 반환됨)
+        if (result is LoginStatusCheckResult.Authorized && result.userInfo != null) {
+            val freshData = result.userInfo as? SecureUserData.AppleUserData ?: appleUserData
+            storage.putObject(APPLE_SECURE_USER_DATA_KEY, freshData)
+            _userData.value = freshData
+            return LoginStatusCheckResult.Authorized(freshData)
         }
 
         return result
@@ -87,8 +89,12 @@ class LoginViewModel(
 
     fun signInWithApple() {
         delegate.authorizationHandler = { user ->
-            if (user != null) storage.putObject(APPLE_SECURE_USER_DATA_KEY, user)
-            else _errorStatus.value = LoginViewErrorStatus(ProviderIdentifier.APPLE, null)
+            if (user != null) {
+                storage.putObject(APPLE_SECURE_USER_DATA_KEY, user)
+                _userData.value = user  // flow 갱신 → wrapper.userData 변경 → 뷰 자동 dismiss
+            } else {
+                _errorStatus.value = LoginViewErrorStatus(ProviderIdentifier.APPLE, null)
+            }
         }
         signInWorker.signInWithApple(delegate)
     }

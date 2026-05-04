@@ -57,7 +57,7 @@ fun LoginScreen() {
     var errorStatus by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        Spacer(Modifier.fillMaxHeight())
+        Spacer(Modifier.weight(1f))
 
         if (errorStatus) {
             Button({
@@ -102,7 +102,7 @@ fun LoginScreen() {
                     //We will build out this function in a moment
                     scope.launch {
                         signIn(requestFalse, context) { exception, idToken ->
-                            if (exception == null || idToken == null) {
+                            if (exception != null || idToken == null) {
                                 errorStatus = true
                             }
                             else {

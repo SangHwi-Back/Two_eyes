@@ -6,6 +6,9 @@ import platform.AuthenticationServices.ASAuthorizationController
 import platform.AuthenticationServices.ASAuthorizationControllerDelegateProtocol
 import platform.AuthenticationServices.ASPasswordCredential
 import platform.Foundation.NSError
+import platform.Foundation.NSString
+import platform.Foundation.NSUTF8StringEncoding
+import platform.Foundation.create
 import platform.darwin.NSObject
 
 actual class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizationControllerDelegateProtocol {
@@ -27,8 +30,12 @@ actual class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizat
                 givenName = credential.fullName?.givenName,
                 familyName = credential.fullName?.familyName,
                 email = credential.email,
-                identityToken = credential.identityToken.toString(),
-                authorizationCode = credential.authorizationCode.toString()
+                identityToken = credential.identityToken?.let {
+                    NSString.create(data = it, encoding = NSUTF8StringEncoding)?.toString()
+                },
+                authorizationCode = credential.authorizationCode?.let {
+                    NSString.create(data = it, encoding = NSUTF8StringEncoding)?.toString()
+                }
             ))
         }
         else if (credential is ASPasswordCredential) {

@@ -4,16 +4,20 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
 import platform.AuthenticationServices.ASAuthorizationController
-import platform.AuthenticationServices.ASAuthorizationControllerDelegateProtocol
 import platform.AuthenticationServices.ASAuthorizationControllerPresentationContextProvidingProtocol
 import platform.AuthenticationServices.ASAuthorizationScopeEmail
 import platform.AuthenticationServices.ASAuthorizationScopeFullName
+import platform.UIKit.UIApplication
+import platform.UIKit.UIViewController
+import platform.UIKit.UIWindow
+import platform.darwin.NSObject
 import swiftPMImport.TwoEyesProject.shared.GIDSignIn
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 @OptIn(ExperimentalForeignApi::class)
 actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUIContext?) {
+
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData =
         suspendCancellableCoroutine { continuation ->
             if (uiContext != null) {
@@ -27,14 +31,16 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
                                 continuation.resumeWithException(IllegalStateException("Google Sign-in failed"))
                             else -> {
                                 val user = result.user
-                                val uriString = user.profile?.imageURLWithDimension(0u)?.toString() ?: ""
-                                continuation.resume(SecureUserData.GoogleUserData(
-                                    name = user.profile?.name ?: "",
-                                    email = user.profile?.email ?: "",
-                                    givenName = user.profile?.givenName,
-                                    familyName = user.profile?.familyName,
-                                    url = parseUri(uriString)
-                                ))
+                                val photoUrl = user.profile?.imageURLWithDimension(0u)?.absoluteString
+                                continuation.resume(
+                                    SecureUserData.GoogleUserData(
+                                        url = parseUri(photoUrl ?: ""),
+                                        name = user.profile?.name ?: "",
+                                        givenName = user.profile?.givenName,
+                                        familyName = user.profile?.familyName,
+                                        email = user.profile?.email ?: "",
+                                    )
+                                )
                             }
                         }
                     }
@@ -44,14 +50,25 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         }
 
     actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {
-        val provider = uiContext as? ASAuthorizationControllerPresentationContextProvidingProtocol
-            ?: throw IllegalArgumentException("Please implement ASAuthorizationControllerPresentationContextProviding!!")
         val request = ASAuthorizationAppleIDProvider().createRequest().apply {
             requestedScopes = listOf(ASAuthorizationScopeEmail, ASAuthorizationScopeFullName)
         }
         val controller = ASAuthorizationController(listOf(request))
         controller.delegate = delegate
-        controller.presentationContextProvider = provider
+
+        // UIViewController 는 ASAuthorizationControllerPresentationContextProviding 을 직접 구현하지 않으므로
+        // 익명 NSObject 구현체를 통해 window 를 제공
+        val window: UIWindow = uiContext?.view?.window
+            ?: UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow
+            ?: UIWindow()
+
+        val presentationProvider = object : NSObject(), ASAuthorizationControllerPresentationContextProvidingProtocol {
+            override fun presentationAnchorForAuthorizationController(
+                controller: ASAuthorizationController
+            ): UIWindow = window
+        }
+
+        controller.presentationContextProvider = presentationProvider
         controller.performRequests()
     }
 }
