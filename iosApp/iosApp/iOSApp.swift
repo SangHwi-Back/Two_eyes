@@ -1,10 +1,9 @@
 import SwiftUI
 import Shared
-import GoogleSignIn
 
 enum TwoEyesUserData {
-    case apple(AppleUserData)
-    case google(GoogleUserData)
+    case apple(SecureUserData.AppleUserData)
+    case google(SecureUserData.GoogleUserData)
 }
 
 @main
@@ -21,14 +20,13 @@ struct iOSApp: App {
                 .environment(\.mergeResultDao, database.getMergeResultDao())
                 .environment(\.apiClient, apiClient)
                 .environment(\.userData, $userData)
-                .onOpenURL(perform:{ url in
-                    GIDSignIn.sharedInstance.handle(url)
-                })
                 .task {
-                    if let userData = try? KeychainModel<AppleUserData>().readItem() {
+                    let storage = PlatformSecureStorage()
+                    
+                    if let userData = storage.getObject(key: "AppleUserData") as? SecureUserData.AppleUserData {
                         self.userData = .apple(userData)
                     }
-                    else if let userData = try? KeychainModel<GoogleUserData>().readItem() {
+                    else if let userData = storage.getObject(key: "GoogleUserData") as? SecureUserData.GoogleUserData {
                         self.userData = .google(userData)
                     }
                 }

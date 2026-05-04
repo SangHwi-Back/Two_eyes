@@ -30,8 +30,6 @@ class LoginViewModel(
     val errorStatus = _errorStatus.asStateFlow()
     private val _userData = MutableStateFlow<SecureUserData?>(null)
     val userData = _userData.asStateFlow()
-    private val _loginEffect = MutableStateFlow<LoginStatusCheckResult?>(null)
-    val loginEffect = _loginEffect.asStateFlow()
 
     // SAVE Data
     fun saveIDToken(idToken: String) =
@@ -68,27 +66,31 @@ class LoginViewModel(
     }
 
     suspend fun appleCheckStatus(): LoginStatusCheckResult {
+        if (getPlatform().name.startsWith("Android"))
+            return LoginStatusCheckResult.NotImplementedYet(ProviderIdentifier.APPLE)
         val appleUserData = this.userData.value as? SecureUserData.AppleUserData
             ?: return LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE)
 
         val result = checkWorker.appleCheckState(appleUserData.user)
+        // iOS 의 경우 기존에 이미 로그인한 경우 SignInWithApple 을 통해 로그인 한 유저 정보를 불러와야 한다.
         if (result is LoginStatusCheckResult.Authorized) {
             if (result.userInfo != null) {
                 storage.putObject(APPLE_SECURE_USER_DATA_KEY, result.userInfo)
+                return LoginStatusCheckResult.Authorized(result.userInfo)
             } else {
-                delegate.authorizationHandler = { user ->
-                    if (user != null) {
-                        storage.putObject(APPLE_SECURE_USER_DATA_KEY, user)
-                        _loginEffect.value = LoginStatusCheckResult.Authorized(user)
-                    }
-                    else
-                        _loginEffect.value = LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.APPLE)
-                }
-                signInWorker.signInWithApple(delegate)
+                signInWithApple()
             }
         }
 
         return result
+    }
+
+    fun signInWithApple() {
+        delegate.authorizationHandler = { user ->
+            if (user != null) storage.putObject(APPLE_SECURE_USER_DATA_KEY, user)
+            else _errorStatus.value = LoginViewErrorStatus(ProviderIdentifier.APPLE, null)
+        }
+        signInWorker.signInWithApple(delegate)
     }
 
     suspend fun googleCheckState(): LoginStatusCheckResult {

@@ -51,6 +51,13 @@ class LoginViewModelWrapper {
         default:
             return LoginStatusCheckResult.NotImplementedYet(identifier: identifier)
         }
-        
+    }
+    
+    func signInWithApple() {
+        viewModel.signInWorker
+            .signInWithApple(delegate: viewModel)
+    }
+    func signInWithGoogle() {
+        // TODO: Need to implement
     }
 }
