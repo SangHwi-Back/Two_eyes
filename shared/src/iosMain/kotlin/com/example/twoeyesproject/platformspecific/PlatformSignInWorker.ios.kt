@@ -8,7 +8,6 @@ import platform.AuthenticationServices.ASAuthorizationControllerPresentationCont
 import platform.AuthenticationServices.ASAuthorizationScopeEmail
 import platform.AuthenticationServices.ASAuthorizationScopeFullName
 import platform.UIKit.UIApplication
-import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.darwin.NSObject
 import swiftPMImport.TwoEyesProject.shared.GIDSignIn
