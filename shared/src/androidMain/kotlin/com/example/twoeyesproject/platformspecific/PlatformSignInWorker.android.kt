@@ -31,11 +31,11 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
 
         if (credential is GoogleIdTokenCredential) {
             return SecureUserData.GoogleUserData(
-                url = parseUri(credential.profilePictureUri?.toString() ?: ""),
+                photoUrl = credential.profilePictureUri?.toString(),
                 name = credential.displayName ?: "",
-                givenName = credential.givenName ?: "",
-                familyName = credential.familyName ?: "",
-                email = credential.email ?: "")
+                givenName = credential.givenName,
+                familyName = credential.familyName,
+                email = credential.id)
         } else {
             throw IllegalStateException("Unexpected credential type: ${credential::class}")
         }

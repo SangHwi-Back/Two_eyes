@@ -34,7 +34,7 @@ actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
 
             if (profile != null) {
                 continuation.resume(LoginStatusCheckResult.Authorized(SecureUserData.GoogleUserData(
-                    url = parseUri(profile.imageURLWithDimension(0u)?.absoluteString ?: ""),
+                    photoUrl = profile.imageURLWithDimension(180u)?.absoluteString,
                     name = profile.name,
                     givenName = profile.givenName,
                     familyName = profile.familyName,
