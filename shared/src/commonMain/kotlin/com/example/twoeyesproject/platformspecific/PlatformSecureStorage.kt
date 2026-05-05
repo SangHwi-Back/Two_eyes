@@ -9,13 +9,34 @@ expect class PlatformSecureStorage() {
     fun remove(key: String)
 }
 
-inline fun <reified T>PlatformSecureStorage.putObject(key: String, value: T) {
-    val json = Json.encodeToString(value)
-    putString(key, json)
+// ── Kotlin 전용 (reified inline — Swift/ObjC 에서 직접 호출 불가) ──────────────
+inline fun <reified T> PlatformSecureStorage.putObject(key: String, value: T) {
+    putString(key, Json.encodeToString(value))
 }
-inline fun <reified T>PlatformSecureStorage.getObject(key: String): T? {
+inline fun <reified T> PlatformSecureStorage.getObject(key: String): T? {
     val json = getString(key) ?: return null
     return runCatching { Json.decodeFromString<T>(json) }.getOrNull()
+}
+
+// ── Swift/ObjC 에서 호출 가능한 타입 명시 함수 ───────────────────────────────
+// (reified 없이 구체 타입을 직접 사용 → KMP 바이너리 경계를 안전하게 넘김)
+const val APPLE_USER_DATA_KEY  = "AppleUserData"
+const val GOOGLE_USER_DATA_KEY = "GoogleUserData"
+
+fun PlatformSecureStorage.putAppleUserData(value: SecureUserData.AppleUserData) =
+    putString(APPLE_USER_DATA_KEY, Json.encodeToString(value))
+
+fun PlatformSecureStorage.getAppleUserData(): SecureUserData.AppleUserData? {
+    val json = getString(APPLE_USER_DATA_KEY) ?: return null
+    return runCatching { Json.decodeFromString<SecureUserData.AppleUserData>(json) }.getOrNull()
+}
+
+fun PlatformSecureStorage.putGoogleUserData(value: SecureUserData.GoogleUserData) =
+    putString(GOOGLE_USER_DATA_KEY, Json.encodeToString(value))
+
+fun PlatformSecureStorage.getGoogleUserData(): SecureUserData.GoogleUserData? {
+    val json = getString(GOOGLE_USER_DATA_KEY) ?: return null
+    return runCatching { Json.decodeFromString<SecureUserData.GoogleUserData>(json) }.getOrNull()
 }
 
 @Serializable
