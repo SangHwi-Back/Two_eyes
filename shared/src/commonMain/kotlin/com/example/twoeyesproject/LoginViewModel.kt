@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 const val ID_TOKEN_KEY = "idToken"
 
 class LoginViewModel(
-    context: PlatformUIContext?
+    val context: PlatformUIContext?
 ) : ViewModel() {
     val storage    = PlatformSecureStorage()
     val checkWorker = PlatformAuthorizationStatusCheckWorker()

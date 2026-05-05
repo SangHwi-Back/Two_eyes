@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -86,17 +87,11 @@ private fun AppScaffold(navController: NavHostController) {
     val db: AppDatabase = koinInject()
     val apiClient: ApiClient = koinInject()
 
-    val screenTitle = when (currentRoute) {
-        ROUTE_FEED   -> "피드"
-        ROUTE_UPLOAD -> "업로드"
-        else         -> ""
-    }
-
     Scaffold(
         topBar = {
             if (showChrome) {
                 TopAppBar(
-                    title = { Text(screenTitle) },
+                    title = { Text("") },
                     actions = {
                         IconButton(
                             onClick = {
@@ -206,7 +201,7 @@ private fun AppScaffold(navController: NavHostController) {
 
     // 로그인 바텀 시트 — 화면 절반 높이
     if (showLoginSheet) {
-        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        val screenHeight = LocalWindowInfo.current.containerDpSize.height
         ModalBottomSheet(
             onDismissRequest = { showLoginSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
