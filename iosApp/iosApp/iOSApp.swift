@@ -22,12 +22,10 @@ struct iOSApp: App {
                 .environment(\.userData, $userData)
                 .task {
                     let storage = PlatformSecureStorage()
-                    
-                    if let userData = storage.getObject(key: "AppleUserData") as? SecureUserData.AppleUserData {
-                        self.userData = .apple(userData)
-                    }
-                    else if let userData = storage.getObject(key: "GoogleUserData") as? SecureUserData.GoogleUserData {
-                        self.userData = .google(userData)
+                    if let appleData = storage.getAppleUserData() {
+                        self.userData = .apple(appleData)
+                    } else if let googleData = storage.getGoogleUserData() {
+                        self.userData = .google(googleData)
                     }
                 }
         }
@@ -38,7 +36,6 @@ extension EnvironmentValues {
     @Entry var database = Database_iosKt.getAppDatabase()
     @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
     @Entry var apiClient = ApiClient()
-    @Entry var feedPath = "FeedPath"
     @Entry var cameraPath = [NavHost.Camera]()
     @Entry var uploadPath = [NavHost.Upload]()
     @Entry var userData: Binding<TwoEyesUserData?> = .constant(nil)
