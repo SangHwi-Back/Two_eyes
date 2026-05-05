@@ -9,8 +9,6 @@ import org.koin.dsl.module
 
 val sharedAndroidModule = module {
     factory { ImageDecoder() }
-    single {
-        getRoomDatabase(getDatabaseBuilder(androidContext()))
-        ApiClient()
-    }
+    single { getRoomDatabase(getDatabaseBuilder(androidContext())) }
+    single { ApiClient() }
 }
