@@ -18,8 +18,6 @@ import com.example.twoeyesproject.platformspecific.putGoogleUserData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-const val ID_TOKEN_KEY = "idToken"
-
 class LoginViewModel(
     val context: PlatformUIContext?
 ) : ViewModel() {
@@ -35,22 +33,16 @@ class LoginViewModel(
     val userData = _userData.asStateFlow()
 
     // ── SAVE ───────────────────────────────────────────────────────────────────
-    fun saveIDToken(idToken: String) = storage.putString(ID_TOKEN_KEY, idToken)
-
     fun saveUserData(userData: SecureUserData) = when (userData) {
         is SecureUserData.AppleUserData  -> storage.putAppleUserData(userData)
         is SecureUserData.GoogleUserData -> storage.putGoogleUserData(userData)
     }
 
     // ── REMOVE ─────────────────────────────────────────────────────────────────
-    fun clearIDToken() = storage.remove(ID_TOKEN_KEY)
-
     fun clearAppleUserData()  = storage.remove(APPLE_USER_DATA_KEY)
     fun clearGoogleUserData() = storage.remove(GOOGLE_USER_DATA_KEY)
 
     // ── FETCH ──────────────────────────────────────────────────────────────────
-    fun getIDToken() = storage.getString(ID_TOKEN_KEY)
-
     fun getAppleUserData()  = storage.getAppleUserData()
     fun getGoogleUserData() = storage.getGoogleUserData()
 
@@ -89,6 +81,7 @@ class LoginViewModel(
     }
 
     // ── Google Sign In ─────────────────────────────────────────────────────────
+    @Throws(Exception::class)
     suspend fun googleCheckState(): LoginStatusCheckResult {
         val googleUserData = (_userData.value as? SecureUserData.GoogleUserData)
             ?: storage.getGoogleUserData()

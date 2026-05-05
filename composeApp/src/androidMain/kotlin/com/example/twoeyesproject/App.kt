@@ -1,5 +1,6 @@
 package com.example.twoeyesproject
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,10 +30,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -45,6 +44,7 @@ import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
+import com.example.twoeyesproject.platformspecific.getGoogleUserData
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
 import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
@@ -70,6 +70,7 @@ fun App() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppScaffold(navController: NavHostController) {
+    val activity = LocalActivity.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -81,7 +82,7 @@ private fun AppScaffold(navController: NavHostController) {
 
     // 앱 시작 시 저장된 토큰으로 로그인 상태 확인
     LaunchedEffect(Unit) {
-        isLoggedIn = PlatformSecureStorage().getString(ID_TOKEN_KEY) != null
+        isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
     }
 
     val db: AppDatabase = koinInject()

@@ -30,15 +30,11 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         // The getCredential is called to request a credential from Credential Manager.
         val credential = credentialManager.getCredential(request = request, context = uiContext).credential
 
-        if (credential is GoogleIdTokenCredential) {
-            return SecureUserData.GoogleUserData(
-                photoUrl = credential.profilePictureUri?.toString(),
-                name = credential.displayName ?: "",
-                givenName = credential.givenName,
-                familyName = credential.familyName,
-                email = credential.id)
-        } else {
-            throw IllegalStateException("Unexpected credential type: ${credential::class}")
+        when (credential) {
+            is GoogleIdTokenCredential ->
+                return credential.toGoogleUserData()
+            else ->
+                throw IllegalStateException("Unexpected credential type: ${credential::class}")
         }
     }
 
@@ -49,4 +45,11 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
     }
 
     actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {}
+
+    private fun GoogleIdTokenCredential.toGoogleUserData() = SecureUserData.GoogleUserData(
+        photoUrl = profilePictureUri?.toString(),
+        name = displayName ?: "",
+        givenName = givenName,
+        familyName = familyName,
+        email = id)
 }

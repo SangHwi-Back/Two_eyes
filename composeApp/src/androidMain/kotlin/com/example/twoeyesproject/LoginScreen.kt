@@ -64,12 +64,6 @@ fun LoginScreen(
 
     // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
     LaunchedEffect(Unit) {
-        isSignedIn = !viewModel.getIDToken().isNullOrEmpty()
-        if (isSignedIn) {
-            onLoginSuccess()
-            return@LaunchedEffect
-        }
-
         try {
             isLoading = true
             (viewModel.googleCheckState() as? LoginStatusCheckResult.Authorized)?.let {
@@ -133,10 +127,9 @@ fun LoginScreen(
                         scope.launch {
                             try {
                                 isLoading = true
-                                requestGoogleSignIn(viewModel)?.let { googleUserData ->
-                                    viewModel.storage.putGoogleUserData(googleUserData)
-                                    onLoginSuccess()
-                                }
+                                val googleUserData = viewModel.signInWorker.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
+                                viewModel.storage.putGoogleUserData(googleUserData)
+                                onLoginSuccess()
                             } catch (_: androidx.credentials.exceptions.GetCredentialCancellationException) {
                             } catch (e: Exception) {
                                 snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${e.toString()}")
@@ -163,38 +156,6 @@ private fun SignInWithGoogleButton(onClick: () -> Unit) {
             .height(56.dp)
             .clickable(onClick = onClick)
     )
-}
-
-// MARK: - Google Credential Manager 헬퍼
-
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@Throws(Exception::class)
-private suspend fun requestGoogleSignIn(viewModel: LoginViewModel): SecureUserData.GoogleUserData? {
-    val context = viewModel.context ?: return null
-    val nonce = viewModel.signInWorker.generateSecureRandomNonce(32)
-    val request = GetCredentialRequest.Builder()
-        .addCredentialOption(GetSignInWithGoogleOption
-            .Builder(serverClientId = BuildConfig.GIS_CLIENT_ID)
-            .setNonce(nonce)
-            .build())
-        .build()
-
-    val credential = CredentialManager.create(context)
-        .getCredential(request = request, context = context)
-        .credential
-
-    if (credential is GoogleIdTokenCredential) {
-        viewModel.saveIDToken(credential.idToken)
-
-        return SecureUserData.GoogleUserData(
-            photoUrl = credential.profilePictureUri?.toString(),
-            name = credential.displayName ?: "",
-            givenName = credential.givenName,
-            familyName = credential.familyName,
-            email = credential.id
-        )
-    } else
-        throw IllegalStateException()
 }
 
 // MARK: - Preview
