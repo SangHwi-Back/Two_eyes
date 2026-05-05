@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.FeedResponse
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,15 +52,28 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
     }
     fun getAllFeeds() {
         viewModelScope.launch {
-            val response = apiClient.getFeed("", 1)
-            mergeEntities.value = response.data
+            var mutableData = mutableListOf<FeedResponse.Data>()
+            try {
+                val response = apiClient.getFeed("", 1)
+                mutableData = response.data.toMutableList()
+            } catch (_: Exception) {
+                print("Server not ready yet.")
+            }
+
+            mergeEntities.value = mutableData
         }
     }
 
     fun updateLike(like: Boolean, feedId: String) {
         viewModelScope.launch {
-            val response = apiClient.postLike("", like, feedId)
-            if (response.status == HttpStatusCode.OK) {
+            var response: HttpResponse? = null
+            try {
+                response = apiClient.postLike("", like, feedId)
+            } catch (_: Exception) {
+                print("Server not ready yet.")
+            }
+
+            if (response != null && response.status == HttpStatusCode.OK) {
                 mergeEntities.value.indexOfFirst { it.id == feedId }.let { index ->
                     if (index > -1) {
                         val entities = mergeEntities.value.toMutableList()
