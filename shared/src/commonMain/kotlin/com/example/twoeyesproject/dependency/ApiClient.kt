@@ -48,17 +48,21 @@ data class FeedResponse(
     val data: List<Data>,
     val meta: Meta
 ) {
+    @Serializable
     data class Data(
         val id: String, val content: String?, val tags: List<String>,
         val likeCount: Int, val isLiked: Boolean, val user: User,
         val images: List<Image>, val createdAt: String, val updatedAt: String,
     )
+    @Serializable
     data class User(
         val id: String, val name: String?, val profileImage: String?
     )
+    @Serializable
     data class Image(
         val id: String, val url: String, val order: Int
     )
+    @Serializable
     data class Meta(
         val total: Int, val page: Int, val limit: Int, val totalPages: Int,
     )

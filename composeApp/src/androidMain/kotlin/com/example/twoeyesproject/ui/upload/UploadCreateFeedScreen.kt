@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
-import com.example.twoeyesproject.platformspecific.toImageSource
 import com.example.twoeyesproject.ui.camera.BottomButton
 
 @Composable
@@ -42,7 +41,7 @@ fun UploadCreateFeedView(
         mutableStateOf(UploadMergedDTO(
             imageIds = listOf(
                 entity.leadingImageId, entity.trailingImageId, entity.resultId
-            ).mapNotNull { it.toImageSource() },
+            ),
             tags = listOf(),
             contents = ""
         ))
@@ -66,7 +65,7 @@ fun UploadCreateFeedView(
         ) {
             items(dto.imageIds) { imageSource ->
                 AsyncImage(
-                    model = imageSource.build(),
+                    model = imageSource,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

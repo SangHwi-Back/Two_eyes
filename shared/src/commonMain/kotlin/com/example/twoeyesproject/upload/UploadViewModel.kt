@@ -7,7 +7,6 @@ import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
 import com.example.twoeyesproject.image.URIByteEncoder
-import com.example.twoeyesproject.platformspecific.convertToString
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -37,7 +36,7 @@ class UploadViewModel(db: AppDatabase): ViewModel() {
         viewModelScope.launch {
             var result: ByteArray = byteArrayOf()
             for (id in dto.imageIds) {
-                val item = URIByteEncoder(id.convertToString()).uriToByteArray()
+                val item = URIByteEncoder(id).uriToByteArray()
                 if (item != null) {
                     result += item
                 } else {

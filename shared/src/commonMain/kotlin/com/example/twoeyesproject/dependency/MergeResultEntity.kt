@@ -2,7 +2,6 @@ package com.example.twoeyesproject.dependency
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.twoeyesproject.platformspecific.ImageSource
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -19,7 +18,7 @@ data class MergeResultEntity(
 
 @Serializable
 data class UploadMergedDTO(
-    var imageIds: List<ImageSource>,
+    var imageIds: List<String>,
     var tags: List<String>,
     var contents: String
 )
