@@ -58,18 +58,26 @@ struct LoginView: View {
                 .padding()
                 .frame(height: 60)
                 .frame(maxWidth: .infinity)
-                .background(Color.primary)
+                .background(Color.black.opacity(0.9))
                 .foregroundColor(Color(UIColor.systemBackground))
                 .cornerRadius(8)
                 .padding()
             }
             
-            // Google 로그인 버튼
-            GlassIconTitleButton(title: "Google Sign In") {
+            // Google 로그인 버튼 — siwg_button 이미지 사용 (.glass 는 maxWidth 무시)
+            Button {
                 wrapper.signInWithGoogle()
+            } label: {
+                Image("siwg_button")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 44)
+                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
+                    .background(Color(red: 240/255, green: 240/255, blue: 240/255))
+                    .cornerRadius(8)
+                    .padding()
             }
-            .frame(height: 60)
-            .frame(maxWidth: .infinity)
+//            .padding(.horizontal)
             
             Spacer()
         }
@@ -95,7 +103,7 @@ struct LoginView: View {
             
             if result is LoginStatusCheckResult.Authorized {
                 // 유효하면 저장소에서 데이터를 읽어 앱 상태 갱신 후 dismiss
-                if let stored = PlatformSecureStorage().getObject(key: "AppleUserData") as? SecureUserData.AppleUserData {
+                if let stored = PlatformSecureStorage().getAppleUserData() {
                     userData.wrappedValue = .apple(stored)
                 }
                 dismiss()

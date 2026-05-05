@@ -1,22 +1,37 @@
 package com.example.twoeyesproject
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,18 +43,19 @@ import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.feed.FeedListViewModel
-import com.example.twoeyesproject.ui.camera.PickImageScreen
+import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
+import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
 import com.example.twoeyesproject.ui.upload.UploadCreateFeedView
 import com.example.twoeyesproject.ui.upload.UploadScreen
 import com.example.twoeyesproject.upload.UploadViewModel
 import org.koin.compose.koinInject
 
-private const val ROUTE_FEED    = "feed"
-private const val ROUTE_UPLOAD  = "upload"
-private const val ROUTE_CAMERA  = "camera"
-private const val ROUTE_MERGE   = "merge/{uri1}/{uri2}"
+private const val ROUTE_FEED   = "feed"
+private const val ROUTE_UPLOAD = "upload"
+private const val ROUTE_CAMERA = "camera"
+private const val ROUTE_MERGE  = "merge/{uri1}/{uri2}"
 
 @Composable
 @Preview
@@ -50,19 +66,56 @@ fun App() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppScaffold(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // BottomNav와 FAB는 카메라/병합 화면에서 숨김
-    val showBottomBar = currentRoute !in listOf(ROUTE_CAMERA, ROUTE_MERGE)
+    // 피드·업로드 화면에서만 AppBar / BottomBar / FAB 표시
+    val showChrome = currentRoute in listOf(ROUTE_FEED, ROUTE_UPLOAD)
+
+    var isLoggedIn      by remember { mutableStateOf(false) }
+    var showLoginSheet  by remember { mutableStateOf(false) }
+
+    // 앱 시작 시 저장된 토큰으로 로그인 상태 확인
+    LaunchedEffect(Unit) {
+        isLoggedIn = PlatformSecureStorage().getString(ID_TOKEN_KEY) != null
+    }
+
     val db: AppDatabase = koinInject()
     val apiClient: ApiClient = koinInject()
 
+    val screenTitle = when (currentRoute) {
+        ROUTE_FEED   -> "피드"
+        ROUTE_UPLOAD -> "업로드"
+        else         -> ""
+    }
+
     Scaffold(
+        topBar = {
+            if (showChrome) {
+                TopAppBar(
+                    title = { Text(screenTitle) },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                // 로그인됐을 때는 추후 프로필 화면 구현 시 분기
+                                showLoginSheet = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (isLoggedIn) Icons.Filled.AccountCircle
+                                              else Icons.Outlined.AccountCircle,
+                                contentDescription = if (isLoggedIn) "프로필" else "로그인"
+                            )
+                        }
+                    }
+                )
+            }
+        },
         bottomBar = {
-            if (showBottomBar) {
+            if (showChrome) {
                 NavigationBar {
                     NavigationBarItem(
                         selected = currentRoute == ROUTE_FEED,
@@ -97,7 +150,7 @@ private fun AppScaffold(navController: NavHostController) {
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            if (showBottomBar) {
+            if (showChrome) {
                 FloatingActionButton(onClick = { navController.navigate(ROUTE_CAMERA) }) {
                     Icon(Icons.Default.Add, contentDescription = "카메라")
                 }
@@ -112,7 +165,7 @@ private fun AppScaffold(navController: NavHostController) {
             composable(ROUTE_FEED) {
                 FeedScreen(
                     viewModel = FeedListViewModel(apiClient),
-                    onFeedClick = { /* 상세 화면은 추후 구현 */ }
+                    onFeedClick = { /* 상세 화면 추후 구현 */ }
                 )
             }
 
@@ -123,8 +176,8 @@ private fun AppScaffold(navController: NavHostController) {
                 )
             }
 
-            composable<MergeResultEntity> { navBackStackEntry ->
-                UploadCreateFeedView(navBackStackEntry.toRoute<MergeResultEntity>())
+            composable<MergeResultEntity> { backStackEntry ->
+                UploadCreateFeedView(backStackEntry.toRoute<MergeResultEntity>())
             }
 
             composable(ROUTE_CAMERA) {
@@ -144,12 +197,29 @@ private fun AppScaffold(navController: NavHostController) {
                 PickImageMergeScreen(
                     uri1String = android.net.Uri.decode(uri1),
                     uri2String = android.net.Uri.decode(uri2),
-                    onConfirm = {
-                        navController.popBackStack(ROUTE_FEED, inclusive = false)
-                    },
-                    onCancel = { navController.popBackStack() }
+                    onConfirm = { navController.popBackStack(ROUTE_FEED, inclusive = false) },
+                    onCancel  = { navController.popBackStack() }
                 )
             }
+        }
+    }
+
+    // 로그인 바텀 시트 — 화면 절반 높이
+    if (showLoginSheet) {
+        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        ModalBottomSheet(
+            onDismissRequest = { showLoginSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
+            LoginScreen(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(screenHeight / 2),
+                onLoginSuccess = {
+                    isLoggedIn = true
+                    showLoginSheet = false
+                }
+            )
         }
     }
 }

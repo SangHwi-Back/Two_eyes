@@ -57,7 +57,10 @@ import java.util.Base64
 
 @SuppressLint("NewApi")
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    onLoginSuccess: () -> Unit = {},
+) {
     val context = LocalContext.current
     val activity = LocalActivity.current
 
@@ -72,7 +75,10 @@ fun LoginScreen() {
     // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
     LaunchedEffect(Unit) {
         isSignedIn = !viewModel.getIDToken().isNullOrEmpty()
-        if (isSignedIn) return@LaunchedEffect
+        if (isSignedIn) {
+            onLoginSuccess()
+            return@LaunchedEffect
+        }
 
         isLoading = true
         BottomSheetSignIn(
@@ -84,6 +90,7 @@ fun LoginScreen() {
                 idToken != null -> {
                     viewModel.saveIDToken(idToken)
                     isSignedIn = true
+                    onLoginSuccess()
                 }
                 exception is NoCredentialException -> { /* 저장된 계정 없음 — 수동 로그인 대기 */ }
                 exception != null -> {
@@ -94,6 +101,7 @@ fun LoginScreen() {
     }
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
@@ -148,6 +156,7 @@ fun LoginScreen() {
                                     idToken != null -> {
                                         viewModel.saveIDToken(idToken)
                                         isSignedIn = true
+                                        onLoginSuccess()
                                     }
                                     exception is NoCredentialException -> {
                                         viewModel.clearIDToken()
