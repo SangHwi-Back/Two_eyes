@@ -49,7 +49,7 @@ class LoginViewModelWrapper {
         Task { @MainActor in
             do {
                 let result = try await viewModel.signInWorker.signInWithGoogle(credential: "")
-                PlatformSecureStorage().putObject(key: "GoogleUserData", value: result)
+                PlatformSecureStorage().putGoogleUserData(value: result)
                 self.userData = result
             } catch {
                 self.errorStatus = .init(
