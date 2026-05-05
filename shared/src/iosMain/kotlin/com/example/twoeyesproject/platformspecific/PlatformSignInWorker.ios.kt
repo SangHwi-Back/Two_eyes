@@ -17,7 +17,7 @@ import kotlin.coroutines.resumeWithException
 
 @OptIn(ExperimentalForeignApi::class)
 actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUIContext?) {
-
+    @Throws(Exception::class)
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData =
         suspendCancellableCoroutine { continuation ->
             if (uiContext != null) {

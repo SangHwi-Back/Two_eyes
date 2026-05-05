@@ -11,6 +11,7 @@ import java.util.Base64
 
 @RequiresApi(Build.VERSION_CODES.O)
 actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUIContext?) {
+    @Throws(Exception::class)
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData {
         if (uiContext == null) {
             throw IllegalStateException("Activity Not Found")
