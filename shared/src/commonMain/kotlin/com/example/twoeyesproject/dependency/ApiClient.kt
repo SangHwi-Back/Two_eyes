@@ -18,6 +18,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 // ── JSON 요청에 쓸 data class (Codable 과 같은 역할) ──────────────
 
@@ -89,24 +90,30 @@ data class LikeResponse(
 
 class ApiClient {
     private val client = platformHttpClient().config {
-        install(ContentNegotiation) { json() }
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        expectSuccess = true
     }
 
-    private val baseUrl = "http://localhost:3000/api/v1"
+    private val baseUrl = "http://192.168.1.114:3000/api/v1"
 
     // JSON 요청 — Codable 방식과 동일한 개념
+    @Throws(Exception::class)
     suspend fun googleLogin(idToken: String): AuthResponse =
         client.post("$baseUrl/auth/google") {
             contentType(ContentType.Application.Json)
             setBody(GoogleLoginRequest(idToken))
         }.body()
 
+    @Throws(Exception::class)
     suspend fun appleLogin(identityToken: String, authorizationCode: String?, firstName: String?, lastName: String?): AuthResponse =
         client.post("$baseUrl/auth/apple") {
             contentType(ContentType.Application.Json)
             setBody(AppleLoginRequest(identityToken, authorizationCode, AppleNameComponent(firstName, lastName)))
         }.body()
 
+    @Throws(Exception::class)
     suspend fun refreshToken(refreshToken: String): AuthResponse =
         client.post("$baseUrl/auth/refresh") {
             contentType(ContentType.Application.Json)
