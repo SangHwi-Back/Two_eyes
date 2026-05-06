@@ -51,5 +51,6 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         name = displayName ?: "",
         givenName = givenName,
         familyName = familyName,
-        email = id)
+        email = id,
+        idToken = idToken)
 }

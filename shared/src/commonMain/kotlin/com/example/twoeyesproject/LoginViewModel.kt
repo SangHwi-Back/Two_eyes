@@ -1,6 +1,7 @@
 package com.example.twoeyesproject
 
 import androidx.lifecycle.ViewModel
+import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.platformspecific.APPLE_USER_DATA_KEY
 import com.example.twoeyesproject.platformspecific.GOOGLE_USER_DATA_KEY
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult

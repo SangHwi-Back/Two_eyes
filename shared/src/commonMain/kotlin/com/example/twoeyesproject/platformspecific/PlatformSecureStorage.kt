@@ -53,5 +53,6 @@ sealed class SecureUserData {
         val givenName: String?,
         val familyName: String?,
         val email: String,
+        val idToken: String?,
     ): SecureUserData()
 }

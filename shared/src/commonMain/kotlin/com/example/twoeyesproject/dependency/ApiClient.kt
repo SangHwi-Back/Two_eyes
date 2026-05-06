@@ -22,6 +22,18 @@ import kotlinx.serialization.Serializable
 // ── JSON 요청에 쓸 data class (Codable 과 같은 역할) ──────────────
 
 @Serializable
+data class AppleLoginRequest(
+    val identityToken: String,
+    val authorizationCode: String?,
+    val fullName: AppleNameComponent?,
+)
+@Serializable
+data class AppleNameComponent(
+    val firstName: String?,
+    val lastName: String?
+)
+
+@Serializable
 data class GoogleLoginRequest(val idToken: String)
 
 @Serializable
@@ -87,6 +99,12 @@ class ApiClient {
         client.post("$baseUrl/auth/google") {
             contentType(ContentType.Application.Json)
             setBody(GoogleLoginRequest(idToken))
+        }.body()
+
+    suspend fun appleLogin(identityToken: String, authorizationCode: String?, firstName: String?, lastName: String?): AuthResponse =
+        client.post("$baseUrl/auth/apple") {
+            contentType(ContentType.Application.Json)
+            setBody(AppleLoginRequest(identityToken, authorizationCode, AppleNameComponent(firstName, lastName)))
         }.body()
 
     suspend fun refreshToken(refreshToken: String): AuthResponse =

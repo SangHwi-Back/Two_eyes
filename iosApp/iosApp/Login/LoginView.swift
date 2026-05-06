@@ -13,6 +13,7 @@ struct LoginView: View {
     
     @Environment(\.dismiss) var dismiss
     @Environment(\.userData) var userData
+    @Environment(\.apiClient) var apiClient
     
     @State private var wrapper: LoginViewModelWrapper
     
@@ -89,6 +90,7 @@ struct LoginView: View {
             guard let newValue else { return }
             if let appleData = newValue as? SecureUserData.AppleUserData {
                 userData.wrappedValue = .apple(appleData)
+                wrapper.signInWithAppleWithServer(apiClient)
             } else if let googleData = newValue as? SecureUserData.GoogleUserData {
                 userData.wrappedValue = .google(googleData)
             }

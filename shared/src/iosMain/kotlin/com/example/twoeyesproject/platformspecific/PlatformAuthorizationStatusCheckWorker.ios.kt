@@ -38,7 +38,8 @@ actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
                     name = profile.name,
                     givenName = profile.givenName,
                     familyName = profile.familyName,
-                    email = profile.email
+                    email = profile.email,
+                    idToken = null
                 )))
             } else {
                 continuation.resume(LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.GOOGLE))

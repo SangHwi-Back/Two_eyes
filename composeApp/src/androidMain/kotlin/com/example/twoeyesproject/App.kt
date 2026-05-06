@@ -173,7 +173,10 @@ private fun AppScaffold(navController: NavHostController) {
             }
 
             composable<MergeResultEntity> { backStackEntry ->
-                UploadCreateFeedView(backStackEntry.toRoute<MergeResultEntity>())
+                UploadCreateFeedView(
+                    viewModel = UploadViewModel(db),
+                    entity = backStackEntry.toRoute<MergeResultEntity>()
+                )
             }
 
             composable(ROUTE_CAMERA) {

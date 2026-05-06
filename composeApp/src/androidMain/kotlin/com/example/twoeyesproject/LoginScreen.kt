@@ -1,9 +1,7 @@
 package com.example.twoeyesproject
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.activity.compose.LocalActivity
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,14 +35,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.SecureUserData
 import com.example.twoeyesproject.platformspecific.putGoogleUserData
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @SuppressLint("NewApi")
 @Composable
@@ -62,6 +59,8 @@ fun LoginScreen(
     var isSignedIn by remember { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
 
+    val apiClient: ApiClient = koinInject()
+
     // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
     LaunchedEffect(Unit) {
         try {
@@ -72,6 +71,7 @@ fun LoginScreen(
                     onLoginSuccess()
                 }
             }
+        } catch (_: GetCredentialCancellationException) {
         } catch (e: Exception) {
             snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${e.toString()}")
         } finally {
@@ -128,9 +128,14 @@ fun LoginScreen(
                             try {
                                 isLoading = true
                                 val googleUserData = viewModel.signInWorker.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
-                                viewModel.storage.putGoogleUserData(googleUserData)
-                                onLoginSuccess()
-                            } catch (_: androidx.credentials.exceptions.GetCredentialCancellationException) {
+                                val idToken = googleUserData.idToken
+
+                                if (idToken != null) {
+                                    apiClient.googleLogin(idToken)
+                                    viewModel.storage.putGoogleUserData(googleUserData)
+                                    onLoginSuccess()
+                                }
+                            } catch (_: GetCredentialCancellationException) {
                             } catch (e: Exception) {
                                 snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${e.toString()}")
                             } finally {

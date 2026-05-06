@@ -43,6 +43,29 @@ class LoginViewModelWrapper {
         viewModel.signInWithApple()
     }
     
+    func signInWithAppleWithServer(_ apiClient: ApiClient) {
+        guard let appleData = userData as? SecureUserData.AppleUserData,
+              let identityToken = appleData.identityToken
+        else {
+            return
+        }
+        Task {
+            do {
+                try await apiClient.appleLogin(
+                    identityToken: identityToken,
+                    authorizationCode: appleData.authorizationCode,
+                    firstName: appleData.givenName,
+                    lastName: appleData.familyName
+                )
+            } catch {
+                errorStatus = .init(
+                    providerIdentifier: .apple,
+                    error: error as? KotlinException
+                )
+            }
+        }
+    }
+    
     // MARK: - Google Sign In
     
     func signInWithGoogle() {
