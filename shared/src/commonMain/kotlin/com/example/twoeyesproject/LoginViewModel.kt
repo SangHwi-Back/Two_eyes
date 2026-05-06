@@ -96,12 +96,8 @@ class LoginViewModel(
 
     // ── Google Sign In ─────────────────────────────────────────────────────────
     @Throws(Exception::class)
-    suspend fun googleCheckState(): LoginStatusCheckResult {
-        val googleUserData = (_userData.value as? SecureUserData.GoogleUserData)
-            ?: storage.getGoogleUserData()
-            ?: return LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.GOOGLE)
-
-        return checkWorker.googleCheckState(googleUserData.email)
+    suspend fun googleCheckState(credential: String): LoginStatusCheckResult {
+        return checkWorker.googleCheckState(credential)
     }
 }
 

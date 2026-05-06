@@ -22,10 +22,20 @@ struct iOSApp: App {
                 .environment(\.userData, $userData)
                 .task {
                     let storage = PlatformSecureStorage()
+                    let viewModel = LoginViewModel(context: (
+                        UIApplication.shared.connectedScenes.first as? UIWindowScene
+                    )?.windows.first?.rootViewController)
                     if let appleData = storage.getAppleUserData() {
                         self.userData = .apple(appleData)
                     } else if let googleData = storage.getGoogleUserData() {
                         self.userData = .google(googleData)
+                    } else {
+                        let result = try? await viewModel.googleCheckState(credential: "")
+                        if let result = result as? LoginStatusCheckResult.Authorized,
+                           let googleData = result.userInfo as? SecureUserData.GoogleUserData
+                        {
+                            self.userData = .google(googleData)
+                        }
                     }
                 }
         }

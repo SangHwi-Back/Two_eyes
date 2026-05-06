@@ -105,7 +105,7 @@ class LoginViewModelWrapper {
             }
             return result
         case .google:
-            let result = try await viewModel.googleCheckState()
+            let result = try await viewModel.googleCheckState(credential: "")
             if let result = result as? LoginStatusCheckResult.Authorized,
                let googleUserData = result.userInfo as? SecureUserData.GoogleUserData
             {

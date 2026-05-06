@@ -76,7 +76,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         try {
             isLoading = true
-            (viewModel.googleCheckState() as? LoginStatusCheckResult.Authorized)?.let {
+            (viewModel.googleCheckState(BuildConfig.GIS_CLIENT_ID) as? LoginStatusCheckResult.Authorized)?.let {
                 (it.userInfo as? SecureUserData.GoogleUserData)?.let { googleUserData ->
                     viewModel.storage.putGoogleUserData(googleUserData)
                     onLoginSuccess()
