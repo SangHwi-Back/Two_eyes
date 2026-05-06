@@ -127,14 +127,7 @@ fun LoginScreen(
                         scope.launch {
                             try {
                                 isLoading = true
-                                val googleUserData = viewModel.signInWorker.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
-                                val idToken = googleUserData.idToken
-
-                                if (idToken != null) {
-                                    apiClient.googleLogin(idToken)
-                                    viewModel.storage.putGoogleUserData(googleUserData)
-                                    onLoginSuccess()
-                                }
+                                viewModel.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
                             } catch (_: GetCredentialCancellationException) {
                             } catch (e: Exception) {
                                 snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${e.toString()}")

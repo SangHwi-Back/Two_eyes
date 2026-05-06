@@ -12,7 +12,6 @@ import Shared
 struct LoginView: View {
     
     @Environment(\.dismiss) var dismiss
-    @Environment(\.userData) var userData
     @Environment(\.apiClient) var apiClient
     
     @State private var wrapper: LoginViewModelWrapper
@@ -49,9 +48,7 @@ struct LoginView: View {
             }
             
             // Apple 로그인 버튼
-            Button {
-                wrapper.signInWithApple()
-            } label: {
+            Button { wrapper.signInWithApple() } label: {
                 HStack {
                     Image(systemName: "apple.logo")
                     Text("Sign in with Apple")
@@ -66,9 +63,7 @@ struct LoginView: View {
             }
             
             // Google 로그인 버튼 — siwg_button 이미지 사용 (.glass 는 maxWidth 무시)
-            Button {
-                wrapper.signInWithGoogle()
-            } label: {
+            Button { wrapper.signInWithGoogle() } label: {
                 Image("siwg_button")
                     .resizable()
                     .scaledToFit()
@@ -78,43 +73,21 @@ struct LoginView: View {
                     .cornerRadius(8)
                     .padding()
             }
-//            .padding(.horizontal)
-            
-            Spacer()
         }
-        .task {
-            await checkAppleStatus()
-        }
-        // Apple Sign In 완료 시 _userData flow → wrapper.userData 변경 → 자동 dismiss
         .onChange(of: wrapper.userData) { _, newValue in
             guard let newValue else { return }
-            if let appleData = newValue as? SecureUserData.AppleUserData {
-                userData.wrappedValue = .apple(appleData)
-                wrapper.signInWithAppleWithServer(apiClient)
-            } else if let googleData = newValue as? SecureUserData.GoogleUserData {
-                userData.wrappedValue = .google(googleData)
-            }
-            dismiss()
-        }
-    }
-    
-    // 앱 시작 시 저장된 Apple 자격증명이 여전히 유효한지 확인
-    private func checkAppleStatus() async {
-        do {
-            let result = try await wrapper.checkStatus(.apple)
-            
-            if result is LoginStatusCheckResult.Authorized {
-                // 유효하면 저장소에서 데이터를 읽어 앱 상태 갱신 후 dismiss
-                if let stored = PlatformSecureStorage().getAppleUserData() {
-                    userData.wrappedValue = .apple(stored)
+            Task {
+                switch newValue {
+                case is SecureUserData.AppleUserData:
+                    await wrapper.signInAppleWithServer(apiClient)
+                    dismiss()
+                case is SecureUserData.GoogleUserData:
+                    await wrapper.signInGoogleWithServer(apiClient)
+                    dismiss()
+                default:
+                    return
                 }
-                dismiss()
             }
-        } catch {
-            wrapper.errorStatus = .init(
-                providerIdentifier: .apple,
-                error: error as? KotlinException
-            )
         }
     }
 }

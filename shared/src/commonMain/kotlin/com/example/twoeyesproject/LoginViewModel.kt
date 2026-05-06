@@ -1,7 +1,7 @@
 package com.example.twoeyesproject
 
 import androidx.lifecycle.ViewModel
-import com.example.twoeyesproject.dependency.ApiClient
+import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.platformspecific.APPLE_USER_DATA_KEY
 import com.example.twoeyesproject.platformspecific.GOOGLE_USER_DATA_KEY
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
@@ -18,6 +18,7 @@ import com.example.twoeyesproject.platformspecific.putAppleUserData
 import com.example.twoeyesproject.platformspecific.putGoogleUserData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class LoginViewModel(
     val context: PlatformUIContext?
@@ -79,6 +80,18 @@ class LoginViewModel(
             }
         }
         signInWorker.signInWithApple(delegate)
+    }
+
+    fun signInWithGoogle(credential: String) {
+        viewModelScope.launch {
+            try {
+                val result = signInWorker.signInWithGoogle(credential)
+                storage.putGoogleUserData(result)
+                _userData.value = result
+            } catch (e: Exception) {
+                _errorStatus.value = LoginViewErrorStatus(ProviderIdentifier.GOOGLE, e)
+            }
+        }
     }
 
     // ── Google Sign In ─────────────────────────────────────────────────────────

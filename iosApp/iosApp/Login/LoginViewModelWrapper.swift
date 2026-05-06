@@ -38,48 +38,52 @@ class LoginViewModelWrapper {
     // MARK: - Apple Sign In
     
     func signInWithApple() {
-        // LoginViewModel.signInWithApple() 이 delegate 를 설정하고 signInWorker 를 호출함
-        // 성공 시 _userData flow 가 갱신되고 위 collect 를 통해 self.userData 가 업데이트됨
         viewModel.signInWithApple()
     }
     
-    func signInWithAppleWithServer(_ apiClient: ApiClient) {
+    func signInAppleWithServer(_ apiClient: ApiClient) async {
         guard let appleData = userData as? SecureUserData.AppleUserData,
               let identityToken = appleData.identityToken
         else {
             return
         }
-        Task {
-            do {
-                try await apiClient.appleLogin(
-                    identityToken: identityToken,
-                    authorizationCode: appleData.authorizationCode,
-                    firstName: appleData.givenName,
-                    lastName: appleData.familyName
-                )
-            } catch {
-                errorStatus = .init(
-                    providerIdentifier: .apple,
-                    error: error as? KotlinException
-                )
-            }
+        
+        do {
+            try await apiClient.appleLogin(
+                identityToken: identityToken,
+                authorizationCode: appleData.authorizationCode,
+                firstName: appleData.givenName,
+                lastName: appleData.familyName
+            )
+        } catch {
+            errorStatus = .init(
+                providerIdentifier: .apple,
+                error: error as? KotlinException
+            )
         }
     }
     
     // MARK: - Google Sign In
     
     func signInWithGoogle() {
-        Task { @MainActor in
-            do {
-                let result = try await viewModel.signInWorker.signInWithGoogle(credential: "")
-                PlatformSecureStorage().putGoogleUserData(value: result)
-                self.userData = result
-            } catch {
-                self.errorStatus = .init(
-                    providerIdentifier: .google,
-                    error: error as? KotlinException
-                )
-            }
+        viewModel.signInWithGoogle(credential: "")
+    }
+    
+    func signInGoogleWithServer(_ apiClient: ApiClient) async {
+        guard let googleData = userData as? SecureUserData.GoogleUserData,
+              let idToken = googleData.idToken
+        else {
+            return
+        }
+        
+        do {
+            try await apiClient.googleLogin(
+                idToken: idToken)
+        } catch {
+            errorStatus = .init(
+                providerIdentifier: .google,
+                error: error as? KotlinException
+            )
         }
     }
     
@@ -88,9 +92,23 @@ class LoginViewModelWrapper {
     func checkStatus(_ identifier: ProviderIdentifier) async throws -> LoginStatusCheckResult? {
         switch identifier {
         case .apple:
-            return try await viewModel.appleCheckStatus()
+            let result = try await viewModel.appleCheckStatus()
+            if let result = result as? LoginStatusCheckResult.Authorized,
+               let appleUserData = result.userInfo as? SecureUserData.AppleUserData
+            {
+                PlatformSecureStorage()
+                    .putAppleUserData(value: appleUserData)
+            }
+            return result
         case .google:
-            return try await viewModel.googleCheckState()
+            let result = try await viewModel.googleCheckState()
+            if let result = result as? LoginStatusCheckResult.Authorized,
+               let googleUserData = result.userInfo as? SecureUserData.GoogleUserData
+            {
+                PlatformSecureStorage()
+                    .putGoogleUserData(value: googleUserData)
+            }
+            return result
         default:
             return LoginStatusCheckResult.NotImplementedYet(identifier: identifier)
         }

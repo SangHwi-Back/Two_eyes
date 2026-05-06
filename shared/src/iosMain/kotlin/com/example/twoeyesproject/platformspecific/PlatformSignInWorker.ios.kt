@@ -30,16 +30,16 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
                                 continuation.resumeWithException(IllegalStateException("Google Sign-in failed"))
                             else -> {
                                 val user = result.user
-                                continuation.resume(
-                                    SecureUserData.GoogleUserData(
-                                        photoUrl = user.profile?.imageURLWithDimension(180u)?.absoluteString,
-                                        name = user.profile?.name ?: "",
-                                        givenName = user.profile?.givenName,
-                                        familyName = user.profile?.familyName,
-                                        email = user.profile?.email ?: "",
-                                        idToken = user.idToken?.toString(),
-                                    )
+                                val googleUserData = SecureUserData.GoogleUserData(
+                                    photoUrl = user.profile?.imageURLWithDimension(180u)?.absoluteString,
+                                    name = user.profile?.name ?: "",
+                                    givenName = user.profile?.givenName,
+                                    familyName = user.profile?.familyName,
+                                    email = user.profile?.email ?: "",
+                                    idToken = user.idToken?.toString(),
                                 )
+                                PlatformSecureStorage().putGoogleUserData(googleUserData)
+                                continuation.resume(googleUserData)
                             }
                         }
                     }
