@@ -41,11 +41,11 @@ class LoginViewModelWrapper {
         viewModel.signInWithApple()
     }
     
-    func signInAppleWithServer(_ apiClient: ApiClient) async {
+    func signInAppleWithServer(_ apiClient: ApiClient) async -> SecureUserData.AppleUserData? {
         guard let appleData = userData as? SecureUserData.AppleUserData,
               let identityToken = appleData.identityToken
         else {
-            return
+            return nil
         }
         
         do {
@@ -55,11 +55,13 @@ class LoginViewModelWrapper {
                 firstName: appleData.givenName,
                 lastName: appleData.familyName
             )
+            return appleData
         } catch {
             errorStatus = .init(
                 providerIdentifier: .apple,
                 error: error as? KotlinException
             )
+            return nil
         }
     }
     
@@ -69,21 +71,23 @@ class LoginViewModelWrapper {
         viewModel.signInWithGoogle(credential: "")
     }
     
-    func signInGoogleWithServer(_ apiClient: ApiClient) async {
+    func signInGoogleWithServer(_ apiClient: ApiClient) async -> SecureUserData.GoogleUserData? {
         guard let googleData = userData as? SecureUserData.GoogleUserData,
               let idToken = googleData.idToken
         else {
-            return
+            return nil
         }
         
         do {
             try await apiClient.googleLogin(
                 idToken: idToken)
+            return googleData
         } catch {
             errorStatus = .init(
                 providerIdentifier: .google,
                 error: error as? KotlinException
             )
+            return nil
         }
     }
     

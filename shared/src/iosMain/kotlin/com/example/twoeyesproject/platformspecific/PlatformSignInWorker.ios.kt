@@ -38,7 +38,7 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
                                     email = user.profile?.email ?: "",
                                     idToken = user.idToken?.toString(),
                                 )
-                                PlatformSecureStorage().putGoogleUserData(googleUserData)
+
                                 continuation.resume(googleUserData)
                             }
                         }

@@ -12,10 +12,12 @@ import Shared
 struct LoginView: View {
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.userData) var environmentUserData
     @Environment(\.apiClient) var apiClient
     
     @State private var wrapper: LoginViewModelWrapper
-    
+    @State private var isLoading = false
+
     init() {
         let rootViewController = (
             UIApplication.shared.connectedScenes.first as? UIWindowScene
@@ -47,42 +49,76 @@ struct LoginView: View {
                 }
             }
             
-            // Apple 로그인 버튼
-            Button { wrapper.signInWithApple() } label: {
-                HStack {
-                    Image(systemName: "apple.logo")
-                    Text("Sign in with Apple")
-                }
-                .padding()
-                .frame(height: 60)
-                .frame(maxWidth: .infinity)
-                .background(Color.black.opacity(0.9))
-                .foregroundColor(Color(UIColor.systemBackground))
-                .cornerRadius(8)
-                .padding()
+            // 로딩 스피너
+            if isLoading {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .frame(height: 60)
+                    .padding()
+                    .transition(.opacity)
             }
-            
-            // Google 로그인 버튼 — siwg_button 이미지 사용 (.glass 는 maxWidth 무시)
-            Button { wrapper.signInWithGoogle() } label: {
-                Image("siwg_button")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 44)
-                    .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
-                    .background(Color(red: 240/255, green: 240/255, blue: 240/255))
+
+            // Apple 로그인 버튼
+            if !isLoading {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { isLoading = true }
+                    wrapper.signInWithApple()
+                } label: {
+                    HStack {
+                        Image(systemName: "apple.logo")
+                        Text("Sign in with Apple")
+                    }
+                    .padding()
+                    .frame(height: 60)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.black.opacity(0.9))
+                    .foregroundColor(Color(UIColor.systemBackground))
                     .cornerRadius(8)
                     .padding()
+                }
+                .transition(.opacity)
+
+                // Google 로그인 버튼 — siwg_button 이미지 사용 (.glass 는 maxWidth 무시)
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { isLoading = true }
+                    wrapper.signInWithGoogle()
+                } label: {
+                    Image("siwg_button")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 44)
+                        .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
+                        .background(Color(red: 240/255, green: 240/255, blue: 240/255))
+                        .cornerRadius(8)
+                        .padding()
+                }
+                .transition(.opacity)
+            }
+        }
+        .onChange(of: wrapper.errorStatus) { _, newValue in
+            // 오류가 새로 세팅되면 로딩 해제
+            if newValue != nil {
+                withAnimation(.easeInOut(duration: 0.2)) { isLoading = false }
             }
         }
         .onChange(of: wrapper.userData) { _, newValue in
             guard let newValue else { return }
             Task {
+                defer {
+                    withAnimation(.easeInOut(duration: 0.2)) { isLoading = false }
+                }
                 switch newValue {
                 case is SecureUserData.AppleUserData:
-                    await wrapper.signInAppleWithServer(apiClient)
+                    let userData = await wrapper.signInAppleWithServer(apiClient)
+                    if let userData {
+                        environmentUserData.wrappedValue = .apple(userData)
+                    }
                     dismiss()
                 case is SecureUserData.GoogleUserData:
-                    await wrapper.signInGoogleWithServer(apiClient)
+                    let userData = await wrapper.signInGoogleWithServer(apiClient)
+                    if let userData {
+                        environmentUserData.wrappedValue = .google(userData)
+                    }
                     dismiss()
                 default:
                     return

@@ -24,10 +24,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +36,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.SecureUserData
 import com.example.twoeyesproject.platformspecific.putGoogleUserData
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 
 @SuppressLint("NewApi")
 @Composable
@@ -53,13 +50,27 @@ fun LoginScreen(
 
     // ViewModel은 remember로 직접 생성 (lifecycle-viewmodel-compose 미사용 시)
     val viewModel = remember { LoginViewModel(activity) }
-    val scope = rememberCoroutineScope()
 
     var isLoading by remember { mutableStateOf(false) }
-    var isSignedIn by remember { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val apiClient: ApiClient = koinInject()
+    val userData by viewModel.userData.collectAsState()
+    val errorStatus by viewModel.errorStatus.collectAsState()
+
+    // 로그인 성공 → 화면 전환
+    LaunchedEffect(userData) {
+        if (userData != null) {
+            isLoading = false
+            onLoginSuccess()
+        }
+    }
+
+    // 로그인 오류 → 스낵바
+    LaunchedEffect(errorStatus) {
+        val status = errorStatus ?: return@LaunchedEffect
+        isLoading = false
+        snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${status.description}")
+    }
 
     // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
     LaunchedEffect(Unit) {
@@ -122,19 +133,10 @@ fun LoginScreen(
                 }
 
                 // Sign In With Google 버튼
-                AnimatedVisibility(visible = !isLoading && !isSignedIn, enter = fadeIn(), exit = fadeOut()) {
+                AnimatedVisibility(visible = !isLoading, enter = fadeIn(), exit = fadeOut()) {
                     SignInWithGoogleButton {
-                        scope.launch {
-                            try {
-                                isLoading = true
-                                viewModel.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
-                            } catch (_: GetCredentialCancellationException) {
-                            } catch (e: Exception) {
-                                snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${e.toString()}")
-                            } finally {
-                                isLoading = false
-                            }
-                        }
+                        isLoading = true
+                        viewModel.signInWithGoogle(BuildConfig.GIS_CLIENT_ID)
                     }
                 }
             }
