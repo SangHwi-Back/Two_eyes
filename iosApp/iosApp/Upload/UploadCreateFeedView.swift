@@ -37,7 +37,7 @@ struct UploadCreateFeedView: View {
             
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 8) {
-                    ForEach(dto.imageIds as! [String], id: \.self) { identifier in
+                    ForEach(dto.imageIds, id: \.self) { identifier in
                         let asset = PHAsset.fetchAssets(
                             withLocalIdentifiers: [identifier], options: nil
                         ).firstObject

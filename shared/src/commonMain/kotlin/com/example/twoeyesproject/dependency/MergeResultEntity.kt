@@ -19,6 +19,6 @@ data class MergeResultEntity(
 @Serializable
 data class UploadMergedDTO(
     var imageIds: List<String>,
-    var tags: List<String>,
+    var tags: MutableList<String>,
     var contents: String
 )
