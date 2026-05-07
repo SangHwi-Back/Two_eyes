@@ -6,7 +6,6 @@ object AppConstants {
 
     const val ACCESS_TOKEN_KEY = "AccessToken"
     const val REFRESH_TOKEN_KEY = "RefreshToken"
-    const val JWT_TOKEN_EXPIRES_TIME_KEY = "TokenExpiresIn"
 }
 
 class Greeting {

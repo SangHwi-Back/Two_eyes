@@ -94,9 +94,8 @@ data class LikeResponse(
 
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
-class ApiClient(
-    val secureStorage: PlatformSecureStorage = PlatformSecureStorage()
-) {
+class ApiClient {
+    private val secureStorage: PlatformSecureStorage = PlatformSecureStorage()
     private val client = platformHttpClient().config {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })

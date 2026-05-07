@@ -1,7 +1,6 @@
 package com.example.twoeyesproject.platformspecific
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.coroutines.internal.resumeCancellableWith
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
 import platform.AuthenticationServices.ASAuthorizationAppleIDProviderCredentialState
