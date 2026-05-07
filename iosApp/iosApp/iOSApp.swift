@@ -11,6 +11,10 @@ struct iOSApp: App {
     let apiClient = ApiClient()
     let database = Database_iosKt.getAppDatabase()
     
+    let viewModel = LoginViewModel(context: (
+        UIApplication.shared.connectedScenes.first as? UIWindowScene
+    )?.windows.first?.rootViewController)
+    
     @State var userData: TwoEyesUserData? = nil
     
     var body: some Scene {
@@ -22,9 +26,7 @@ struct iOSApp: App {
                 .environment(\.userData, $userData)
                 .task {
                     let storage = PlatformSecureStorage()
-                    let viewModel = LoginViewModel(context: (
-                        UIApplication.shared.connectedScenes.first as? UIWindowScene
-                    )?.windows.first?.rootViewController)
+                    
                     if let appleData = storage.getAppleUserData() {
                         self.userData = .apple(appleData)
                     } else if let googleData = storage.getGoogleUserData() {

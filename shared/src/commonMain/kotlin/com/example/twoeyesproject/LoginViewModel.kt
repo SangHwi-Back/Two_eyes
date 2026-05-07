@@ -2,8 +2,8 @@ package com.example.twoeyesproject
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.twoeyesproject.platformspecific.APPLE_USER_DATA_KEY
-import com.example.twoeyesproject.platformspecific.GOOGLE_USER_DATA_KEY
+import com.example.twoeyesproject.AppConstants.APPLE_USER_DATA_KEY
+import com.example.twoeyesproject.AppConstants.GOOGLE_USER_DATA_KEY
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.PlatformASAuthorizationControllerDelegate
 import com.example.twoeyesproject.platformspecific.PlatformAuthorizationStatusCheckWorker
@@ -95,9 +95,13 @@ class LoginViewModel(
     }
 
     // ── Google Sign In ─────────────────────────────────────────────────────────
-    @Throws(Exception::class)
     suspend fun googleCheckState(credential: String): LoginStatusCheckResult {
-        return checkWorker.googleCheckState(credential)
+        try {
+            return checkWorker.googleCheckState(credential)
+        } catch (e: Exception) {
+            _errorStatus.value = LoginViewErrorStatus(ProviderIdentifier.GOOGLE, e)
+            return LoginStatusCheckResult.NeedToSignIn(ProviderIdentifier.GOOGLE)
+        }
     }
 }
 
