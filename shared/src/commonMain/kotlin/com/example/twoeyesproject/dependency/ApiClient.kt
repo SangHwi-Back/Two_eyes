@@ -1,8 +1,14 @@
 package com.example.twoeyesproject.dependency
 
 // ApiClient.kt
+import com.example.twoeyesproject.AppConstants
+import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.platformHttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -88,10 +94,57 @@ data class LikeResponse(
 
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
-class ApiClient {
+class ApiClient(
+    val secureStorage: PlatformSecureStorage = PlatformSecureStorage()
+) {
     private val client = platformHttpClient().config {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
+        }
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 3)
+            exponentialDelay()
+        }
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    val accessToken = secureStorage.getString(
+                        AppConstants.ACCESS_TOKEN_KEY) ?: return@loadTokens null
+                    val refreshToken = secureStorage.getString(
+                        AppConstants.REFRESH_TOKEN_KEY) ?: return@loadTokens null
+                    // null 반환 시 요청 실패 처리
+                    BearerTokens(accessToken, refreshToken)
+                }
+                refreshTokens {
+                    return@refreshTokens try {
+                        val response = client.post("$baseUrl/auth/refresh") {
+                            markAsRefreshTokenRequest()
+                            contentType(ContentType.Application.Json)
+                            setBody(RefreshTokenRequest(oldTokens?.refreshToken ?: ""))
+                        }.body<AuthResponse>()
+
+                        secureStorage.putString(
+                            AppConstants.ACCESS_TOKEN_KEY, response.accessToken)
+                        secureStorage.putString(
+                            AppConstants.REFRESH_TOKEN_KEY, response.refreshToken)
+
+                        BearerTokens(response.accessToken, response.refreshToken)
+                    } catch (_: Exception) {
+                        // RefreshToken 만료 → 토큰 삭제 → 로그인 화면으로
+                        secureStorage.remove(AppConstants.ACCESS_TOKEN_KEY)
+                        secureStorage.remove(AppConstants.REFRESH_TOKEN_KEY)
+                        null  // null 반환 시 요청 실패 처리
+                    }
+                }
+                sendWithoutRequest { requestBuilder ->
+                    val paths = requestBuilder.url.pathSegments
+                    val isAuthRequest = paths.contains("auth")
+                            && (paths.contains("google")
+                            || paths.contains("apple"))
+
+                    isAuthRequest
+                }
+            }
         }
         expectSuccess = true
     }
@@ -152,7 +205,7 @@ class ApiClient {
         accessToken: String,
         tobe: Boolean,
         feedId: String,
-    ): HttpResponse = if (tobe == true) {
+    ): HttpResponse = if (tobe) {
         client.post("feed/$feedId/like") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
