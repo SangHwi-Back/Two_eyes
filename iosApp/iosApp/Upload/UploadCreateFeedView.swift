@@ -10,6 +10,8 @@ import Shared
 import Photos
 
 struct UploadCreateFeedView: View {
+    @Environment(\.apiClient) var apiClient
+    
     private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
     
     let entity: MergeResultEntity

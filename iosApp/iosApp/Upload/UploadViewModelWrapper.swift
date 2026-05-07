@@ -21,12 +21,26 @@ class UploadViewModelWrapper {
         
         viewModel.mergeEntities.collect(collector: EntityCollector { [weak self] entities in
             withAnimation {
-                self?.entities = entities
+                if entities.isEmpty {
+                    self?.entities = self?.getTestData() ?? []
+                } else {
+                    self?.entities = entities
+                }
             }
         }) { _ in }
     }
     
-    func uploadEntity(_ dto: UploadMergedDTO) async throws {
-        
+    func getTestData() -> [MergeResultEntity] {
+        [
+            .init(id: 0,
+                  resultId: UUID().uuidString, leadingImageId: UUID().uuidString, trailingImageId: UUID().uuidString,
+                  name: "Test1", date: "", isUploaded: false),
+            .init(id: 1,
+                  resultId: UUID().uuidString, leadingImageId: UUID().uuidString, trailingImageId: UUID().uuidString,
+                  name: "Test2", date: "", isUploaded: true),
+            .init(id: 2,
+                  resultId: UUID().uuidString, leadingImageId: UUID().uuidString, trailingImageId: UUID().uuidString,
+                  name: "Test3", date: "", isUploaded: false)
+        ]
     }
 }

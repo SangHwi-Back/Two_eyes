@@ -9,11 +9,12 @@ import SwiftUI
 import Photos
 
 struct PHAssetImage: View {
-    let asset: PHAsset
+    let asset: PHAsset?
     let size: CGSize
 
     @State private var image: UIImage?
     @State private var requestID: PHImageRequestID?
+    @State private var error: NSError?
     
     init(asset: PHAsset, size: CGSize, image: UIImage? = nil, requestID: PHImageRequestID? = nil) {
         self.asset = asset
@@ -29,7 +30,7 @@ struct PHAssetImage: View {
             // Successfully retrieved the PHAsset
             self.asset = asset
         } else {
-            self.asset = PHAsset()
+            self.asset = nil
         }
         
         self.size = size
@@ -45,8 +46,23 @@ struct PHAssetImage: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: size.width, height: size.height)
             } else {
-                ProgressView()
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.5))
+                    .stroke(.gray, style: StrokeStyle(lineWidth: 1))
                     .frame(width: size.width, height: size.height)
+                
+                if error == nil {
+                    ProgressView()
+                        .frame(width: 52, height: 52)
+                } else {
+                    Circle()
+                        .fill(Color.white)
+                        .stroke(.gray, style: StrokeStyle(lineWidth: 1))
+                        .frame(width: 52, height: 52, alignment: .center)
+                    
+                    Image(systemName: "xmark")
+                        .frame(width: 32, height: 32, alignment: .center)
+                }
             }
         }
         .onAppear {
@@ -64,6 +80,11 @@ struct PHAssetImage: View {
     }
 
     private func fetchImage() {
+        guard let asset else {
+            error = NSError()
+            return
+        }
+        
         let options = PHImageRequestOptions()
         options.isSynchronous = false
         options.deliveryMode = .highQualityFormat
@@ -74,8 +95,8 @@ struct PHAssetImage: View {
             contentMode: .aspectFill,
             options: options
         ) { result, info in
-            if let error = info?[PHImageErrorKey] {
-                print("err")
+            if let error = info?[PHImageErrorKey] as? NSError {
+                self.error = error
             }
             self.image = result
         }
@@ -87,5 +108,6 @@ struct PHAssetImage: View {
             requestID = nil
         }
         image = nil
+        error = nil
     }
 }

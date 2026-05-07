@@ -80,20 +80,21 @@ struct UploadListSmallCard: View {
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        HStack {
-            TwoEyesCard {
+        TwoEyesCard {
+            ScrollView(.horizontal) {
                 HStack {
                     PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 0.9)
                     PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 0.9)
                     PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 0.9)
                 }
-                .padding(10)
+                .padding()
             }
-            .frame(height: thumbnailSize.height + 20)
-            .onTapGesture {
-                onTap(.list)
-            }
-
+        }
+        .frame(height: thumbnailSize.height + 20)
+        .onTapGesture {
+            onTap(.list)
+        }
+        .overlay(alignment: .topTrailing) {
             GlassIconButton(systemName: "trash.circle") {
                 onTap(.delete)
             }
@@ -106,21 +107,18 @@ struct UploadGridCard: View {
     let entity: MergeResultEntity
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
-        VStack {
-            PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
-                .frame(maxWidth: .infinity)
-                .aspectRatio(1, contentMode: .fill)
-                .clipped()
-
-            GlassEffectContainer(spacing: 20) {
-                HStack(spacing: 20) {
-                    GlassIconButton(systemName: "trash.circle") {
-                        onTap(.delete)
-                    }
-                    .glassEffectUnion(id: "card-actions", namespace: namespace)
+        PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1.58, contentMode: .fill)
+            .clipped()
+            .onTapGesture {
+                onTap(.list)
+            }
+            .overlay(alignment: .topTrailing) {
+                GlassIconButton(systemName: "trash.circle") {
+                    onTap(.delete)
                 }
             }
-        }
     }
 }
 

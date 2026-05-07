@@ -16,7 +16,7 @@ actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
         val provider = ASAuthorizationAppleIDProvider()
         provider.getCredentialStateForUserID(userCredential) { state, error -> when {
             error != null
-                -> continuation.resumeWithException(IllegalStateException(error.toString()))
+                -> continuation.resumeWithException(RuntimeException(error.localizedDescription))
             state == ASAuthorizationAppleIDProviderCredentialState.ASAuthorizationAppleIDProviderCredentialAuthorized
                 -> continuation.resume(LoginStatusCheckResult.Authorized(null))
             else
@@ -27,7 +27,7 @@ actual class PlatformAuthorizationStatusCheckWorker: NSObject() {
     actual suspend fun googleCheckState(userCredential: String): LoginStatusCheckResult = suspendCancellableCoroutine { continuation ->
         GIDSignIn.sharedInstance.restorePreviousSignInWithCompletion { googleUser, error ->
             if (error != null) {
-                continuation.resumeWithException(Throwable(error.localizedDescription))
+                continuation.resumeWithException(RuntimeException(error.localizedDescription))
                 return@restorePreviousSignInWithCompletion
             }
             val profile = googleUser?.profile
