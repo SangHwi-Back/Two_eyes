@@ -36,6 +36,7 @@ struct FeedListView: View {
                 }
             }
         }
+        .background(AppColors.shared.Background.color)
     }
 }
 

@@ -11,6 +11,7 @@ import Photos
 
 struct PickImageView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
+    @Environment(\.appConstant) var constant
     
     @State private var wrapper = PickImageViewModelWrapper()
     @State private var showHighlightAlert = false
@@ -19,15 +20,18 @@ struct PickImageView: View {
 
     private var viewModel: PickImageViewModel { wrapper.viewModel }
     
-    private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
-    
     var body: some View {
+        let thumbnailSize: CGSize = CGSize(
+            width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
+            height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
+        )
         ScrollView { VStack {
             HStack {
                 wrapper.leading.getImageView {
                     handleImageViewTap($0, isLeading: true)
                 }
                 Image(systemName: "plus")
+                    .foregroundStyle(AppColors.shared.Divider.color)
                 wrapper.trailing.getImageView {
                     handleImageViewTap($0, isLeading: false)
                 }
@@ -40,10 +44,11 @@ struct PickImageView: View {
                 VStack {
                     Image(systemName: "ellipsis.bubble")
                         .resizable()
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(AppColors.shared.Accent.color)
                         .aspectRatio(contentMode: .fit)
                         .padding(.vertical)
                     Text("Get photos! Using buttons!")
+                        .foregroundStyle(AppColors.shared.TextSecondary.color)
                 }
                 .frame(height: thumbnailSize.height)
             }
@@ -52,7 +57,7 @@ struct PickImageView: View {
                 LazyHStack(spacing: 8) {
                     ForEach(wrapper.imageSources, id: \.self) { asset in
                         PHAssetImage(asset: asset, size: thumbnailSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS)))
                             .padding(.trailing)
                             .onTapGesture { viewModel.setImageFromSource(imageSource: asset) }
                     }
@@ -94,6 +99,7 @@ struct PickImageView: View {
             }
             .padding(.horizontal)
         }}
+        .background(AppColors.shared.Background.color)
         .onAppear {
             // 루트 뷰는 popToRoot() 후에도 파괴되지 않으므로
             // NavigationPathObject 에 콜백을 등록해 상태를 초기화합니다.
@@ -158,20 +164,6 @@ struct PickImageView: View {
         }
     }
     
-    private func BottomButtonImage(
-        image: Image,
-        title: String,
-        foregroundColor: Color = Color.primary
-    ) -> some View {
-        VStack {
-            image
-            Text(title)
-        }
-        .frame(idealWidth: 50, maxWidth: 100, idealHeight: 80, maxHeight: 80, alignment: .center)
-        .foregroundStyle(foregroundColor)
-        .glassEffect(in: .rect(cornerRadius: 8))
-    }
-    
     enum TapType {
         case highlihgt, delete
     }
@@ -180,7 +172,10 @@ struct PickImageView: View {
 extension PickImageViewModel.ImageViewModel {
     @ViewBuilder
     func getImageView(onTapGesture: @escaping (PickImageView.TapType) -> Void) -> some View {
-        let strokeColor = isHighlighted ? Color.red : Color.gray
+        
+        let strokeColor = isHighlighted
+        ? AppColors.shared.Accent.color
+        : AppColors.shared.Secondary.color
         let strokeStyle = StrokeStyle(lineWidth: 1, dash: [6, 10])
         let rectangle = RoundedRectangle(cornerRadius: 8)
             .stroke(strokeColor, style: strokeStyle)

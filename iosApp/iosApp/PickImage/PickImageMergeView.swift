@@ -17,13 +17,12 @@ struct PickImageMergeView: View {
     
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     @Environment(\.mergeResultDao) var dao
+    @Environment(\.appConstant) var constant
 
     let bottomZIndex: Double = 999
     let topZIndex: Double = 1000
     let leadingSource: PHAsset
     let trailingSource: PHAsset
-
-    private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
 
     init(model: PickImageMergeModel) {
         self._wrapper = State(initialValue: PickImageMergeViewModelWrapper(model: model))
@@ -32,6 +31,10 @@ struct PickImageMergeView: View {
     }
 
     var body: some View {
+        let thumbnailSize: CGSize = CGSize(
+            width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
+            height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
+        )
         GeometryReader { proxy in
             // GeometryReader 는 자식을 모두 (0,0) 에 쌓으므로 VStack 으로 감쌈
             VStack(spacing: 0) {
@@ -70,18 +73,18 @@ struct PickImageMergeView: View {
 
                 ZStack(alignment: .center) {
                     // Rectangle().background() 는 흰색 fill 이 아닌 배경 레이어이므로 fill + stroke 로 수정
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.white)
+                    RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS))
+                        .fill(AppColors.shared.Surface.color)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS))
+                                .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
                         )
 
                     if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
                             .frame(maxWidth: proxy.size.width, maxHeight: proxy.size.width * 0.75)
-                            .aspectRatio(1.6, contentMode: .fit)
+                            .aspectRatio(CGFloat(constant.THUMBNAIL_ASPECT_RATIO), contentMode: .fit)
                             .padding(.vertical)
                     } else {
                         ProgressView()
@@ -111,42 +114,6 @@ struct PickImageMergeView: View {
         } message: {
             Text("이미지 결과에 이상이 발생하였습니다.")
         }
-    }
-}
-
-private struct BottomButton: View {
-    let image: Image
-    let title: String
-    let disabled: Bool
-    
-    var body: some View {
-        VStack {
-            image
-            Text(title)
-        }
-        .frame(idealWidth: 50, maxWidth: 100, idealHeight: 80, maxHeight: 80, alignment: .center)
-        .foregroundStyle(disabled ? Color.secondary : Color.primary)
-        .glassEffect(in: .rect(cornerRadius: 8))
-    }
-}
-
-private struct SwapButton: View {
-    var action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                Circle()
-                    .border(Color.primary, width: 2)
-                    .frame(width: 40, height: 40)
-                Image(systemName: "arrow.left.arrow.right")
-                    .resizable()
-                    .frame(width: 25, height: 25)
-            }
-        }
-        .frame(width: 40, height: 40)
-        .foregroundStyle(Color.primary)
-        .glassEffect(.identity.interactive())
     }
 }
 

@@ -51,4 +51,5 @@ extension EnvironmentValues {
     @Entry var cameraPath = [NavHost.Camera]()
     @Entry var uploadPath = [NavHost.Upload]()
     @Entry var userData: Binding<TwoEyesUserData?> = .constant(nil)
+    @Entry var appConstant = AppConstants()
 }

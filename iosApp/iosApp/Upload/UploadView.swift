@@ -108,7 +108,6 @@ struct UploadGridCard: View {
     let onTap: (UploadViewTapType) -> Void
     var body: some View {
         PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
-            .frame(maxWidth: .infinity)
             .aspectRatio(1.58, contentMode: .fill)
             .clipped()
             .onTapGesture {

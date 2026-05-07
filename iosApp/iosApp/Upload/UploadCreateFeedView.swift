@@ -11,12 +11,12 @@ import Photos
 
 struct UploadCreateFeedView: View {
     @Environment(\.apiClient) var apiClient
+    @Environment(\.appConstant) var constant
     
-    private let thumbnailSize: CGSize = CGSize(width: 120, height: 190)
+    @State var dto: UploadMergedDTO
     
     let entity: MergeResultEntity
     let viewModel : UploadViewModel
-    @State var dto: UploadMergedDTO
     
     init(entity: MergeResultEntity, vm: UploadViewModel) {
         self.entity = entity
@@ -32,6 +32,11 @@ struct UploadCreateFeedView: View {
     }
     
     var body: some View {
+        let thumbnailSize: CGSize = CGSize(
+            width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
+            height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
+        )
+        
         ScrollView([.vertical]) { VStack {
             
             TextField("Contents", text: $dto.contents)

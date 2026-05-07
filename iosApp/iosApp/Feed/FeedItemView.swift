@@ -35,21 +35,25 @@ struct FeedItemView: View {
             .aspectRatio(1, contentMode: .fit)
             .padding(.bottom)
             
-            GlassEffectContainer(spacing: 8) {
-                HStack(spacing: 8) {
-                    GlassIconButton(systemName: "heart") {
-                        onTapGesture(.like)
+            HStack {
+                GlassEffectContainer(spacing: 8) {
+                    HStack(spacing: 8) {
+                        GlassIconButton(systemName: "heart") {
+                            onTapGesture(.like)
+                        }
+                        .glassEffectID("feed", in: namespace)
+                        GlassIconButton(systemName: "arrowshape.turn.up.left") {
+                            onTapGesture(.comment)
+                        }
+                        .glassEffectID("feed", in: namespace)
+                        GlassIconButton(systemName: "square.and.arrow.up") {
+                            onTapGesture(.share)
+                        }
+                        .glassEffectID("feed", in: namespace)
                     }
-                    .glassEffectID("feed", in: namespace)
-                    GlassIconButton(systemName: "arrowshape.turn.up.left") {
-                        onTapGesture(.comment)
-                    }
-                    .glassEffectID("feed", in: namespace)
-                    GlassIconButton(systemName: "square.and.arrow.up") {
-                        onTapGesture(.share)
-                    }
-                    .glassEffectID("feed", in: namespace)
                 }
+                
+                Spacer()
             }
             .padding(.bottom)
             .padding(.leading)
@@ -68,7 +72,7 @@ struct FeedItemView: View {
                 Button(showReply ? "Hide Comment" : "Show Comment") {
                     showReply.toggle()
                 }
-                .tint(Color.secondary)
+                .tint(AppColors.shared.Secondary.color)
                 .padding(.leading)
                 Spacer()
             }

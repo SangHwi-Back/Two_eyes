@@ -15,7 +15,7 @@ struct TwoEyesCard<T: View>: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(AppColors.shared.Background.color)
+                .fill(AppColors.shared.Surface.color)
                 .border(Color.black, width: 1)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             contents()

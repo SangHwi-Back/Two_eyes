@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos
+import Shared
 
 struct PHAssetImage: View {
     let asset: PHAsset?
@@ -47,7 +48,7 @@ struct PHAssetImage: View {
                     .frame(width: size.width, height: size.height)
             } else {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.5))
+                    .fill(AppColors.shared.Surface2.color)
                     .stroke(.gray, style: StrokeStyle(lineWidth: 1))
                     .frame(width: size.width, height: size.height)
                 
@@ -57,11 +58,13 @@ struct PHAssetImage: View {
                 } else {
                     Circle()
                         .fill(Color.white)
-                        .stroke(.gray, style: StrokeStyle(lineWidth: 1))
+                        .stroke(AppColors.shared.Divider.color,
+                                style: StrokeStyle(lineWidth: 1))
                         .frame(width: 52, height: 52, alignment: .center)
                     
                     Image(systemName: "xmark")
                         .frame(width: 32, height: 32, alignment: .center)
+                        .foregroundStyle(AppColors.shared.Accent.color)
                 }
             }
         }
