@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.ui.upload
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,12 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
+import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.ui.camera.BottomButton
 import com.example.twoeyesproject.upload.UploadViewModel
 
@@ -59,6 +62,7 @@ fun UploadCreateFeedView(
     Column(
         Modifier
             .verticalScroll(scrollState)
+            .background(color = Color(AppColors.Background))
     ) {
         OutlinedTextField(
             state = rememberTextFieldState(dto.contents),
@@ -74,7 +78,7 @@ fun UploadCreateFeedView(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.NoteAdd,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = Color(AppColors.Surface2)
                 )
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -112,7 +116,7 @@ fun UploadCreateFeedView(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = Color(AppColors.Surface2)
                 )
             },
             label = "Next",

@@ -31,11 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.SecureUserData
 import com.example.twoeyesproject.platformspecific.putGoogleUserData
@@ -113,7 +115,7 @@ fun LoginScreen(
                 Text(
                     text = "두 시선이 만나는 곳",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color(AppColors.TextPrimary),
                     textAlign = TextAlign.Center,
                 )
             }
@@ -176,7 +178,7 @@ private fun LoginScreenPreview() {
                 Text(
                     "두 시선이 만나는 곳",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color(AppColors.TextPrimary)
                 )
             }
             Column(

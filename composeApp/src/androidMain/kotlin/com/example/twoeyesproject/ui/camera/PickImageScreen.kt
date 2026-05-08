@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,6 +73,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -226,6 +228,7 @@ fun PickImageScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
+                .background(Color(AppColors.Background))
         ) {
 
             // ── 이미지 슬롯 (iOS: HStack + aspectRatio(0.9)) ─────────────────
@@ -250,7 +253,7 @@ fun PickImageScreen(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = Color(AppColors.Surface2),
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )
                 ImageSlot(
@@ -355,10 +358,11 @@ fun PickImageScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                             contentDescription = null,
-                            tint = if (goNextEnabled)
-                                MaterialTheme.colorScheme.onSurface
+                            tint = Color(if (goNextEnabled)
+                                AppColors.Surface
                             else
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                AppColors.Surface2
+                            )
                         )
                     },
                     label = "Next",
@@ -401,10 +405,10 @@ fun BottomButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (enabled)
-                    MaterialTheme.colorScheme.onSurface
+                color = Color(if (enabled)
+                    AppColors.TextSecondary
                 else
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    AppColors.TextDisabled)
             )
         }
     }
@@ -419,9 +423,9 @@ private fun ImageSlot(
     onClick: (CameraScreenTapType) -> Unit,
 ) {
     val strokeColor = if (imageViewModel.isHighlighted)
-        MaterialTheme.colorScheme.error
+        Color(AppColors.Error)
     else
-        MaterialTheme.colorScheme.outline
+        Color(AppColors.Divider)
 
     Box(
         modifier = modifier

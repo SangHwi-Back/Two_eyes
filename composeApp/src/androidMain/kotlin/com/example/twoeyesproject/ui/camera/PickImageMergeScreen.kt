@@ -26,7 +26,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -50,6 +50,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.twoeyesproject.dependency.AppDatabase
+import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.ImageFrame
 import com.example.twoeyesproject.image.ImageMerger
@@ -207,7 +208,7 @@ fun PickImageMergeScreen(
                 Icon(
                     imageVector  = Icons.Default.SwapHoriz,
                     contentDescription = "순서 교환",
-                    tint         = MaterialTheme.colorScheme.onSurface
+                    tint         = Color(AppColors.Surface2)
                 )
             }
         }
@@ -222,7 +223,7 @@ fun PickImageMergeScreen(
                 .aspectRatio(16f / 10f)
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = Color(AppColors.Surface),
                     shape = RoundedCornerShape(8.dp)
                 ),
             contentAlignment = Alignment.Center

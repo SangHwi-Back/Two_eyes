@@ -34,12 +34,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 
@@ -77,6 +79,7 @@ private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Un
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(color = Color(AppColors.Background))
             .clickable {
                 onClick(FeedScreenTapType.FEED)
             }
@@ -112,9 +115,9 @@ private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Un
                             .size(if (isSelected) 8.dp else 6.dp)
                             .background(
                                 color = if (isSelected)
-                                    MaterialTheme.colorScheme.primary
+                                    Color(AppColors.Background)
                                 else
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                    Color(AppColors.Surface).copy(0.3f),
                                 shape = CircleShape
                             )
                     )
@@ -170,7 +173,7 @@ private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Un
                 text = "댓글 영역",
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color(AppColors.Surface)
             )
         }
 

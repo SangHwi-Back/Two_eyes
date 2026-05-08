@@ -1,6 +1,7 @@
 package com.example.twoeyesproject.ui.upload
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -93,7 +94,9 @@ fun UploadScreen(
                     }
                 }
             )
-        }
+        },
+        modifier = Modifier
+            .background(color = Color(AppColors.Background))
     ) { innerPadding ->
         when (listType) {
             UploadListType.LIST -> LazyColumn(contentPadding = innerPadding) {
