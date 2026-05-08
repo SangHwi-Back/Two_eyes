@@ -34,11 +34,6 @@ kotlin {
             version = from("7.1.0"),
             products = listOf(product("GoogleSignIn")),
         )
-        swiftPackage(
-            url = url("https://github.com/BradLarson/GPUImage3.git"),
-            version = branch("main"),
-            products = listOf(product("GPUImage")),
-        )
     }
 
     sourceSets {
