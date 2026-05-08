@@ -37,7 +37,7 @@ kotlin {
         swiftPackage(
             url = url("https://github.com/BradLarson/GPUImage3.git"),
             version = branch("main"),
-            products = listOf(),
+            products = listOf(product("GPUImage")),
         )
     }
 
@@ -68,7 +68,7 @@ kotlin {
             implementation(libs.okhttp)
             implementation(libs.jwtdecode)
             implementation(libs.googleid)
-            implementation("jp.co.cyberagent.android.gpuimage:2.1.0")
+            implementation(libs.cyberagent.android.gpuimage)
         }
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)
