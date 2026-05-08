@@ -11,7 +11,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
 @RequiresApi(Build.VERSION_CODES.O)
-actual class PickImageFetcher actual constructor(val viewModel: PickImageViewModel): KoinComponent {
+actual class PickImageFetcher: KoinComponent {
     val context: Context = get()
     private val collection: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)

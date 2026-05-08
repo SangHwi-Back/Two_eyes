@@ -1,10 +1,12 @@
 package com.example.twoeyesproject.image
 
+import com.example.twoeyesproject.AppConstants
 import com.example.twoeyesproject.platformspecific.ImageSource
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
+import platform.CoreGraphics.CGFloat
 import platform.CoreGraphics.CGSize
 import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSPredicate
@@ -25,7 +27,7 @@ import platform.UIKit.UIImage
 import kotlin.coroutines.resume
 
 @OptIn(ExperimentalForeignApi::class)
-actual class PickImageFetcher actual constructor(val viewModel: PickImageViewModel) {
+actual class PickImageFetcher {
     suspend fun requestPhotoLibraryPermission(): Boolean {
         val status = PHPhotoLibrary.authorizationStatusForAccessLevel(
             PHAccessLevelReadWrite
@@ -78,7 +80,8 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
     // MARK: - PHAsset → UIImage 변환
     suspend fun convertToUIImages(
         assets: List<PHAsset>,
-        targetSize: CValue<CGSize> = CGSizeMake(300.0, 300.0),
+        targetSizeWidth: CGFloat = AppConstants.THUMBNAIL_SIZE_WIDTH.toDouble(),
+        targetSizeHeight: CGFloat = AppConstants.THUMBNAIL_SIZE_HEIGHT.toDouble(),
     ): List<PlatformImage> {
         val imageManager = PHImageManager.defaultManager()
 
@@ -93,7 +96,7 @@ actual class PickImageFetcher actual constructor(val viewModel: PickImageViewMod
             val image = suspendCancellableCoroutine { continuation ->
                 imageManager.requestImageForAsset(
                     asset,
-                    targetSize = targetSize,
+                    targetSize = CGSizeMake(targetSizeWidth, targetSizeHeight),
                     contentMode = PHImageContentModeAspectFill,
                     options = options,
                     resultHandler = { image: UIImage?, _ ->

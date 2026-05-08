@@ -76,7 +76,7 @@ class PickImageViewModel: ViewModel(), PickerImageSourceDelegate {
     /** GetAll — 전체 갤러리 로드. 이후 카메라 이미지도 리스트에 추가됨 */
     fun loadAllImages() {
         _isGalleryLoaded.value = true
-        val fetcher = PickImageFetcher(this)
+        val fetcher = PickImageFetcher()
         viewModelScope.launch(Dispatchers.IO) {
             val sources = fetcher.loadPlatformSourceOfImages()
             _imageSources.value = sources

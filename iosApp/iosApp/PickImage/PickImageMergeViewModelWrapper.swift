@@ -13,7 +13,7 @@ import Shared
 @Observable
 final class PickImageMergeViewModelWrapper {
     let viewModel = PickImageMergeViewModel()
-
+    let imageFetcher = PickImageFetcher()
     var mergedImage: UIImage?
 
     // 위치 상태 — ViewModel Flow 를 관찰해 동기화
@@ -32,18 +32,33 @@ final class PickImageMergeViewModelWrapper {
 
     // 제스처 캔버스 크기 — onAppear 에서 주입
     private var canvasSize: CGSize = .zero
-    private let thumbnailSize = CGSize(width: 120, height: 190)
 
     init(model: PickImageMergeModel) {
         self.imageSourceModel = model
         
-        fetchImage(asset: model.leading) { [weak self] image in
-            self?.leadingImage = image
-            self?.tryRender()
-        }
-        fetchImage(asset: model.trailing) { [weak self] image in
-            self?.trailingImage = image
-            self?.tryRender()
+        Task { [weak self] in
+            do {
+                let images = try await self?.fetchImages(assets: [model.leading, model.trailing])
+                
+                guard let self,
+                      let _leadingImage = images?.first,
+                      let _trailingImage = images?.last
+                else {
+                    throw NSError(
+                        domain: "PickImageFetcher.fetchImages(assets:)",
+                        code: -1,
+                        userInfo: [
+                            "PickImageLeading": model.leading,
+                            "PickImageTrailing": model.trailing
+                        ])
+                }
+                
+                self.leadingImage = _leadingImage
+                self.trailingImage = _trailingImage
+                self.tryRender()
+            } catch {
+                // TODO: Error Handling Needed
+            }
         }
 
         viewModel.leading.collect(
@@ -73,30 +88,23 @@ final class PickImageMergeViewModelWrapper {
     }
 
     // MARK: - Private
-
-    private func fetchImage(asset: PHAsset, completion: @escaping (UIImage) -> Void) {
-        let options = PHImageRequestOptions()
-        options.deliveryMode = .highQualityFormat
-        options.isNetworkAccessAllowed = true
-        PHImageManager.default().requestImage(
-            for: asset,
-            targetSize: CGSize(width: thumbnailSize.width * 3, height: thumbnailSize.height * 3),
-            contentMode: .aspectFill,
-            options: options
-        ) { image, _ in
-            guard let image else { return }
-            DispatchQueue.main.async { completion(image) }
-        }
+    
+    private func fetchImages(assets: [PHAsset]) async throws -> [UIImage] {
+        try await imageFetcher.convertToUIImages(
+                assets: assets,
+                targetSizeWidth: Double(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
+                targetSizeHeight: Double(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)
+            )
     }
-
+    
     private func tryRender() {
         guard canvasSize.width > 0,
               let leadingImage, let trailingImage else { return }
 
         // SwiftUI offset (ZStack 중심 기준) → 캔버스 top-left 기준 CGRect 로 변환
         func makeRect(_ state: PickImageMergeViewModel.ImageState) -> CGRect {
-            let w = thumbnailSize.width  * CGFloat(state.scale)
-            let h = thumbnailSize.height * CGFloat(state.scale)
+            let w = CGFloat(Float(AppConstants.shared.THUMBNAIL_SIZE_WIDTH)  * state.scale)
+            let h = CGFloat(Float(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT) * state.scale)
             return CGRect(
                 x: canvasSize.width  / 2 + CGFloat(state.offsetX) - w / 2,
                 y: canvasSize.height / 2 + CGFloat(state.offsetY) - h / 2,

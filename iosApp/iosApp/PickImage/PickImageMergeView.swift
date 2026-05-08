@@ -18,9 +18,7 @@ struct PickImageMergeView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
-
-    let bottomZIndex: Double = 999
-    let topZIndex: Double = 1000
+    
     let leadingSource: PHAsset
     let trailingSource: PHAsset
 
@@ -35,17 +33,27 @@ struct PickImageMergeView: View {
             width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
             height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
         )
+        let (leadingSize, trailingSize): (CGSize, CGSize) = (
+            thumbnailSize * CGFloat(wrapper.leadingState.scale),
+            thumbnailSize * CGFloat(wrapper.trailingState.scale)
+        )
+        let (leadingZIndex, trailingZIndex): (Double, Double) = (
+            wrapper.zOrder.first == .top ? 999 : 1000,
+            wrapper.zOrder.last == .top ? 999 : 1000,
+        )
+        let cornerRadius = CGFloat(constant.CARD_CORNER_RADIUS)
+        
         GeometryReader { proxy in
             // GeometryReader 는 자식을 모두 (0,0) 에 쌓으므로 VStack 으로 감쌈
             VStack(spacing: 0) {
                 ZStack {
-                    PHAssetImage(asset: leadingSource, size: thumbnailSize * CGFloat(wrapper.leadingState.scale))
+                    PHAssetImage(asset: leadingSource, size: leadingSize)
                         .draggableAndScalable($wrapper.leadingState)
-                        .zIndex(bottomZIndex)
+                        .zIndex(leadingZIndex)
 
-                    PHAssetImage(asset: trailingSource, size: thumbnailSize * CGFloat(wrapper.trailingState.scale))
+                    PHAssetImage(asset: trailingSource, size: trailingSize)
                         .draggableAndScalable($wrapper.trailingState)
-                        .zIndex(topZIndex)
+                        .zIndex(trailingZIndex)
 
                     GlassIconButton(systemName: "arrow.left.arrow.right") {
                         wrapper.viewModel.swapOrder()
@@ -58,14 +66,14 @@ struct PickImageMergeView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
                 .onAppear {
-                    let canvasSize = CGSize(width: proxy.size.width, height: 300)
-                    wrapper.setCanvasSize(canvasSize)
+                    let centerOffsetXDetached = Float(proxy.size.width) / 4
+                    wrapper.setCanvasSize(proxy.canvasSize)
 
                     // ViewModel 초기 상태 동기화
                     wrapper.leadingState = .init(
-                        offsetX: -Float(proxy.size.width) / 4, offsetY: 0, scale: 1)
+                        offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1)
                     wrapper.trailingState = .init(
-                        offsetX:  Float(proxy.size.width) / 4, offsetY: 0, scale: 1)
+                        offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1)
                 }
 
                 Divider()
@@ -73,10 +81,10 @@ struct PickImageMergeView: View {
 
                 ZStack(alignment: .center) {
                     // Rectangle().background() 는 흰색 fill 이 아닌 배경 레이어이므로 fill + stroke 로 수정
-                    RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS))
+                    RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(AppColors.shared.Surface.color)
                         .overlay(
-                            RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS))
+                            RoundedRectangle(cornerRadius: cornerRadius)
                                 .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
                         )
 
@@ -87,8 +95,9 @@ struct PickImageMergeView: View {
                             .aspectRatio(CGFloat(constant.THUMBNAIL_ASPECT_RATIO), contentMode: .fit)
                             .padding(.vertical)
                     } else {
-                        ProgressView()
-                            .frame(width: 40, height: 40)
+                        ProgressView().frame(
+                            width: CGFloat(AppConstants.shared.ICON_SIZE_WIDTH),
+                            height: CGFloat(AppConstants.shared.ICON_SIZE_HEIGHT))
                     }
                 }
                 .frame(maxWidth: .infinity)
