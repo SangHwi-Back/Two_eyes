@@ -7,9 +7,12 @@
 
 import SwiftUI
 import Shared
+import Intents
 
 struct FeedListView: View {
     var viewModel: FeedListViewModel
+    
+    @State var isPresenting = false
     
     var listData: [FeedItemModel] {
         (viewModel.listData.value as? [FeedItemModel]) ?? []
@@ -26,9 +29,7 @@ struct FeedListView: View {
                     FeedItemView(model: data) { type in
                         switch type {
                         case .like:
-                            viewModel.updateLike(like: false, feedId: "")
-                        case .share:
-                            viewModel.updateLike(like: false, feedId: "")
+                            viewModel.updateLike(like: false, feedId: data.feedId)
                         }
                     }
                 }
@@ -38,7 +39,7 @@ struct FeedListView: View {
     }
 }
 
-enum FeedListViewTapType { case like, share }
+enum FeedListViewTapType { case like }
 
 #Preview {
     FeedListView(apiClient: .init())

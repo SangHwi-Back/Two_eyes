@@ -57,10 +57,6 @@ struct FeedItemView: View {
                             onTapGesture(.like)
                         }
                         .glassEffectID("feed", in: namespace)
-                        GlassIconButton(systemName: "square.and.arrow.up") {
-                            onTapGesture(.share)
-                        }
-                        .glassEffectID("feed", in: namespace)
                     }
                 }
                 
