@@ -27,8 +27,6 @@ struct FeedListView: View {
                         switch type {
                         case .like:
                             viewModel.updateLike(like: false, feedId: "")
-                        case .comment:
-                            viewModel.updateLike(like: false, feedId: "")
                         case .share:
                             viewModel.updateLike(like: false, feedId: "")
                         }
@@ -40,7 +38,7 @@ struct FeedListView: View {
     }
 }
 
-enum FeedListViewTapType { case like, comment, share }
+enum FeedListViewTapType { case like, share }
 
 #Preview {
     FeedListView(apiClient: .init())

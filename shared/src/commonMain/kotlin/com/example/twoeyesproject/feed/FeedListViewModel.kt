@@ -10,11 +10,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.collections.listOf
+import kotlin.uuid.Uuid
 
 class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
     var mergeEntities = MutableStateFlow<List<FeedResponse.Data>>(listOf())
     private var _listMockData = MutableStateFlow(listOf(
         FeedItemModel(
+            feedId = Uuid.random().toString(),
             imageUrls = listOf(
                 "https://picsum.photos/seed/a1/600/600",
                 "https://picsum.photos/seed/a2/600/600",
@@ -24,8 +26,31 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
             author = "mock_user_1",
             description = "이미지 3장짜리 게시물입니다. 좌우로 스와이프해보세요.",
             showReply = false,
-        ),
+            replyArray = listOf()
+        ).apply {
+            replyArray = listOf(
+                FeedItemReplyModel(
+                    feedId = feedId,
+                    replyId = Uuid.random().toString(),
+                    author = "mock_user_2",
+                    description = "이미지 3개 코멘트 1"
+                ),
+                FeedItemReplyModel(
+                    feedId = feedId,
+                    replyId = Uuid.random().toString(),
+                    author = "mock_user_3",
+                    description = "이미지 3개 코멘트 2"
+                ),
+                FeedItemReplyModel(
+                    feedId = feedId,
+                    replyId = Uuid.random().toString(),
+                    author = "mock_user_2",
+                    description = "이미지 3개 코멘트 333333333333333333333333333333333"
+                )
+            )
+        },
         FeedItemModel(
+            feedId = Uuid.random().toString(),
             imageUrls = listOf(
                 "https://picsum.photos/seed/b1/600/600",
             ),
@@ -33,8 +58,10 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
             author = "mock_user_2",
             description = "이미지 1장짜리 게시물입니다.",
             showReply = false,
+            replyArray = listOf()
         ),
         FeedItemModel(
+            feedId = Uuid.random().toString(),
             imageUrls = listOf(
                 "https://picsum.photos/seed/c1/600/600",
                 "https://picsum.photos/seed/c2/600/600",
@@ -43,6 +70,7 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
             author = "mock_user_3",
             description = "이미지 2장짜리 게시물입니다.",
             showReply = false,
+            replyArray = listOf()
         ),
     ))
     val listData = _listMockData.asStateFlow()
