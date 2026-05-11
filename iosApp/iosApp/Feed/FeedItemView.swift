@@ -14,6 +14,7 @@ struct FeedItemView: View {
 
     @Namespace var namespace
     @State var showReply: Bool
+    @State var replyText: String = ""
 
     init(model: FeedItemModel, onTapGesture: @escaping (FeedListViewTapType) -> Void) {
         self.model = model
@@ -34,10 +35,24 @@ struct FeedItemView: View {
             .scrollIndicators(.visible, axes: .horizontal)
             .aspectRatio(1, contentMode: .fit)
             .padding(.bottom)
+            .padding(.horizontal)
+            
+            HStack(alignment: .top, spacing: 8) {
+                Text(model.author)
+                    .font(.callout)
+                    .foregroundStyle(AppColors.shared.TextPrimary.color)
+                    .frame(minWidth: 100, maxWidth: 140)
+                Text(model.description_)
+                    .font(.subheadline)
+                    .foregroundStyle(AppColors.shared.TextPrimary.color)
+                Spacer()
+            }
+            .padding(.bottom)
+            .padding(.horizontal)
             
             HStack {
                 GlassEffectContainer(spacing: 8) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: -2) {
                         GlassIconButton(systemName: "heart") {
                             onTapGesture(.like)
                         }
@@ -56,17 +71,14 @@ struct FeedItemView: View {
                 Spacer()
             }
             .padding(.bottom)
-            .padding(.leading)
+            .padding(.horizontal)
             
-            HStack(alignment: .top, spacing: 18) {
-                Text(model.author)
-                    .font(.callout)
-                Text(model.description_)
-                    .font(.subheadline)
-                Spacer()
-            }
-            .padding(.bottom)
-            .padding(.leading)
+            TextField("Comment...", text: $replyText)
+                .textFieldStyle(.plain)
+                .padding()
+                .glassEffect(.regular, in: .capsule)
+                .padding(.bottom)
+                .padding(.horizontal)
             
             HStack {
                 Button(showReply ? "Hide Comment" : "Show Comment") {
@@ -78,7 +90,23 @@ struct FeedItemView: View {
             }
             
             if showReply {
-                Text("Comment Area~~~~")
+                VStack(alignment: .leading) {
+                    ForEach(model.replyArray, id: \.replyId) { model in
+                        HStack {
+                            Image(systemName: "arrow.turn.down.right")
+                                .resizable()
+                                .frame(width: 15, height: 15, alignment: .center)
+                                .foregroundStyle(AppColors.shared.Divider.color)
+                            Text(model.author)
+                                .font(.headline)
+                                .foregroundStyle(AppColors.shared.TextPrimary.color)
+                                .frame(minWidth: 80, maxWidth: 120)
+                            Text(model.description_)
+                                .font(.footnote)
+                                .foregroundStyle(AppColors.shared.TextPrimary.color)
+                        }
+                    }
+                }
             }
         }
     }
