@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.platformspecific
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.AuthenticationServices.ASAuthorization
 import platform.AuthenticationServices.ASAuthorizationAppleIDCredential
 import platform.AuthenticationServices.ASAuthorizationController
@@ -11,7 +12,8 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.create
 import platform.darwin.NSObject
 
-actual open class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizationControllerDelegateProtocol {
+@OptIn(ExperimentalForeignApi::class)
+actual class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizationControllerDelegateProtocol {
     actual var authorizationHandler: ((user: SecureUserData.AppleUserData?) -> Unit)? = null
     actual fun authorizationControllerWithAppleUser(user: SecureUserData.AppleUserData?) {
         authorizationHandler?.invoke(user)
