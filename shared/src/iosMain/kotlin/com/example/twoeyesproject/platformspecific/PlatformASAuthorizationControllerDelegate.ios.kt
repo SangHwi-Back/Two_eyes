@@ -11,7 +11,7 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.create
 import platform.darwin.NSObject
 
-actual class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizationControllerDelegateProtocol {
+actual open class PlatformASAuthorizationControllerDelegate: NSObject(), ASAuthorizationControllerDelegateProtocol {
     actual var authorizationHandler: ((user: SecureUserData.AppleUserData?) -> Unit)? = null
     actual fun authorizationControllerWithAppleUser(user: SecureUserData.AppleUserData?) {
         authorizationHandler?.invoke(user)

@@ -19,6 +19,11 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
     @Throws(Exception::class)
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData =
         suspendCancellableCoroutine { continuation ->
+            if (isTest) {
+                testSignInWithGoogle(credential)
+                return@suspendCancellableCoroutine
+            }
+
             if (uiContext != null) {
                 GIDSignIn
                     .sharedInstance
@@ -48,7 +53,22 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
             }
         }
 
+    @Throws(Exception::class)
+    private fun testSignInWithGoogle(credential: String): SecureUserData.GoogleUserData {
+        if (isTest)
+            return SecureUserData.GoogleUserData(
+                "", "", "", "", "", ""
+            )
+        else
+            throw IllegalArgumentException("")
+    }
+
     actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {
+        if (isTest) {
+            testSignInWithApple(delegate)
+            return
+        }
+
         val request = ASAuthorizationAppleIDProvider().createRequest().apply {
             requestedScopes = listOf(ASAuthorizationScopeEmail, ASAuthorizationScopeFullName)
         }
@@ -70,4 +90,12 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         controller.presentationContextProvider = presentationProvider
         controller.performRequests()
     }
+
+    private fun testSignInWithApple(delegate: PlatformASAuthorizationControllerDelegate) =
+        delegate.authorizationHandler?.let {
+            it(SecureUserData.AppleUserData(
+            "", "", "", "", "", "", ""))
+        }
+
+    actual var isTest: Boolean = false
 }

@@ -4,7 +4,6 @@ import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 
 class PickImageMergeViewModelTest {
     @Test

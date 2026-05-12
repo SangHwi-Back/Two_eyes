@@ -13,6 +13,8 @@ import java.util.Base64
 actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUIContext?) {
     @Throws(Exception::class)
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData {
+        if (isTest)
+            return testSignInWithGoogle(credential)
         if (uiContext == null) {
             throw IllegalStateException("Activity Not Found")
         }
@@ -38,6 +40,15 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         }
     }
 
+    @Throws(Exception::class)
+    private fun testSignInWithGoogle(credential: String): SecureUserData.GoogleUserData {
+        if (credential.isEmpty())
+            throw IllegalStateException("Unexpected credential type: ${credential::class}")
+        else
+            return SecureUserData.GoogleUserData(
+                "", "", "", "", "", "")
+    }
+
     fun generateSecureRandomNonce(byteLength: Int = 32): String {
         val randomBytes = ByteArray(byteLength)
         SecureRandom.getInstanceStrong().nextBytes(randomBytes)
@@ -53,4 +64,6 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
         familyName = familyName,
         email = id,
         idToken = idToken)
+
+    actual var isTest: Boolean = false
 }

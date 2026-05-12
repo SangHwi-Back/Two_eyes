@@ -1,6 +1,6 @@
 package com.example.twoeyesproject.platformspecific
 
-expect class PlatformASAuthorizationControllerDelegate() {
+expect open class PlatformASAuthorizationControllerDelegate() {
     var authorizationHandler: ((user: SecureUserData.AppleUserData?) -> Unit)?
     fun authorizationControllerWithAppleUser(user: SecureUserData.AppleUserData?)
 }
