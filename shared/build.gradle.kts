@@ -63,7 +63,6 @@ kotlin {
             implementation(libs.okhttp)
             implementation(libs.jwtdecode)
             implementation(libs.googleid)
-            implementation(libs.cyberagent.android.gpuimage)
         }
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)

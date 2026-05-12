@@ -16,10 +16,6 @@ let package = Package(
     .package(
       url: "https://github.com/google/GoogleSignIn-iOS.git",
       from: "7.1.0"
-    ),
-    .package(
-      url: "https://github.com/BradLarson/GPUImage3.git",
-      branch: "main"
     )
   ],
   targets: [
@@ -29,10 +25,6 @@ let package = Package(
         .product(
           name: "GoogleSignIn",
           package: "GoogleSignIn-iOS"
-        ),
-        .product(
-          name: "GPUImage",
-          package: "GPUImage3"
         )
       ]
     )

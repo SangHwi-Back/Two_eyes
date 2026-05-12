@@ -7,9 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B4473DC2FADDA66004B27FB /* GPUImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1B4473DB2FADDA66004B27FB /* GPUImage */; };
 		9AC214D13CC54F9AB282D550 /* KotlinMultiplatformLinkedPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 778819072261C2A1CB3A7FB1 /* KotlinMultiplatformLinkedPackage */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1B15CE3F2FB1B31D005E7DEA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1B3041B12F7CEE0D0062F13F /* SharedModule_androidKt.dex */ = {isa = PBXFileReference; lastKnownFileType = file; path = SharedModule_androidKt.dex; sourceTree = "<group>"; };
@@ -394,7 +406,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AC214D13CC54F9AB282D550 /* KotlinMultiplatformLinkedPackage in Frameworks */,
-				1B4473DC2FADDA66004B27FB /* GPUImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3801,6 +3812,7 @@
 				D7F156DA62D749352B5FC334 /* Sources */,
 				3209B010376135F1052F9810 /* Frameworks */,
 				347AB204F793D6A2D99BB8CC /* Resources */,
+				1B15CE3F2FB1B31D005E7DEA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -3812,7 +3824,6 @@
 			name = iosApp;
 			packageProductDependencies = (
 				778819072261C2A1CB3A7FB1 /* KotlinMultiplatformLinkedPackage */,
-				1B4473DB2FADDA66004B27FB /* GPUImage */,
 			);
 			productName = iosApp;
 			productReference = D97C153681C9A655D7FA6A1E /* TwoEyesProject.app */;
@@ -3825,7 +3836,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					2051A30CC8D606C0F59819B8 = {
@@ -3844,7 +3855,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				EF61E2726DE3B66F03226A57 /* XCLocalSwiftPackageReference "KotlinMultiplatformLinkedPackage" */,
-				1B4473DA2FADDA66004B27FB /* XCRemoteSwiftPackageReference "GPUImage3" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 80B936C3AD97E15BA2FAA798 /* Products */;
@@ -4116,23 +4126,7 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		1B4473DA2FADDA66004B27FB /* XCRemoteSwiftPackageReference "GPUImage3" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/BradLarson/GPUImage3";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		1B4473DB2FADDA66004B27FB /* GPUImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1B4473DA2FADDA66004B27FB /* XCRemoteSwiftPackageReference "GPUImage3" */;
-			productName = GPUImage;
-		};
 		778819072261C2A1CB3A7FB1 /* KotlinMultiplatformLinkedPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = KotlinMultiplatformLinkedPackage;
