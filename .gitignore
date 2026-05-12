@@ -19,3 +19,5 @@ captures
 node_modules/
 /.claude/
 .swiftpm-locks
+iosApp/iosApp.xcodeproj/project.xcworkspace
+iosApp/iosApp.xcodeproj/project.pbxproj
