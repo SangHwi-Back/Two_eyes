@@ -17,10 +17,10 @@ final class PickImageMergeViewModelWrapper {
     var mergedImage: UIImage?
 
     // 위치 상태 — ViewModel Flow 를 관찰해 동기화
-    var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1) {
+    var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
         didSet { tryRender() }
     }
-    var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1) {
+    var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
         didSet { tryRender() }
     }
     var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]

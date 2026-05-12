@@ -16,8 +16,17 @@ class PickImageMergeViewModel : ViewModel() {
     data class ImageState(
         val offsetX: Float = 0f,
         val offsetY: Float = 0f,
-        val scale: Float = 1f
-    )
+        val scale: Float = 1f,
+        val filter: Filter? = null,
+    ) {
+        enum class Filter {
+            INVERTED, // 반전
+            VIGNETTE, // 삽화
+            CONTRAST, // 대비
+            SATURATION, // 채도
+            MONOCHROME, // 흑백
+        }
+    }
 
     private val _leading = MutableStateFlow(ImageState())
     val leading = _leading.asStateFlow()

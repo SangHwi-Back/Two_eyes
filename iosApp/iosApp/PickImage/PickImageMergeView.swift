@@ -71,9 +71,9 @@ struct PickImageMergeView: View {
 
                     // ViewModel 초기 상태 동기화
                     wrapper.leadingState = .init(
-                        offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1)
+                        offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
                     wrapper.trailingState = .init(
-                        offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1)
+                        offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
                 }
 
                 Divider()
@@ -164,7 +164,8 @@ private extension PHAssetImage {
                             imageState = .init(
                                 offsetX: base.offsetX + Float(value.translation.width),
                                 offsetY: base.offsetY + Float(value.translation.height),
-                                scale: base.scale
+                                scale: base.scale,
+                                filter: nil
                             )
                         }
                         .onEnded { value in
@@ -172,7 +173,8 @@ private extension PHAssetImage {
                             imageState = .init(
                                 offsetX: base.offsetX + Float(value.translation.width),
                                 offsetY: base.offsetY + Float(value.translation.height),
-                                scale: base.scale
+                                scale: base.scale,
+                                filter: nil
                             )
                             baseState = nil
                         }
@@ -185,7 +187,8 @@ private extension PHAssetImage {
                             imageState = .init(
                                 offsetX: base.offsetX,
                                 offsetY: base.offsetY,
-                                scale: base.scale * Float(value.magnification)
+                                scale: base.scale * Float(value.magnification),
+                                filter: nil
                             )
                         }
                         .onEnded { value in
@@ -193,7 +196,8 @@ private extension PHAssetImage {
                             imageState = .init(
                                 offsetX: base.offsetX,
                                 offsetY: base.offsetY,
-                                scale: base.scale * Float(value.magnification)
+                                scale: base.scale * Float(value.magnification),
+                                filter: nil
                             )
                             baseState = nil
                         }

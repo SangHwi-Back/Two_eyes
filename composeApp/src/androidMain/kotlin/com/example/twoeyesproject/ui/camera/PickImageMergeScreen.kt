@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.twoeyesproject.AppConstants
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.image.ImageDecoder
@@ -61,8 +63,6 @@ import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
-private val ThumbnailWidth  = 120.dp
-private val ThumbnailHeight = 190.dp
 private val CanvasHeight    = 300.dp
 
 @Composable
@@ -113,14 +113,12 @@ fun PickImageMergeScreen(
             val density      = LocalDensity.current
             val canvasWidthPx  = with(density) { maxWidth.roundToPx() }
             val canvasHeightPx = with(density) { CanvasHeight.roundToPx() }
-            val thumbWidthPx   = with(density) { ThumbnailWidth.toPx() }
-            val thumbHeightPx  = with(density) { ThumbnailHeight.toPx() }
 
             // 초기 위치: iOS 와 동일하게 캔버스 좌우 절반 중앙
             LaunchedEffect(maxWidth) {
                 if (!initialized) {
                     val cw = with(density) { maxWidth.toPx() }
-                    val tw = with(density) { ThumbnailWidth.toPx() }
+                    val tw = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.toPx() }
                     leadingOffsetX  = cw / 4f - tw / 2f
                     trailingOffsetX = 3f * cw / 4f - tw / 2f
                     initialized = true
@@ -142,16 +140,10 @@ fun PickImageMergeScreen(
                         canvasWidthPx  = canvasWidthPx,
                         canvasHeightPx = canvasHeightPx,
                         leadingBitmap  = lBitmap,
-                        leadingOffsetX = leadingOffsetX,
-                        leadingOffsetY = leadingOffsetY,
-                        leadingScale   = leadingScale,
+                        leadingState = viewModel.leading.value,
                         trailingBitmap = tBitmap,
-                        trailingOffsetX = trailingOffsetX,
-                        trailingOffsetY = trailingOffsetY,
-                        trailingScale   = trailingScale,
+                        trailingState = viewModel.trailing.value,
                         zOrder          = zOrder,
-                        thumbWidthPx    = thumbWidthPx,
-                        thumbHeightPx   = thumbHeightPx
                     ).asImageBitmap()
                 }
             }
@@ -278,26 +270,22 @@ private fun renderMerged(
     canvasWidthPx:  Int,
     canvasHeightPx: Int,
     leadingBitmap:  Bitmap,
-    leadingOffsetX: Float,
-    leadingOffsetY: Float,
-    leadingScale:   Float,
+    leadingState:   PickImageMergeViewModel.ImageState,
     trailingBitmap: Bitmap,
-    trailingOffsetX: Float,
-    trailingOffsetY: Float,
-    trailingScale:   Float,
-    zOrder:          List<PickImageMergeViewModel.ImageOrder>,
-    thumbWidthPx:    Float,
-    thumbHeightPx:   Float,
+    trailingState:  PickImageMergeViewModel.ImageState,
+    zOrder:         List<PickImageMergeViewModel.ImageOrder>,
 ): Bitmap {
     fun makeFrame(ox: Float, oy: Float, s: Float) = ImageFrame(
         left   = ox,
         top    = oy,
-        right  = ox + thumbWidthPx * s,
-        bottom = oy + thumbHeightPx * s
+        right  = ox + AppConstants.THUMBNAIL_SIZE_WIDTH.toFloat() * s,
+        bottom = oy + AppConstants.THUMBNAIL_SIZE_HEIGHT.toFloat() * s
     )
 
-    val leadingFrame  = makeFrame(leadingOffsetX,  leadingOffsetY,  leadingScale)
-    val trailingFrame = makeFrame(trailingOffsetX, trailingOffsetY, trailingScale)
+    val leadingFrame  = makeFrame(
+        leadingState.offsetX,  leadingState.offsetY,  leadingState.scale)
+    val trailingFrame = makeFrame(
+        trailingState.offsetX, trailingState.offsetY, trailingState.scale)
 
     val isLeadingBottom = zOrder.firstOrNull() == PickImageMergeViewModel.ImageOrder.BOTTOM
     val model = ImageMergerModel(
@@ -336,7 +324,8 @@ private fun TransformableImage(
         contentDescription = null,
         contentScale  = ContentScale.Crop,
         modifier      = Modifier
-            .size(ThumbnailWidth, ThumbnailHeight)
+            .size(AppConstants.THUMBNAIL_SIZE_WIDTH.dp,
+                AppConstants.THUMBNAIL_SIZE_HEIGHT.dp)
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .scale(scale)
             .transformable(state = transformableState)
