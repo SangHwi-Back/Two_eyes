@@ -42,9 +42,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -52,6 +54,8 @@ import coil3.request.crossfade
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.upload.UploadViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 // size()가 exact 크기를 강제하므로 sizeIn은 불필요
 private val ButtonSizeModifier = Modifier.size(width = 80.dp, height = 42.dp)
@@ -201,5 +205,22 @@ private fun ImageSlot(
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UploadScreenPreview() {
+    UploadScreen(
+        viewModel = viewModel<UploadViewModel>().apply {
+            mergeEntities = dao.getAllAsFlow().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(0),
+                initialValue = listOf(
+                    MergeResultEntity(0, "", "", "", null, "", false)
+                )
+            )
+        },
+        onNext = {}
     )
 }

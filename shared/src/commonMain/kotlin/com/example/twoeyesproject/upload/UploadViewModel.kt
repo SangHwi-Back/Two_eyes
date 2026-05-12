@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
 
 class UploadViewModel(db: AppDatabase): ViewModel() {
 
-    private val dao = db.getMergeResultDao()
+    val dao = db.getMergeResultDao()
     private val client = ApiClient()
 
     // dao.getAllAsFlow() 가 Room 변경(insert/delete)을 자동으로 emit하므로
     // 별도 MutableStateFlow나 getAllEntities() 호출이 필요 없음
-    val mergeEntities: StateFlow<List<MergeResultEntity>> = dao.getAllAsFlow().stateIn(
+    var mergeEntities: StateFlow<List<MergeResultEntity>> = dao.getAllAsFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = listOf()
