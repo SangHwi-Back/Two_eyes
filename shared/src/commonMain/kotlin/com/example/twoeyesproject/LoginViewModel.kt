@@ -43,6 +43,7 @@ class LoginViewModel(
     // ── REMOVE ─────────────────────────────────────────────────────────────────
     fun clearAppleUserData()  = storage.remove(APPLE_USER_DATA_KEY)
     fun clearGoogleUserData() = storage.remove(GOOGLE_USER_DATA_KEY)
+    fun clearError()          { _errorStatus.value = null }
 
     // ── FETCH ──────────────────────────────────────────────────────────────────
     fun getAppleUserData()  = storage.getAppleUserData()

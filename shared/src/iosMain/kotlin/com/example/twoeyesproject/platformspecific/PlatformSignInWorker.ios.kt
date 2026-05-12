@@ -20,7 +20,11 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
     actual suspend fun signInWithGoogle(credential: String): SecureUserData.GoogleUserData =
         suspendCancellableCoroutine { continuation ->
             if (isTest) {
-                testSignInWithGoogle(credential)
+                // 빈 credential → 실패, 비어있지 않으면 → 성공 (Android와 동일한 동작)
+                if (credential.isEmpty())
+                    continuation.resumeWithException(IllegalStateException("Test: empty credential"))
+                else
+                    continuation.resume(SecureUserData.GoogleUserData("", "", "", "", "", ""))
                 return@suspendCancellableCoroutine
             }
 
@@ -52,16 +56,6 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
                 continuation.resumeWithException(IllegalStateException("UIViewController Not Found"))
             }
         }
-
-    @Throws(Exception::class)
-    private fun testSignInWithGoogle(credential: String): SecureUserData.GoogleUserData {
-        if (isTest)
-            return SecureUserData.GoogleUserData(
-                "", "", "", "", "", ""
-            )
-        else
-            throw IllegalArgumentException("")
-    }
 
     actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {
         if (isTest) {
