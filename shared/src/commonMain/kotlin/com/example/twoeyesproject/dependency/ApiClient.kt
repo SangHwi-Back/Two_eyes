@@ -140,8 +140,8 @@ class ApiClient {
                     val isAuthRequest = paths.contains("auth")
                             && (paths.contains("google")
                             || paths.contains("apple"))
-
-                    isAuthRequest
+                    // Attach authorization header if it's not authentication request
+                    !isAuthRequest
                 }
             }
         }
@@ -165,21 +165,13 @@ class ApiClient {
             setBody(AppleLoginRequest(identityToken, authorizationCode, AppleNameComponent(firstName, lastName)))
         }.body()
 
-    @Throws(Exception::class)
-    suspend fun refreshToken(refreshToken: String): AuthResponse =
-        client.post("$baseUrl/auth/refresh") {
-            contentType(ContentType.Application.Json)
-            setBody(RefreshTokenRequest(refreshToken))
-        }.body()
-
     // multipart 요청 — 이미지 파일이 포함될 때
     suspend fun createFeed(
-        accessToken: String,
         content: String?,
         tags: List<String>,
         imageBytes: ByteArray
     ) = client.post("$baseUrl/feed") {
-        header(HttpHeaders.Authorization, "Bearer $accessToken")
+        contentType(ContentType.Application.Json)
         setBody(MultiPartFormDataContent(
             formData {
                 content?.let { append("content", it) }
@@ -192,25 +184,12 @@ class ApiClient {
         ))
     }
 
-    suspend fun getFeed(
-        accessToken: String,
-        page: Int,
-        count: Int? = null,
-    ): FeedResponse = client.get("$baseUrl/feed") {
-        header(HttpHeaders.Authorization, "Bearer $accessToken")
-    }.body()
+    suspend fun getFeed(page: Int, count: Int? = null): FeedResponse =
+        client.get("$baseUrl/feed").body()
     
-    suspend fun postLike(
-        accessToken: String,
-        tobe: Boolean,
-        feedId: String,
-    ): HttpResponse = if (tobe) {
-        client.post("feed/$feedId/like") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-    } else {
-        client.delete("feed/$feedId/like") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-    }
+    suspend fun postLike(tobe: Boolean, feedId: String): HttpResponse =
+        if (tobe)
+            client.post("feed/$feedId/like")
+        else
+            client.delete("feed/$feedId/like")
 }

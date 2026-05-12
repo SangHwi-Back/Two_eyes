@@ -82,7 +82,7 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
         viewModelScope.launch {
             var mutableData = mutableListOf<FeedResponse.Data>()
             try {
-                val response = apiClient.getFeed("", 1)
+                val response = apiClient.getFeed(1)
                 mutableData = response.data.toMutableList()
             } catch (_: Exception) {
                 print("Server not ready yet.")
@@ -96,7 +96,7 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
         viewModelScope.launch {
             var response: HttpResponse? = null
             try {
-                response = apiClient.postLike("", like, feedId)
+                response = apiClient.postLike(like, feedId)
             } catch (_: Exception) {
                 print("Server not ready yet.")
             }

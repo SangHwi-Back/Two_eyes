@@ -44,7 +44,7 @@ class UploadViewModel(db: AppDatabase): ViewModel() {
                 }
             }
 
-            client.createFeed(accessToken = "", content = dto.contents, tags = dto.tags, imageBytes = result)
+            client.createFeed(content = dto.contents, tags = dto.tags, imageBytes = result)
         }
     }
 }
