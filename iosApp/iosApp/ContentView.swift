@@ -74,10 +74,15 @@ struct ContentView: View {
             Button {
                 showLogin = true
             } label: {
-                Image(systemName: userData.wrappedValue == nil
-                      ? "person.circle"
-                      : "person.circle.fill")
+                let isLoggedIn = userData.wrappedValue != nil
+                let systemName = "person.fill.\(isLoggedIn ? "checkmark" : "questionmark")"
+                let foregroundColor: Int64 = isLoggedIn
+                ? AppColors.shared.Primary
+                : AppColors.shared.Secondary
+                
+                Image(systemName: systemName)
                     .imageScale(.large)
+                    .foregroundStyle(foregroundColor.color)
             }
         }
     }
