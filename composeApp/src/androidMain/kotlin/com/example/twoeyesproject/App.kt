@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.room.Room
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -53,8 +54,9 @@ import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
-import com.example.twoeyesproject.di.sharedAndroidModule
+import org.koin.dsl.module
 import com.example.twoeyesproject.feed.FeedListViewModel
+import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
@@ -79,14 +81,26 @@ fun App() {
     }
 }
 
-@Composable
+// Preview 전용 모듈 — 파일 기반 Room DB 대신 인메모리 DB 사용
+// (Preview 환경에서는 context.getDatabasePath() 가 null 을 반환해 NPE 발생)
+private val previewModule = module {
+    factory { ImageDecoder() }
+    single {
+        Room.inMemoryDatabaseBuilder(androidContext(), AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+    }
+    single { ApiClient() }
+}
+
 @Preview(showBackground = true)
-fun AppPreview() {
+@Composable
+private fun AppPreview() {
     val context = LocalContext.current
 
     KoinApplicationPreview(application = {
         androidContext(context)
-        modules(sharedAndroidModule)
+        modules(previewModule)
     }) {
         MaterialTheme {
             AppScaffold(rememberNavController())

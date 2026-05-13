@@ -95,7 +95,9 @@ data class LikeResponse(
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
 class ApiClient {
-    private val secureStorage: PlatformSecureStorage = PlatformSecureStorage()
+    // lazy: Preview 환경에서 ApiClient 생성 시 PlatformSecureStorage(KoinComponent) 즉시 초기화를
+    // 막기 위해 지연 초기화. 실제 인증 요청(401 응답 시 loadTokens 호출)이 일어날 때만 생성됨.
+    private val secureStorage: PlatformSecureStorage by lazy { PlatformSecureStorage() }
     private val client = platformHttpClient().config {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
