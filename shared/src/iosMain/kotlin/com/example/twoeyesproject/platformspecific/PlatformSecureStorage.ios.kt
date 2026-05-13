@@ -38,8 +38,10 @@ actual class PlatformSecureStorage {
     actual fun putString(key: String, value: String) {
         val data = value.encodeToByteArray().toNSData()
 
-        val query = CFDictionaryCreateMutable(null, 4, null, null)!!
+        // getString / remove 와 동일하게 kSecAttrService 포함 — 세 함수가 같은 keychain 항목을 참조
+        val query = CFDictionaryCreateMutable(null, 5, null, null)!!
         CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword)
+        CFDictionaryAddValue(query, kSecAttrService, CFBridgingRetain("com.example.twoeyesproject.TwoEyesProject"))
         CFDictionaryAddValue(query, kSecAttrAccount, CFBridgingRetain(key))
         CFDictionaryAddValue(query, kSecValueData, CFBridgingRetain(data))
 
