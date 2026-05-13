@@ -75,9 +75,6 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
     ))
     val listData = _listMockData.asStateFlow()
 
-    init {
-        getAllFeeds()
-    }
     fun getAllFeeds() {
         viewModelScope.launch {
             var mutableData = mutableListOf<FeedResponse.Data>()
