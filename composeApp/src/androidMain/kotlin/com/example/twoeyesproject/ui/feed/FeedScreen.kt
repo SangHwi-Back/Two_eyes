@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,8 @@ import coil3.compose.AsyncImage
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
+import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
+import com.example.twoeyesproject.platformspecific.getGoogleUserData
 
 enum class FeedScreenTapType {
     LIKE, COMMENT, SHARE, FEED
@@ -55,6 +58,13 @@ fun FeedScreen(
     onFeedClick: (FeedItemModel) -> Unit,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        val isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
+
+        if (isLoggedIn)
+            viewModel.getAllFeeds()
+    }
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
