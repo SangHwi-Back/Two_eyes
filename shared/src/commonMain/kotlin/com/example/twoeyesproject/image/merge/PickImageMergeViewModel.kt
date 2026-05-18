@@ -39,7 +39,7 @@ class PickImageMergeViewModel : ViewModel() {
     val zOrder = _zOrder.asStateFlow()
 
     fun updateLeading(offsetX: Float, offsetY: Float, scale: Float) {
-        _leading.value = ImageState(offsetX, offsetY, scale)
+        _leading.value = _leading.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale)
     }
 
     fun updateLeading(imageState: ImageState) {
@@ -47,11 +47,19 @@ class PickImageMergeViewModel : ViewModel() {
     }
 
     fun updateTrailing(offsetX: Float, offsetY: Float, scale: Float) {
-        _trailing.value = ImageState(offsetX, offsetY, scale)
+        _trailing.value = _trailing.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale)
     }
 
     fun updateTrailing(imageState: ImageState) {
         updateTrailing(imageState.offsetX, imageState.offsetY, imageState.scale)
+    }
+
+    fun setLeadingFilter(filter: ImageState.Filter?) {
+        _leading.value = _leading.value.copy(filter = filter)
+    }
+
+    fun setTrailingFilter(filter: ImageState.Filter?) {
+        _trailing.value = _trailing.value.copy(filter = filter)
     }
 
     fun swapOrder() {

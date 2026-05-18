@@ -18,20 +18,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -57,13 +64,24 @@ import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.image.ImageFrame
 import com.example.twoeyesproject.image.ImageMerger
 import com.example.twoeyesproject.image.ImageMergerModel
+import com.example.twoeyesproject.image.applyFilter
 import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
-private val CanvasHeight    = 300.dp
+private val CanvasHeight = 300.dp
+
+// ── Filter enum 표시 이름 ────────────────────────────────────────────────────
+private val PickImageMergeViewModel.ImageState.Filter.label: String
+    get() = when (this) {
+        PickImageMergeViewModel.ImageState.Filter.INVERTED   -> "반전"
+        PickImageMergeViewModel.ImageState.Filter.MONOCHROME -> "흑백"
+        PickImageMergeViewModel.ImageState.Filter.CONTRAST   -> "대비"
+        PickImageMergeViewModel.ImageState.Filter.SATURATION -> "채도"
+        PickImageMergeViewModel.ImageState.Filter.VIGNETTE   -> "비네트"
+    }
 
 @Composable
 fun PickImageMergeScreen(
@@ -76,11 +94,13 @@ fun PickImageMergeScreen(
     val source1 = remember { uri1String.toUri().buildUpon() }
     val source2 = remember { uri2String.toUri().buildUpon() }
 
-    // ── ViewModel (위치·z순서만 관리) ─────────────────────────────────────────
+    // ── ViewModel ───────────────────────────────────────────────────────────
     val viewModel: PickImageMergeViewModel = viewModel()
-    val zOrder by viewModel.zOrder.collectAsStateWithLifecycle()
+    val zOrder   by viewModel.zOrder.collectAsStateWithLifecycle()
+    val leading  by viewModel.leading.collectAsStateWithLifecycle()
+    val trailing by viewModel.trailing.collectAsStateWithLifecycle()
 
-    // ── 이미지 디코딩 (뷰 레이어 담당) ───────────────────────────────────────
+    // ── 이미지 디코딩 ────────────────────────────────────────────────────────
     var leadingBitmap:  Bitmap? by remember { mutableStateOf(null) }
     var trailingBitmap: Bitmap? by remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
@@ -89,7 +109,7 @@ fun PickImageMergeScreen(
         trailingBitmap = withContext(Dispatchers.IO) { decoder.decode(source2) }
     }
 
-    // ── 제스처 상태 ───────────────────────────────────────────────────────────
+    // ── 제스처 상태 ──────────────────────────────────────────────────────────
     var leadingOffsetX  by remember { mutableFloatStateOf(0f) }
     var leadingOffsetY  by remember { mutableFloatStateOf(0f) }
     var leadingScale    by remember { mutableFloatStateOf(1f) }
@@ -110,11 +130,11 @@ fun PickImageMergeScreen(
                 .fillMaxWidth()
                 .height(CanvasHeight)
         ) {
-            val density      = LocalDensity.current
+            val density        = LocalDensity.current
             val canvasWidthPx  = with(density) { maxWidth.roundToPx() }
             val canvasHeightPx = with(density) { CanvasHeight.roundToPx() }
 
-            // 초기 위치: iOS 와 동일하게 캔버스 좌우 절반 중앙
+            // 초기 위치: 캔버스 좌우 절반 중앙
             LaunchedEffect(maxWidth) {
                 if (!initialized) {
                     val cw = with(density) { maxWidth.toPx() }
@@ -127,23 +147,27 @@ fun PickImageMergeScreen(
                 }
             }
 
-            // 위치·비트맵이 바뀔 때마다 합성 이미지 재생성
+            // 위치·필터·비트맵이 바뀔 때마다 합성 이미지 재생성
             LaunchedEffect(
                 leadingOffsetX, leadingOffsetY, leadingScale,
                 trailingOffsetX, trailingOffsetY, trailingScale,
-                zOrder, leadingBitmap, trailingBitmap
+                zOrder, leadingBitmap, trailingBitmap,
+                leading.filter, trailing.filter
             ) {
                 val lBitmap = leadingBitmap  ?: return@LaunchedEffect
                 val tBitmap = trailingBitmap ?: return@LaunchedEffect
                 previewBitmap = withContext(Dispatchers.Default) {
+                    // ViewModel StateFlow 를 직접 읽어야 함: collected state(leading/trailing)는
+                    // LaunchedEffect가 실행되는 시점에 한 프레임 지연이 있어 이전 좌표를 반환할 수 있음.
+                    // leading.filter는 키로만 사용해 필터 변경 시 재실행을 트리거.
                     renderMerged(
                         canvasWidthPx  = canvasWidthPx,
                         canvasHeightPx = canvasHeightPx,
                         leadingBitmap  = lBitmap,
-                        leadingState = viewModel.leading.value,
+                        leadingState   = viewModel.leading.value,
                         trailingBitmap = tBitmap,
-                        trailingState = viewModel.trailing.value,
-                        zOrder          = zOrder,
+                        trailingState  = viewModel.trailing.value,
+                        zOrder         = zOrder,
                     ).asImageBitmap()
                 }
             }
@@ -154,15 +178,15 @@ fun PickImageMergeScreen(
                     PickImageMergeViewModel.ImageOrder.BOTTOM -> {
                         leadingBitmap?.asImageBitmap()?.let { bmp ->
                             TransformableImage(
-                                bitmap    = bmp,
-                                offsetX   = leadingOffsetX,
-                                offsetY   = leadingOffsetY,
-                                scale     = leadingScale,
-                                onDrag    = { dx, dy ->
+                                bitmap  = bmp,
+                                offsetX = leadingOffsetX,
+                                offsetY = leadingOffsetY,
+                                scale   = leadingScale,
+                                onDrag  = { dx, dy ->
                                     leadingOffsetX += dx; leadingOffsetY += dy
                                     viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
                                 },
-                                onScale   = { f ->
+                                onScale = { f ->
                                     leadingScale *= f
                                     viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
                                 }
@@ -172,15 +196,15 @@ fun PickImageMergeScreen(
                     PickImageMergeViewModel.ImageOrder.TOP -> {
                         trailingBitmap?.asImageBitmap()?.let { bmp ->
                             TransformableImage(
-                                bitmap    = bmp,
-                                offsetX   = trailingOffsetX,
-                                offsetY   = trailingOffsetY,
-                                scale     = trailingScale,
-                                onDrag    = { dx, dy ->
+                                bitmap  = bmp,
+                                offsetX = trailingOffsetX,
+                                offsetY = trailingOffsetY,
+                                scale   = trailingScale,
+                                onDrag  = { dx, dy ->
                                     trailingOffsetX += dx; trailingOffsetY += dy
                                     viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
                                 },
-                                onScale   = { f ->
+                                onScale = { f ->
                                     trailingScale *= f
                                     viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
                                 }
@@ -192,18 +216,28 @@ fun PickImageMergeScreen(
 
             // Swap 버튼
             IconButton(
-                onClick   = { viewModel.swapOrder() },
-                modifier  = Modifier
+                onClick  = { viewModel.swapOrder() },
+                modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(4.dp)
             ) {
                 Icon(
-                    imageVector  = Icons.Default.SwapHoriz,
+                    imageVector        = Icons.Default.SwapHoriz,
                     contentDescription = "순서 교환",
-                    tint         = Color(AppColors.Surface2)
+                    tint               = Color(AppColors.Surface2)
                 )
             }
         }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+        // ── 필터 선택 ────────────────────────────────────────────────────────
+        FilterSelector(
+            leadingFilter  = leading.filter,
+            trailingFilter = trailing.filter,
+            onLeadingFilterChange  = { viewModel.setLeadingFilter(it) },
+            onTrailingFilterChange = { viewModel.setTrailingFilter(it) },
+        )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -223,10 +257,10 @@ fun PickImageMergeScreen(
             val preview = previewBitmap
             if (preview != null) {
                 Image(
-                    bitmap        = preview,
+                    bitmap             = preview,
                     contentDescription = "합성 미리보기",
-                    contentScale  = ContentScale.Fit,
-                    modifier      = Modifier
+                    contentScale       = ContentScale.Fit,
+                    modifier           = Modifier
                         .fillMaxSize()
                         .padding(8.dp)
                 )
@@ -252,15 +286,69 @@ fun PickImageMergeScreen(
                 onClick = {
                     if (previewBitmap != null)
                         viewModel.saveMergedImage(
-                            dao = db.getMergeResultDao(),
-                            mergedImage = (previewBitmap as ImageBitmap).asAndroidBitmap(),
-                            leadingImageId = source1.toString(),
+                            dao             = db.getMergeResultDao(),
+                            mergedImage     = (previewBitmap as ImageBitmap).asAndroidBitmap(),
+                            leadingImageId  = source1.toString(),
                             trailingImageId = source2.toString(),
-                            name = "Testing")
-
-                    onConfirm() },
+                            name            = "Testing"
+                        )
+                    onConfirm()
+                },
                 modifier = Modifier.weight(1f)
             ) { Text("확인") }
+        }
+    }
+}
+
+// ── 필터 선택 UI ──────────────────────────────────────────────────────────────
+@Composable
+private fun FilterSelector(
+    leadingFilter:          PickImageMergeViewModel.ImageState.Filter?,
+    trailingFilter:         PickImageMergeViewModel.ImageState.Filter?,
+    onLeadingFilterChange:  (PickImageMergeViewModel.ImageState.Filter?) -> Unit,
+    onTrailingFilterChange: (PickImageMergeViewModel.ImageState.Filter?) -> Unit,
+) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    val currentFilter  = if (selectedTab == 0) leadingFilter  else trailingFilter
+    val onFilterChange = if (selectedTab == 0) onLeadingFilterChange else onTrailingFilterChange
+
+    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+        // 이미지 선택 탭
+        TabRow(
+            selectedTabIndex = selectedTab,
+            modifier         = Modifier.height(36.dp)
+        ) {
+            Tab(
+                selected = selectedTab == 0,
+                onClick  = { selectedTab = 0 },
+                text     = { Text("왼쪽", style = MaterialTheme.typography.labelMedium) }
+            )
+            Tab(
+                selected = selectedTab == 1,
+                onClick  = { selectedTab = 1 },
+                text     = { Text("오른쪽", style = MaterialTheme.typography.labelMedium) }
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // 필터 칩 목록
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item {
+                FilterChip(
+                    selected = currentFilter == null,
+                    onClick  = { onFilterChange(null) },
+                    label    = { Text("없음") }
+                )
+            }
+            items(PickImageMergeViewModel.ImageState.Filter.entries.toList()) { filter ->
+                FilterChip(
+                    selected = currentFilter == filter,
+                    onClick  = { onFilterChange(filter) },
+                    label    = { Text(filter.label) }
+                )
+            }
         }
     }
 }
@@ -282,22 +370,24 @@ private fun renderMerged(
         bottom = oy + AppConstants.THUMBNAIL_SIZE_HEIGHT.toFloat() * s
     )
 
-    val leadingFrame  = makeFrame(
-        leadingState.offsetX,  leadingState.offsetY,  leadingState.scale)
-    val trailingFrame = makeFrame(
-        trailingState.offsetX, trailingState.offsetY, trailingState.scale)
+    // 필터 적용 (null 이면 원본 그대로)
+    val filteredLeading  = leadingBitmap.applyFilter(leadingState.filter)
+    val filteredTrailing = trailingBitmap.applyFilter(trailingState.filter)
+
+    val leadingFrame  = makeFrame(leadingState.offsetX,  leadingState.offsetY,  leadingState.scale)
+    val trailingFrame = makeFrame(trailingState.offsetX, trailingState.offsetY, trailingState.scale)
 
     val isLeadingBottom = zOrder.firstOrNull() == PickImageMergeViewModel.ImageOrder.BOTTOM
     val model = ImageMergerModel(
         canvasWidth  = canvasWidthPx,
         canvasHeight = canvasHeightPx,
         bottomImage  = ImageMergerModel.ImageInfo(
-            image = if (isLeadingBottom) leadingBitmap  else trailingBitmap,
-            frame = if (isLeadingBottom) leadingFrame   else trailingFrame
+            image = if (isLeadingBottom) filteredLeading  else filteredTrailing,
+            frame = if (isLeadingBottom) leadingFrame     else trailingFrame
         ),
         topImage     = ImageMergerModel.ImageInfo(
-            image = if (isLeadingBottom) trailingBitmap else leadingBitmap,
-            frame = if (isLeadingBottom) trailingFrame  else leadingFrame
+            image = if (isLeadingBottom) filteredTrailing else filteredLeading,
+            frame = if (isLeadingBottom) trailingFrame    else leadingFrame
         ),
         blendAlpha   = 0.5f
     )
@@ -308,24 +398,26 @@ private fun renderMerged(
 // ── TransformableImage ────────────────────────────────────────────────────────
 @Composable
 private fun TransformableImage(
-    bitmap:   ImageBitmap,
-    offsetX:  Float,
-    offsetY:  Float,
-    scale:    Float,
-    onDrag:   (dx: Float, dy: Float) -> Unit,
-    onScale:  (factor: Float) -> Unit,
+    bitmap:  ImageBitmap,
+    offsetX: Float,
+    offsetY: Float,
+    scale:   Float,
+    onDrag:  (dx: Float, dy: Float) -> Unit,
+    onScale: (factor: Float) -> Unit,
 ) {
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         onDrag(panChange.x, panChange.y)
         onScale(zoomChange)
     }
     Image(
-        bitmap        = bitmap,
+        bitmap             = bitmap,
         contentDescription = null,
-        contentScale  = ContentScale.Crop,
-        modifier      = Modifier
-            .size(AppConstants.THUMBNAIL_SIZE_WIDTH.dp,
-                AppConstants.THUMBNAIL_SIZE_HEIGHT.dp)
+        contentScale       = ContentScale.Crop,
+        modifier           = Modifier
+            .size(
+                AppConstants.THUMBNAIL_SIZE_WIDTH.dp,
+                AppConstants.THUMBNAIL_SIZE_HEIGHT.dp
+            )
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .scale(scale)
             .transformable(state = transformableState)
