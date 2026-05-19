@@ -20,14 +20,52 @@ struct PickImageMergeView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
+    
+    @State var leadingState: PickImageMergeViewModel.ImageState
+    var leadingStateBinding: Binding<PickImageMergeViewModel.ImageState> {
+        Binding {
+            self.leadingState
+        } set: { newValue in
+            self.setNewStatus(true, status: newValue)
+        }
+    }
+    @State var trailingState: PickImageMergeViewModel.ImageState
+    var trailingStateBinding: Binding<PickImageMergeViewModel.ImageState> {
+        Binding {
+            self.trailingState
+        } set: { newValue in
+            self.setNewStatus(false, status: newValue)
+        }
+    }
 
     let leadingSource:  PHAsset
     let trailingSource: PHAsset
 
     init(model: PickImageMergeModel) {
-        self._wrapper = State(initialValue: PickImageMergeViewModelWrapper(model: model))
+        let wrapper = PickImageMergeViewModelWrapper(model: model)
+        self._wrapper = State(initialValue: wrapper)
         self.leadingSource  = model.leading
         self.trailingSource = model.trailing
+        
+        self.leadingState = wrapper.leadingState
+        self.trailingState = wrapper.leadingState
+    }
+    
+    func setNewStatus(
+        _ isLeading: Bool,
+        status: PickImageMergeViewModel.ImageState
+    ) {
+        let base = isLeading ? wrapper.leadingState : wrapper.trailingState
+        
+        if base.filter != status.filter {
+            wrapper.setStateValue(isLeading, value: .filter(status.filter))
+        }
+        if base.offset != status.offset {
+            wrapper.setStateValue(isLeading, value: .offset(status.offset))
+        }
+        if base.scale != status.scale {
+            wrapper.setStateValue(isLeading, value: .scale(status.scale))
+        }
     }
 
     var body: some View {
@@ -51,11 +89,12 @@ struct PickImageMergeView: View {
                 // ── 제스처 캔버스 ────────────────────────────────────────────
                 ZStack {
                     PHAssetImage(asset: leadingSource, size: leadingSize)
-                        .draggableAndScalable($wrapper.leadingState)
+//                        .draggableAndScalable($wrapper.leadingState)
+                        .draggableAndScalable(leadingStateBinding)
                         .zIndex(leadingZIndex)
 
                     PHAssetImage(asset: trailingSource, size: trailingSize)
-                        .draggableAndScalable($wrapper.trailingState)
+                        .draggableAndScalable(trailingStateBinding)
                         .zIndex(trailingZIndex)
 
                     GlassIconButton(systemName: "arrow.left.arrow.right") {
@@ -71,9 +110,8 @@ struct PickImageMergeView: View {
                 .onAppear {
                     let centerOffsetXDetached = Float(proxy.size.width) / 4
                     wrapper.setCanvasSize(proxy.canvasSize)
-
-                    wrapper.leadingState  = .init(offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
-                    wrapper.trailingState = .init(offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
+                    leadingStateBinding.wrappedValue = .init(offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
+                    trailingStateBinding.wrappedValue = .init(offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
                 }
 
                 Divider().padding(.vertical, 8)
@@ -85,14 +123,14 @@ struct PickImageMergeView: View {
                     trailingFilter: wrapper.trailingState.filter,
                     onFilterChange: { filter in
                         if selectedImageTab == 0 {
-                            wrapper.leadingState = .init(
+                            leadingStateBinding.wrappedValue = .init(
                                 offsetX: wrapper.leadingState.offsetX,
                                 offsetY: wrapper.leadingState.offsetY,
                                 scale:   wrapper.leadingState.scale,
                                 filter:  filter
                             )
                         } else {
-                            wrapper.trailingState = .init(
+                            trailingStateBinding.wrappedValue = .init(
                                 offsetX: wrapper.trailingState.offsetX,
                                 offsetY: wrapper.trailingState.offsetY,
                                 scale:   wrapper.trailingState.scale,

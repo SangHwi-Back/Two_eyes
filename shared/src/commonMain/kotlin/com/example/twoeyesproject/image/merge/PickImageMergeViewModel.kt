@@ -71,9 +71,6 @@ class PickImageMergeViewModel : ViewModel() {
         _zOrder.value = current
     }
 
-    fun saveMergedImage(image: PlatformImage) {
-    }
-
     fun saveMergedImage(
         dao: MergeResultDao,
         mergedImage: PlatformImage,

@@ -18,10 +18,10 @@ final class PickImageMergeViewModelWrapper {
     var mergedImage: UIImage?
 
     // 위치·필터 상태 — ViewModel Flow 를 관찰해 동기화
-    var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
+    private(set) var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
         didSet { tryRender() }
     }
-    var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
+    private(set) var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
         didSet { tryRender() }
     }
     var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]
@@ -100,7 +100,39 @@ final class PickImageMergeViewModelWrapper {
                 targetSizeHeight: Double(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)
             )
     }
-
+    
+    func setStateValue(_ isLeading: Bool, value: MergeImagePropertyTransferType) {
+        let base = isLeading ? leadingState : trailingState
+        let newValue: PickImageMergeViewModel.ImageState = {
+            switch value {
+            case .filter(let imageStateFilter):
+                return PickImageMergeViewModel.ImageState(
+                    offsetX: base.offsetX,
+                    offsetY: base.offsetY,
+                    scale: base.scale,
+                    filter: imageStateFilter)
+            case .offset(let cGSize):
+                return PickImageMergeViewModel.ImageState(
+                    offsetX: Float(cGSize.width),
+                    offsetY: Float(cGSize.height),
+                    scale: base.scale,
+                    filter: base.filter)
+            case .scale(let scale):
+                return PickImageMergeViewModel.ImageState(
+                    offsetX: base.offsetX,
+                    offsetY: base.offsetY,
+                    scale: scale,
+                    filter: base.filter)
+            }
+        }()
+        
+        if isLeading {
+            leadingState = newValue
+        } else {
+            trailingState = newValue
+        }
+    }
+    
     private func tryRender() {
         guard canvasSize.width > 0,
               let leadingImage, let trailingImage else { return }
@@ -210,4 +242,10 @@ class MergeCollector<T>: Kotlinx_coroutines_coreFlowCollector {
 
 enum CollectorError: Error {
     case invalidValue
+}
+
+enum MergeImagePropertyTransferType {
+    case filter(PickImageMergeViewModel.ImageStateFilter?)
+    case offset(CGSize)
+    case scale(Float)
 }
