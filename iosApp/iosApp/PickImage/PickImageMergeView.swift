@@ -160,11 +160,11 @@ struct PickImageMergeView: View {
 
 private struct FilterSelectorView: View {
     @Binding var selectedTab: Int
-    let leadingFilter:  PickImageMergeViewModel.ImageState.Filter?
-    let trailingFilter: PickImageMergeViewModel.ImageState.Filter?
-    let onFilterChange: (PickImageMergeViewModel.ImageState.Filter?) -> Void
+    let leadingFilter:  PickImageMergeViewModel.ImageStateFilter?
+    let trailingFilter: PickImageMergeViewModel.ImageStateFilter?
+    let onFilterChange: (PickImageMergeViewModel.ImageStateFilter?) -> Void
 
-    private var currentFilter: PickImageMergeViewModel.ImageState.Filter? {
+    private var currentFilter: PickImageMergeViewModel.ImageStateFilter? {
         selectedTab == 0 ? leadingFilter : trailingFilter
     }
 
@@ -189,7 +189,7 @@ private struct FilterSelectorView: View {
                         onFilterChange(nil)
                     }
                     // 각 필터 칩
-                    ForEach(PickImageMergeViewModel.ImageState.Filter.allFilters, id: \.name) { filter in
+                    ForEach(PickImageMergeViewModel.ImageStateFilter.allFilters, id: \.name) { filter in
                         FilterChipView(
                             label:      filter.filterLabel,
                             isSelected: currentFilter?.isEqual(filter) == true
@@ -229,9 +229,9 @@ private struct FilterChipView: View {
 
 // MARK: - Filter Extensions
 
-private extension PickImageMergeViewModel.ImageState.Filter {
+private extension PickImageMergeViewModel.ImageStateFilter {
     /// Swift 에서 Kotlin enum 의 모든 케이스를 열거 (values() 가 Swift 에 직접 노출되지 않으므로 수동 선언)
-    static let allFilters: [PickImageMergeViewModel.ImageState.Filter] = [
+    static let allFilters: [PickImageMergeViewModel.ImageStateFilter] = [
         .inverted, .monochrome, .contrast, .saturation, .vignette
     ]
 

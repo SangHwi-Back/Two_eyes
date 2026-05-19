@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.dependency.MergeResultEntity
+import com.example.twoeyesproject.platformspecific.PlatformApplyFilter
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import com.example.twoeyesproject.platformspecific.PlatformPersistImage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,8 @@ class PickImageMergeViewModel : ViewModel() {
     // 첫 번째 원소가 아래(bottom) 레이어
     private val _zOrder = MutableStateFlow(listOf(ImageOrder.BOTTOM, ImageOrder.TOP))
     val zOrder = _zOrder.asStateFlow()
+
+    val applyFilter = PlatformApplyFilter()
 
     fun updateLeading(offsetX: Float, offsetY: Float, scale: Float) {
         _leading.value = _leading.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale)

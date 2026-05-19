@@ -32,7 +32,7 @@ final class PickImageMergeViewModelWrapper {
     private var trailingImage: UIImage?
 
     // CIFilter 처리를 위한 공유 컨텍스트 (생성 비용이 크므로 한 번만 생성)
-    private let ciContext = CIContext()
+    private let applyFilter = PlatformApplyFilter()
 
     // 제스처 캔버스 크기 — onAppear 에서 주입
     private var canvasSize: CGSize = .zero
@@ -128,63 +128,16 @@ final class PickImageMergeViewModelWrapper {
             : (leadingImage,  leadingRect,  leadingState.filter)
 
         // 필터 적용 후 합성
-        let filteredBottom = applyFilter(bottomImage, filter: bottomFilter)
-        let filteredTop    = applyFilter(topImage,    filter: topFilter)
-
+        let filteredBottom = applyFilter.appleApplyFilter(
+            image: bottomImage, filter: bottomFilter)
+        let filteredTop    = applyFilter.appleApplyFilter(
+            image: topImage, filter: topFilter)
+        
         mergedImage = renderBlended(
             canvasSize:  canvasSize,
             bottomImage: filteredBottom, bottomRect: bottomRect,
             topImage:    filteredTop,    topRect:    topRect
         )
-    }
-
-    /// CIFilter 를 적용해 새 UIImage 반환. filter == nil 이면 원본 그대로.
-    private func applyFilter(_ image: UIImage, filter: PickImageMergeViewModel.ImageState.Filter?) -> UIImage {
-        guard let filter,
-              let ciImage = CIImage(image: image) else { return image }
-
-        let outputCI: CIImage?
-
-        switch filter {
-        case .inverted:
-            let f = CIFilter(name: "CIColorInvert")!
-            f.setValue(ciImage, forKey: kCIInputImageKey)
-            outputCI = f.outputImage
-
-        case .monochrome:
-            let f = CIFilter(name: "CIPhotoEffectMono")!
-            f.setValue(ciImage, forKey: kCIInputImageKey)
-            outputCI = f.outputImage
-
-        case .contrast:
-            let f = CIFilter(name: "CIColorControls")!
-            f.setValue(ciImage, forKey: kCIInputImageKey)
-            f.setValue(1.5, forKey: kCIInputContrastKey)
-            outputCI = f.outputImage
-
-        case .saturation:
-            let f = CIFilter(name: "CIColorControls")!
-            f.setValue(ciImage, forKey: kCIInputImageKey)
-            f.setValue(2.5, forKey: kCIInputSaturationKey)
-            outputCI = f.outputImage
-
-        case .vignette:
-            let f = CIFilter(name: "CIVignette")!
-            f.setValue(ciImage, forKey: kCIInputImageKey)
-            f.setValue(1.5, forKey: kCIInputIntensityKey)
-            f.setValue(1.0, forKey: kCIInputRadiusKey)
-            outputCI = f.outputImage
-
-        default:
-            return image
-        }
-
-        guard let out = outputCI,
-              let cgImage = ciContext.createCGImage(out, from: ciImage.extent) else {
-            return image
-        }
-
-        return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
     }
 
     /// 두 이미지를 캔버스에 합성 — 겹치는 영역은 alpha 0.5 blend
