@@ -2,6 +2,7 @@ package com.example.twoeyesproject.platformspecific
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -30,25 +31,22 @@ actual class PlatformApplyFilter {
         val mutableBitmap = image.copy(Bitmap.Config.ARGB_8888, true)
 
         val canvas = Canvas(mutableBitmap)
-        var paint = Paint()
+        val paint = Paint()
+
+        fun drawBitmapWithFilter(colorFilter: ColorFilter): Bitmap {
+            paint.colorFilter = getColorFilterMonochrome()
+            canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
+            return mutableBitmap
+        }
 
         when (filter) {
             PickImageMergeViewModel.ImageState.Filter.INVERTED -> {
-                val matrix = ColorMatrix(floatArrayOf(
-                    -1f, 0f, 0f, 0f, 255f,
-                    0f, -1f, 0f, 0f, 255f,
-                    0f, 0f, -1f, 0f, 255f,
-                    0f, 0f, 0f, 1f, 0f
-                ))
-                paint.colorFilter = ColorMatrixColorFilter(
-                    matrix).asAndroidColorFilter()
-                canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
-                return mutableBitmap
+                return drawBitmapWithFilter(getColorFilterInverted())
             }
             PickImageMergeViewModel.ImageState.Filter.VIGNETTE -> {
                 val centerX = canvas.width / 2f
                 val centerY = canvas.height / 2f
-                val radius = Math.max(centerX, centerY) * 1.2f
+                val radius = centerX.coerceAtLeast(centerY) * 1.2f
                 val vignetteColor = 0x99000000.toInt()
                 // 3. Create a RadialGradient (center fades out to the edges)
                 val gradient = RadialGradient(
@@ -57,7 +55,7 @@ actual class PlatformApplyFilter {
                     floatArrayOf(0.0f, 0.6f, 1.0f),
                     Shader.TileMode.CLAMP
                 )
-                paint = Paint().apply {
+                paint.apply {
                     isAntiAlias = true
                     shader = gradient
                     xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
@@ -69,35 +67,45 @@ actual class PlatformApplyFilter {
                 return mutableBitmap
             }
             PickImageMergeViewModel.ImageState.Filter.CONTRAST -> {
-                val scale = 1.0f
-                val translate = (-0.5f * scale + 0.5f) * 255f
-                // 4x5 ColorMatrix Array
-                val contrastMatrix = floatArrayOf(
-                    scale, 0f, 0f, 0f, translate,
-                    0f, scale, 0f, 0f, translate,
-                    0f, 0f, scale, 0f, translate,
-                    0f, 0f, 0f, 1f, 0f
-                )
-                paint.colorFilter = ColorMatrixColorFilter(
-                    ColorMatrix(contrastMatrix)).asAndroidColorFilter()
-                canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
-                return mutableBitmap
+                return drawBitmapWithFilter(getColorFilterContrast())
             }
             PickImageMergeViewModel.ImageState.Filter.SATURATION -> {
-                paint.colorFilter = ColorMatrixColorFilter(
-                    ColorMatrix().apply { setToSaturation(1f) }).asAndroidColorFilter()
-                canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
-                return mutableBitmap
+                return drawBitmapWithFilter(getColorFilterSaturation())
             }
             PickImageMergeViewModel.ImageState.Filter.MONOCHROME -> {
-                paint.colorFilter = ColorMatrixColorFilter(
-                    ColorMatrix().apply { setToSaturation(0f) }).asAndroidColorFilter()
-                canvas.drawBitmap(mutableBitmap, 0f, 0f, paint)
-                return mutableBitmap
+                return drawBitmapWithFilter(getColorFilterMonochrome())
             }
             else -> {
                 return image
             }
         }
     }
+
+    private fun getColorFilterInverted(): ColorFilter = ColorMatrixColorFilter(
+        ColorMatrix(floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f))
+    ).asAndroidColorFilter()
+
+    private fun getColorFilterContrast(): ColorFilter {
+        val scale = 1.0f
+        val translate = (-0.5f * scale + 0.5f) * 255f
+        // 4x5 ColorMatrix Array
+        val contrastMatrix = floatArrayOf(
+            scale, 0f, 0f, 0f, translate,
+            0f, scale, 0f, 0f, translate,
+            0f, 0f, scale, 0f, translate,
+            0f, 0f, 0f, 1f, 0f
+        )
+        return ColorMatrixColorFilter(
+            ColorMatrix(contrastMatrix)).asAndroidColorFilter()
+    }
+
+    private fun getColorFilterSaturation(): ColorFilter = ColorMatrixColorFilter(
+        ColorMatrix().apply { setToSaturation(1f) }).asAndroidColorFilter()
+
+    private fun getColorFilterMonochrome(): ColorFilter = ColorMatrixColorFilter(
+        ColorMatrix().apply { setToSaturation(0f) }).asAndroidColorFilter()
 }
