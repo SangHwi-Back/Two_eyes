@@ -22,7 +22,9 @@ struct PHAssetImage: View {
             width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
             height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
          image: UIImage? = nil,
-         requestID: PHImageRequestID? = nil) {
+         requestID: PHImageRequestID? = nil,
+         filter: CIFilter? = nil,
+    ) {
         self.asset = asset
         self.size = size
         self.image = image
@@ -34,7 +36,9 @@ struct PHAssetImage: View {
             width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
             height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
          image: UIImage? = nil,
-         requestID: PHImageRequestID? = nil) {
+         requestID: PHImageRequestID? = nil,
+         filter: CIFilter? = nil,
+    ) {
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
         
         if let asset = fetchResult.firstObject {

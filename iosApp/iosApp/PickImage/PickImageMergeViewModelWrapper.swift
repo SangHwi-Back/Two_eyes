@@ -30,6 +30,8 @@ final class PickImageMergeViewModelWrapper {
     private let imageSourceModel: PickImageMergeModel
     private var leadingImage:  UIImage?
     private var trailingImage: UIImage?
+    private var originalLeadingImage:  UIImage?
+    private var originalTrailingImage: UIImage?
 
     // CIFilter 처리를 위한 공유 컨텍스트 (생성 비용이 크므로 한 번만 생성)
     private let applyFilter = PlatformApplyFilter()
@@ -58,7 +60,9 @@ final class PickImageMergeViewModelWrapper {
                 }
 
                 self.leadingImage = _leadingImage
+                self.originalLeadingImage = _leadingImage
                 self.trailingImage = _trailingImage
+                self.originalTrailingImage = _trailingImage
                 self.tryRender()
             } catch {
                 // TODO: Error Handling Needed
@@ -135,7 +139,7 @@ final class PickImageMergeViewModelWrapper {
     
     private func tryRender() {
         guard canvasSize.width > 0,
-              let leadingImage, let trailingImage else { return }
+              let leadingImage, let originalLeadingImage, let trailingImage, let originalTrailingImage else { return }
 
         // SwiftUI offset (ZStack 중심 기준) → 캔버스 top-left 기준 CGRect 로 변환
         func makeRect(_ state: PickImageMergeViewModel.ImageState) -> CGRect {
@@ -160,9 +164,13 @@ final class PickImageMergeViewModelWrapper {
             : (leadingImage,  leadingRect,  leadingState.filter)
 
         // 필터 적용 후 합성
-        let filteredBottom = applyFilter.appleApplyFilter(
+        let filteredBottom = (bottomFilter == nil)
+        ? (isLeadingBottom ? originalLeadingImage : originalTrailingImage)
+        : applyFilter.appleApplyFilter(
             image: bottomImage, filter: bottomFilter)
-        let filteredTop    = applyFilter.appleApplyFilter(
+        let filteredTop    = (topFilter == nil)
+        ? (isLeadingBottom ? originalTrailingImage : originalLeadingImage)
+        : applyFilter.appleApplyFilter(
             image: topImage, filter: topFilter)
         
         mergedImage = renderBlended(

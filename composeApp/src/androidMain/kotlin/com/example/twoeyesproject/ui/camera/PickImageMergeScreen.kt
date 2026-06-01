@@ -104,13 +104,17 @@ fun PickImageMergeScreen(
     var leadingBitmap:  Bitmap by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
         AppConstants.THUMBNAIL_SIZE_HEIGHT)) }
+    lateinit var originalLeadingBitmap: Bitmap
     var trailingBitmap: Bitmap by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
         AppConstants.THUMBNAIL_SIZE_HEIGHT)) }
+    lateinit var originalTrailingBitmap: Bitmap
     LaunchedEffect(Unit) {
         val decoder = ImageDecoder()
         leadingBitmap  = withContext(Dispatchers.IO) { decoder.decode(source1) }
+        originalLeadingBitmap = leadingBitmap
         trailingBitmap = withContext(Dispatchers.IO) { decoder.decode(source2) }
+        originalTrailingBitmap = trailingBitmap
     }
 
     // ── 제스처 상태 ──────────────────────────────────────────────────────────
@@ -163,6 +167,9 @@ fun PickImageMergeScreen(
                     // ViewModel StateFlow 를 직접 읽어야 함: collected state(leading/trailing)는
                     // LaunchedEffect가 실행되는 시점에 한 프레임 지연이 있어 이전 좌표를 반환할 수 있음.
                     // leading.filter는 키로만 사용해 필터 변경 시 재실행을 트리거.
+                    val leadingBitmap = if (viewModel.leading.value.filter == null) originalLeadingBitmap else leadingBitmap
+                    val trailingBitmap = if (viewModel.trailing.value.filter == null) originalTrailingBitmap else trailingBitmap
+
                     renderMerged(
                         canvasWidthPx  = canvasWidthPx,
                         canvasHeightPx = canvasHeightPx,
@@ -369,9 +376,9 @@ private fun renderMerged(
     )
 
     // 필터 적용 (null 이면 원본 그대로)
-    val filteredLeading  = applyFilter.googleApplyFilter(
+    val filteredLeading  = if (leadingState.filter == null) leadingBitmap else applyFilter.googleApplyFilter(
         leadingBitmap, leadingState.filter)
-    val filteredTrailing = applyFilter.googleApplyFilter(
+    val filteredTrailing = if (trailingState.filter == null) trailingBitmap else applyFilter.googleApplyFilter(
         trailingBitmap, trailingState.filter)
 
     val leadingFrame  = makeFrame(leadingState.offsetX,  leadingState.offsetY,  leadingState.scale)
