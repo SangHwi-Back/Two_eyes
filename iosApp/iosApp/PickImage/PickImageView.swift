@@ -56,7 +56,7 @@ struct PickImageView: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 8) {
                     ForEach(wrapper.imageSources, id: \.self) { asset in
-                        PHAssetImage(asset: asset, size: thumbnailSize)
+                        PHAssetImage(asset: asset)
                             .clipShape(RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS)))
                             .padding(.trailing)
                             .onTapGesture { viewModel.setImageFromSource(imageSource: asset) }

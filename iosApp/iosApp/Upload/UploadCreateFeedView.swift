@@ -32,11 +32,6 @@ struct UploadCreateFeedView: View {
     }
     
     var body: some View {
-        let thumbnailSize: CGSize = CGSize(
-            width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
-            height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
-        )
-        
         ScrollView([.vertical]) { VStack {
             
             TextField("Contents", text: $dto.contents)
@@ -49,7 +44,7 @@ struct UploadCreateFeedView: View {
                             withLocalIdentifiers: [identifier], options: nil
                         ).firstObject
                         if let asset {
-                            PHAssetImage(asset: asset, size: thumbnailSize)
+                            PHAssetImage(asset: asset)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                                 .padding(.trailing)
                                 .onTapGesture {
@@ -61,7 +56,7 @@ struct UploadCreateFeedView: View {
             }
             .padding(.horizontal)
             .padding(.bottom, dto.imageIds.isEmpty ? 8 : 12)
-            .frame(height: dto.imageIds.isEmpty ? 0 : thumbnailSize.height)
+            .frame(height: dto.imageIds.isEmpty ? 0 : CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
             
             GlassIconTitleButton(systemName: "square.and.arrow.up.on.square", title: "Confirm") {
                 viewModel.uploadEntity(dto: dto)

@@ -89,7 +89,6 @@ struct PickImageMergeView: View {
                 // ── 제스처 캔버스 ────────────────────────────────────────────
                 ZStack {
                     PHAssetImage(asset: leadingSource, size: leadingSize)
-//                        .draggableAndScalable($wrapper.leadingState)
                         .draggableAndScalable(leadingStateBinding)
                         .zIndex(leadingZIndex)
 
@@ -122,21 +121,13 @@ struct PickImageMergeView: View {
                     leadingFilter:  wrapper.leadingState.filter,
                     trailingFilter: wrapper.trailingState.filter,
                     onFilterChange: { filter in
-                        if selectedImageTab == 0 {
-                            leadingStateBinding.wrappedValue = .init(
-                                offsetX: wrapper.leadingState.offsetX,
-                                offsetY: wrapper.leadingState.offsetY,
-                                scale:   wrapper.leadingState.scale,
-                                filter:  filter
-                            )
-                        } else {
-                            trailingStateBinding.wrappedValue = .init(
-                                offsetX: wrapper.trailingState.offsetX,
-                                offsetY: wrapper.trailingState.offsetY,
-                                scale:   wrapper.trailingState.scale,
-                                filter:  filter
-                            )
-                        }
+                        let binding = selectedImageTab == 0 ? leadingStateBinding : trailingStateBinding
+                        binding.wrappedValue = .init(
+                            offsetX: wrapper.leadingState.offsetX,
+                            offsetY: wrapper.leadingState.offsetY,
+                            scale:   wrapper.leadingState.scale,
+                            filter:  filter
+                        )
                     }
                 )
 

@@ -17,14 +17,24 @@ struct PHAssetImage: View {
     @State private var requestID: PHImageRequestID?
     @State private var error: NSError?
     
-    init(asset: PHAsset, size: CGSize, image: UIImage? = nil, requestID: PHImageRequestID? = nil) {
+    init(asset: PHAsset,
+         size: CGSize = CGSize(
+            width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
+            height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
+         image: UIImage? = nil,
+         requestID: PHImageRequestID? = nil) {
         self.asset = asset
         self.size = size
         self.image = image
         self.requestID = requestID
     }
     
-    init(assetIdentifier: String, size: CGSize, image: UIImage? = nil, requestID: PHImageRequestID? = nil) {
+    init(assetIdentifier: String,
+         size: CGSize = CGSize(
+            width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
+            height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
+         image: UIImage? = nil,
+         requestID: PHImageRequestID? = nil) {
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
         
         if let asset = fetchResult.firstObject {
