@@ -18,13 +18,15 @@ final class PickImageMergeViewModelWrapper {
     var mergedImage: UIImage?
 
     // 위치·필터 상태 — ViewModel Flow 를 관찰해 동기화
-    private(set) var leadingState  = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
-        didSet { tryRender() }
+    var leadingState: PickImageMergeViewModel.ImageState {
+        viewModel.leading.value as! PickImageMergeViewModel.ImageState
     }
-    private(set) var trailingState = PickImageMergeViewModel.ImageState(offsetX: 0, offsetY: 0, scale: 1, filter: nil) {
-        didSet { tryRender() }
+    var trailingState: PickImageMergeViewModel.ImageState {
+        viewModel.trailing.value as! PickImageMergeViewModel.ImageState
     }
-    var zOrder: [PickImageMergeViewModel.ImageOrder] = [.bottom, .top]
+    var zOrder: [PickImageMergeViewModel.ImageOrder] {
+        viewModel.zOrder.value as! [PickImageMergeViewModel.ImageOrder]
+    }
 
     // 합성에 사용할 원본 이미지 (PHImageManager 로 로드)
     private let imageSourceModel: PickImageMergeModel
@@ -37,7 +39,7 @@ final class PickImageMergeViewModelWrapper {
     private let applyFilter = PlatformApplyFilter()
 
     // 제스처 캔버스 크기 — onAppear 에서 주입
-    private var canvasSize: CGSize = .zero
+    private(set) var canvasSize: CGSize = .zero
 
     init(model: PickImageMergeModel) {
         self.imageSourceModel = model
@@ -71,19 +73,13 @@ final class PickImageMergeViewModelWrapper {
 
         viewModel.leading.collect(
             collector: MergeCollector<PickImageMergeViewModel.ImageState> { [weak self] state in
-                self?.leadingState = state
+                self?.tryRender()
             }
         ) { _ in }
 
         viewModel.trailing.collect(
             collector: MergeCollector<PickImageMergeViewModel.ImageState> { [weak self] state in
-                self?.trailingState = state
-            }
-        ) { _ in }
-
-        viewModel.zOrder.collect(
-            collector: MergeCollector<[PickImageMergeViewModel.ImageOrder]> { [weak self] order in
-                self?.zOrder = order
+                self?.tryRender()
             }
         ) { _ in }
     }
@@ -131,9 +127,9 @@ final class PickImageMergeViewModelWrapper {
         }()
         
         if isLeading {
-            leadingState = newValue
+            viewModel.updateLeading(imageState: newValue)
         } else {
-            trailingState = newValue
+            viewModel.updateTrailing(imageState: newValue)
         }
     }
     

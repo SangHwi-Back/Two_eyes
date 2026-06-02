@@ -21,22 +21,7 @@ struct PickImageMergeView: View {
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
     
-    @State var leadingState: PickImageMergeViewModel.ImageState
-    var leadingStateBinding: Binding<PickImageMergeViewModel.ImageState> {
-        Binding {
-            self.leadingState
-        } set: { newValue in
-            self.setNewStatus(true, status: newValue)
-        }
-    }
-    @State var trailingState: PickImageMergeViewModel.ImageState
-    var trailingStateBinding: Binding<PickImageMergeViewModel.ImageState> {
-        Binding {
-            self.trailingState
-        } set: { newValue in
-            self.setNewStatus(false, status: newValue)
-        }
-    }
+    @State var isProxyInitialized = false
 
     let leadingSource:  PHAsset
     let trailingSource: PHAsset
@@ -46,26 +31,6 @@ struct PickImageMergeView: View {
         self._wrapper = State(initialValue: wrapper)
         self.leadingSource  = model.leading
         self.trailingSource = model.trailing
-        
-        self.leadingState = wrapper.leadingState
-        self.trailingState = wrapper.leadingState
-    }
-    
-    func setNewStatus(
-        _ isLeading: Bool,
-        status: PickImageMergeViewModel.ImageState
-    ) {
-        let base = isLeading ? wrapper.leadingState : wrapper.trailingState
-        
-        if base.filter != status.filter {
-            wrapper.setStateValue(isLeading, value: .filter(status.filter))
-        }
-        if base.offset != status.offset {
-            wrapper.setStateValue(isLeading, value: .offset(status.offset))
-        }
-        if base.scale != status.scale {
-            wrapper.setStateValue(isLeading, value: .scale(status.scale))
-        }
     }
 
     var body: some View {
@@ -88,12 +53,34 @@ struct PickImageMergeView: View {
 
                 // ── 제스처 캔버스 ────────────────────────────────────────────
                 ZStack {
+                    let bindLeading = Binding<PickImageMergeViewModel.ImageState>(
+                        get: {
+                            wrapper.leadingState
+                        }, set: { value, _ in
+                            wrapper.setStateValue(
+                                true, value: .offset(value.offset))
+                        })
                     PHAssetImage(asset: leadingSource, size: leadingSize)
-                        .draggableAndScalable(leadingStateBinding)
+                        .draggableAndScalable(bindLeading)
+                        .scaleEffect(CGFloat(wrapper.leadingState.scale))
+                        .offset(
+                            x: CGFloat(wrapper.leadingState.offsetX),
+                            y: CGFloat(wrapper.leadingState.offsetY))
                         .zIndex(leadingZIndex)
-
+                    
+                    let bindTrailing = Binding<PickImageMergeViewModel.ImageState>(
+                        get: {
+                            wrapper.trailingState
+                        }, set: { value, _ in
+                            wrapper.setStateValue(
+                                false, value: .offset(value.offset))
+                        })
                     PHAssetImage(asset: trailingSource, size: trailingSize)
-                        .draggableAndScalable(trailingStateBinding)
+                        .draggableAndScalable(bindTrailing)
+                        .scaleEffect(CGFloat(wrapper.trailingState.scale))
+                        .offset(
+                            x: CGFloat(wrapper.trailingState.offsetX),
+                            y: CGFloat(wrapper.trailingState.offsetY))
                         .zIndex(trailingZIndex)
 
                     GlassIconButton(systemName: "arrow.left.arrow.right") {
@@ -107,10 +94,22 @@ struct PickImageMergeView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
                 .onAppear {
+                    guard isProxyInitialized == false else {
+                        return
+                    }
+                    
                     let centerOffsetXDetached = Float(proxy.size.width) / 4
                     wrapper.setCanvasSize(proxy.canvasSize)
-                    leadingStateBinding.wrappedValue = .init(offsetX: -centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
-                    trailingStateBinding.wrappedValue = .init(offsetX:  centerOffsetXDetached, offsetY: 0, scale: 1, filter: nil)
+                    
+                    let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
+                    wrapper.setStateValue(
+                        true, value: .offset(leadingOffset))
+                    
+                    let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
+                    wrapper.setStateValue(
+                        false, value: .offset(trailingOffset))
+                    
+                    isProxyInitialized = true
                 }
 
                 Divider().padding(.vertical, 8)
@@ -120,14 +119,10 @@ struct PickImageMergeView: View {
                     selectedTab:    $selectedImageTab,
                     leadingFilter:  wrapper.leadingState.filter,
                     trailingFilter: wrapper.trailingState.filter,
-                    onFilterChange: { filter in
-                        let binding = selectedImageTab == 0 ? leadingStateBinding : trailingStateBinding
-                        binding.wrappedValue = .init(
-                            offsetX: wrapper.leadingState.offsetX,
-                            offsetY: wrapper.leadingState.offsetY,
-                            scale:   wrapper.leadingState.scale,
-                            filter:  filter
-                        )
+                    onFilterChange: {
+                        let isLeading = selectedImageTab == 0
+                        wrapper.setStateValue(
+                            isLeading, value: .filter($0))
                     }
                 )
 
@@ -145,8 +140,8 @@ struct PickImageMergeView: View {
                     if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
-                            .frame(maxWidth: proxy.size.width, maxHeight: proxy.size.width * 0.75)
-                            .aspectRatio(CGFloat(constant.THUMBNAIL_ASPECT_RATIO), contentMode: .fit)
+                            .frame(width: wrapper.canvasSize.width,
+                                   height: wrapper.canvasSize.height * 0.75)
                             .padding(.vertical)
                     } else {
                         ProgressView().frame(
@@ -306,57 +301,51 @@ private extension PHAssetImage {
         @State private var baseState: PickImageMergeViewModel.ImageState?
 
         @Binding var imageState: PickImageMergeViewModel.ImageState
+        
+        @GestureState private var dragOffset: CGSize = .zero
+        @GestureState private var magnifying: CGFloat = 1
 
         func body(content: Content) -> some View {
-            content
-                .scaleEffect(CGFloat(imageState.scale))
-                .offset(x: CGFloat(imageState.offsetX), y: CGFloat(imageState.offsetY))
-                .simultaneousGesture(
-                    DragGesture()
-                        .onChanged { value in
-                            if baseState == nil { baseState = imageState }
-                            guard let base = baseState else { return }
-                            imageState = .init(
-                                offsetX: base.offsetX + Float(value.translation.width),
-                                offsetY: base.offsetY + Float(value.translation.height),
-                                scale:   base.scale,
-                                filter:  base.filter   // filter 보존
-                            )
-                        }
-                        .onEnded { value in
-                            guard let base = baseState else { return }
-                            imageState = .init(
-                                offsetX: base.offsetX + Float(value.translation.width),
-                                offsetY: base.offsetY + Float(value.translation.height),
-                                scale:   base.scale,
-                                filter:  base.filter   // filter 보존
-                            )
-                            baseState = nil
-                        }
-                )
-                .simultaneousGesture(
-                    MagnifyGesture()
-                        .onChanged { value in
-                            if baseState == nil { baseState = imageState }
-                            guard let base = baseState else { return }
-                            imageState = .init(
-                                offsetX: base.offsetX,
-                                offsetY: base.offsetY,
-                                scale:   base.scale * Float(value.magnification),
-                                filter:  base.filter   // filter 보존
-                            )
-                        }
-                        .onEnded { value in
-                            guard let base = baseState else { return }
-                            imageState = .init(
-                                offsetX: base.offsetX,
-                                offsetY: base.offsetY,
-                                scale:   base.scale * Float(value.magnification),
-                                filter:  base.filter   // filter 보존
-                            )
-                            baseState = nil
-                        }
-                )
+            content.simultaneousGesture(
+                DragGesture()
+                    .updating($dragOffset, body: { value, state, transaction in
+                        state = value.translation
+                        imageState = .init(
+                            offsetX: imageState.offsetX + Float(value.translation.width),
+                            offsetY: imageState.offsetY + Float(value.translation.height),
+                            scale:   imageState.scale,
+                            filter:  imageState.filter   // filter 보존
+                        )
+                    })
+                    .onEnded { value in
+                        imageState = .init(
+                            offsetX: imageState.offsetX + Float(value.translation.width),
+                            offsetY: imageState.offsetY + Float(value.translation.height),
+                            scale:   imageState.scale,
+                            filter:  imageState.filter   // filter 보존
+                        )
+                    }
+            )
+            .simultaneousGesture(
+                MagnifyGesture()
+                    .updating($magnifying, body: { value, state, transaction in
+                        state = value.magnification
+                        imageState = .init(
+                            offsetX: imageState.offsetX,
+                            offsetY: imageState.offsetY,
+                            scale:   imageState.scale * Float(value.magnification),
+                            filter:  imageState.filter   // filter 보존
+                        )
+                    })
+                    .onEnded { value in
+                        imageState = .init(
+                            offsetX: imageState.offsetX,
+                            offsetY: imageState.offsetY,
+                            scale:   imageState.scale * Float(value.magnification),
+                            filter:  imageState.filter   // filter 보존
+                        )
+                    }
+            )
         }
     }
 }
