@@ -101,14 +101,16 @@ fun PickImageMergeScreen(
     val trailing by viewModel.trailing.collectAsStateWithLifecycle()
 
     // ── 이미지 디코딩 ────────────────────────────────────────────────────────
-    var leadingBitmap:  Bitmap by remember { mutableStateOf(createBitmap(
+    var leadingBitmap: Bitmap  by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
         AppConstants.THUMBNAIL_SIZE_HEIGHT)) }
-    lateinit var originalLeadingBitmap: Bitmap
-    var trailingBitmap: Bitmap by remember { mutableStateOf(createBitmap(
+    // 필터 중복 적용 방지용 원본 — lateinit var 는 리컴포지션 시 미초기화 상태로 재선언되므로
+    // remember 로 보호해야 함
+    var originalLeadingBitmap: Bitmap? by remember { mutableStateOf(null) }
+    var trailingBitmap: Bitmap  by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
         AppConstants.THUMBNAIL_SIZE_HEIGHT)) }
-    lateinit var originalTrailingBitmap: Bitmap
+    var originalTrailingBitmap: Bitmap? by remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
         val decoder = ImageDecoder()
         leadingBitmap  = withContext(Dispatchers.IO) { decoder.decode(source1) }
@@ -151,8 +153,8 @@ fun PickImageMergeScreen(
                     leadingOffsetX  = cw / 4f - tw / 2f
                     trailingOffsetX = 3f * cw / 4f - tw / 2f
                     initialized = true
-                    viewModel.updateLeading( leadingOffsetX,  leadingOffsetY,  leadingScale)
-                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
+                    viewModel.updateLeading( leadingOffsetX,  leadingOffsetY,  leadingScale, null)
+                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, null)
                 }
             }
 
@@ -169,6 +171,9 @@ fun PickImageMergeScreen(
                     // leading.filter는 키로만 사용해 필터 변경 시 재실행을 트리거.
                     val leadingBitmap = if (viewModel.leading.value.filter == null) originalLeadingBitmap else leadingBitmap
                     val trailingBitmap = if (viewModel.trailing.value.filter == null) originalTrailingBitmap else trailingBitmap
+
+                    if (leadingBitmap == null || trailingBitmap == null)
+                        return@withContext null
 
                     renderMerged(
                         canvasWidthPx  = canvasWidthPx,
@@ -193,11 +198,11 @@ fun PickImageMergeScreen(
                         scale   = leadingScale,
                         onDrag  = { dx, dy ->
                             leadingOffsetX += dx; leadingOffsetY += dy
-                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
+                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, leading.filter)
                         },
                         onScale = { f ->
                             leadingScale *= f
-                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale)
+                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, trailing.filter)
                         }
                     )
 
@@ -208,11 +213,11 @@ fun PickImageMergeScreen(
                         scale   = trailingScale,
                         onDrag  = { dx, dy ->
                             trailingOffsetX += dx; trailingOffsetY += dy
-                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
+                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, leading.filter)
                         },
                         onScale = { f ->
                             trailingScale *= f
-                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale)
+                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, trailing.filter)
                         }
                     )
                 }
