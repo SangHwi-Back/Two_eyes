@@ -169,21 +169,22 @@ fun PickImageMergeScreen(
                     // ViewModel StateFlow 를 직접 읽어야 함: collected state(leading/trailing)는
                     // LaunchedEffect가 실행되는 시점에 한 프레임 지연이 있어 이전 좌표를 반환할 수 있음.
                     // leading.filter는 키로만 사용해 필터 변경 시 재실행을 트리거.
-                    val leadingBitmap = if (viewModel.leading.value.filter == null) originalLeadingBitmap else leadingBitmap
-                    val trailingBitmap = if (viewModel.trailing.value.filter == null) originalTrailingBitmap else trailingBitmap
-
-                    if (leadingBitmap == null || trailingBitmap == null)
-                        return@withContext null
+                    val srcLeading  = originalLeadingBitmap  ?: leadingBitmap
+                    val srcTrailing = originalTrailingBitmap ?: trailingBitmap
 
                     renderMerged(
-                        canvasWidthPx  = canvasWidthPx,
-                        canvasHeightPx = canvasHeightPx,
-                        leadingBitmap  = leadingBitmap,
-                        leadingState   = viewModel.leading.value,
-                        trailingBitmap = trailingBitmap,
-                        trailingState  = viewModel.trailing.value,
-                        zOrder         = zOrder,
-                        applyFilter    = viewModel.applyFilter,
+                        canvasWidthPx     = canvasWidthPx,
+                        canvasHeightPx    = canvasHeightPx,
+                        // THUMBNAIL_SIZE_* 는 dp 단위 — offsetX/Y 와 canvasPx 모두 px 이므로
+                        // 동일하게 px 로 변환해야 올바른 크기로 그려짐
+                        thumbnailWidthPx  = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.roundToPx() },
+                        thumbnailHeightPx = with(density) { AppConstants.THUMBNAIL_SIZE_HEIGHT.dp.roundToPx() },
+                        leadingBitmap     = srcLeading,
+                        leadingState      = viewModel.leading.value,
+                        trailingBitmap    = srcTrailing,
+                        trailingState     = viewModel.trailing.value,
+                        zOrder            = zOrder,
+                        applyFilter       = viewModel.applyFilter,
                     ).asImageBitmap()
                 }
             }
@@ -364,20 +365,22 @@ private fun FilterSelector(
 
 // ── 합성 렌더링 ───────────────────────────────────────────────────────────────
 private fun renderMerged(
-    canvasWidthPx:  Int,
-    canvasHeightPx: Int,
-    leadingBitmap:  Bitmap,
-    leadingState:   PickImageMergeViewModel.ImageState,
-    trailingBitmap: Bitmap,
-    trailingState:  PickImageMergeViewModel.ImageState,
-    zOrder:         List<PickImageMergeViewModel.ImageOrder>,
-    applyFilter:    PlatformApplyFilter,
+    canvasWidthPx:     Int,
+    canvasHeightPx:    Int,
+    thumbnailWidthPx:  Int,
+    thumbnailHeightPx: Int,
+    leadingBitmap:     Bitmap,
+    leadingState:      PickImageMergeViewModel.ImageState,
+    trailingBitmap:    Bitmap,
+    trailingState:     PickImageMergeViewModel.ImageState,
+    zOrder:            List<PickImageMergeViewModel.ImageOrder>,
+    applyFilter:       PlatformApplyFilter,
 ): Bitmap {
     fun makeFrame(ox: Float, oy: Float, s: Float) = ImageFrame(
         left   = ox,
         top    = oy,
-        right  = ox + AppConstants.THUMBNAIL_SIZE_WIDTH.toFloat() * s,
-        bottom = oy + AppConstants.THUMBNAIL_SIZE_HEIGHT.toFloat() * s
+        right  = ox + thumbnailWidthPx.toFloat() * s,
+        bottom = oy + thumbnailHeightPx.toFloat() * s
     )
 
     // 필터 적용 (null 이면 원본 그대로)
