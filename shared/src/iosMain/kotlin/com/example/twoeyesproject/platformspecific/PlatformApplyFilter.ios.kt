@@ -47,11 +47,13 @@ actual class PlatformApplyFilter {
                 applyCIImageVignette(ciImage) ?: return image
         }
 
-        val cgImage = ciContext.createCGImage(result, ciImage.extent)
+        // result.extent 사용: CIPhotoEffectMono, CIColorControls 등은 출력 extent가
+        // 입력과 달라질 수 있으므로 원본 ciImage.extent를 쓰면 잘못된 영역이 잘림.
+        val cgImage = ciContext.createCGImage(result, result.extent)
             ?: return image
 
-        return UIImage.imageWithCIImage(
-            CIImage(cgImage), image.scale, image.imageOrientation)
+        // CGImage → UIImage 직접 변환 (CIImage 재래핑 불필요 — 이미 렌더링된 CGImage 사용)
+        return UIImage.imageWithCGImage(cgImage, image.scale, image.imageOrientation)
     }
 
     private fun applyCIImageInverted(ciImage: CIImage): CIImage? {
