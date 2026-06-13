@@ -38,13 +38,9 @@ struct PickImageMergeView: View {
             width:  CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
             height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
         )
-        let (leadingSize, trailingSize): (CGSize, CGSize) = (
-            thumbnailSize * CGFloat(wrapper.leadingState.scale),
-            thumbnailSize * CGFloat(wrapper.trailingState.scale)
-        )
         let (leadingZIndex, trailingZIndex): (Double, Double) = (
-            wrapper.zOrder.first == .top ? 999 : 1000,
-            wrapper.zOrder.last  == .top ? 999 : 1000
+            wrapper.zOrder.first == .top ? 1000 : 999,
+            wrapper.zOrder.last  == .top ? 1000 : 999
         )
         let cornerRadius = CGFloat(constant.CARD_CORNER_RADIUS)
 
@@ -60,14 +56,14 @@ struct PickImageMergeView: View {
                             wrapper.setStateValue(
                                 true, value: .offset(value.offset))
                         })
-                    PHAssetImage(asset: leadingSource, size: leadingSize)
+                    PHAssetImage(asset: leadingSource, size: thumbnailSize)
                         .draggableAndScalable(bindLeading)
                         .scaleEffect(CGFloat(wrapper.leadingState.scale))
                         .offset(
                             x: CGFloat(wrapper.leadingState.offsetX),
                             y: CGFloat(wrapper.leadingState.offsetY))
                         .zIndex(leadingZIndex)
-                    
+
                     let bindTrailing = Binding<PickImageMergeViewModel.ImageState>(
                         get: {
                             wrapper.trailingState
@@ -75,24 +71,25 @@ struct PickImageMergeView: View {
                             wrapper.setStateValue(
                                 false, value: .offset(value.offset))
                         })
-                    PHAssetImage(asset: trailingSource, size: trailingSize)
+                    PHAssetImage(asset: trailingSource, size: thumbnailSize)
                         .draggableAndScalable(bindTrailing)
                         .scaleEffect(CGFloat(wrapper.trailingState.scale))
                         .offset(
                             x: CGFloat(wrapper.trailingState.offsetX),
                             y: CGFloat(wrapper.trailingState.offsetY))
                         .zIndex(trailingZIndex)
-
-                    GlassIconButton(systemName: "arrow.left.arrow.right") {
-                        wrapper.viewModel.swapOrder()
-                    }
-                    .offset(
-                        x: (proxy.canvasSize.width  / 2) - 20 - 10,
-                        y: (proxy.canvasSize.height / -2) - 20 - 10
-                    )
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 300)
+                .zIndex(998)
+                // overlay 로 배치: .offset() 으로 ZStack 프레임 밖에 놓으면 히트 테스트가
+                // 프레임 바깥 터치를 처리하지 않아 버튼이 반응하지 않는 문제를 방지.
+                .overlay(alignment: .topTrailing) {
+                    GlassIconButton(systemName: "arrow.left.arrow.right") {
+                        wrapper.viewModel.swapOrder()
+                    }
+                    .padding(8)
+                }
                 .onAppear {
                     guard isProxyInitialized == false else {
                         return
@@ -140,8 +137,6 @@ struct PickImageMergeView: View {
                     if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
-                            .frame(width: wrapper.canvasSize.width,
-                                   height: wrapper.canvasSize.height * 0.75)
                             .padding(.vertical)
                     } else {
                         ProgressView().frame(
