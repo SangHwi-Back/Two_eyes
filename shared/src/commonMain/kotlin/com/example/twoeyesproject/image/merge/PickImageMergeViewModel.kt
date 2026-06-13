@@ -42,20 +42,20 @@ class PickImageMergeViewModel : ViewModel() {
 
     val applyFilter = PlatformApplyFilter()
 
-    fun updateLeading(offsetX: Float, offsetY: Float, scale: Float) {
-        _leading.value = _leading.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale)
+    fun updateLeading(offsetX: Float, offsetY: Float, scale: Float, filter: ImageState.Filter?) {
+        _leading.value = _leading.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale, filter = filter)
     }
 
     fun updateLeading(imageState: ImageState) {
-        updateLeading(imageState.offsetX, imageState.offsetY, imageState.scale)
+        updateLeading(imageState.offsetX, imageState.offsetY, imageState.scale, filter = imageState.filter)
     }
 
-    fun updateTrailing(offsetX: Float, offsetY: Float, scale: Float) {
-        _trailing.value = _trailing.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale)
+    fun updateTrailing(offsetX: Float, offsetY: Float, scale: Float, filter: ImageState.Filter?) {
+        _trailing.value = _trailing.value.copy(offsetX = offsetX, offsetY = offsetY, scale = scale, filter = filter)
     }
 
     fun updateTrailing(imageState: ImageState) {
-        updateTrailing(imageState.offsetX, imageState.offsetY, imageState.scale)
+        updateTrailing(imageState.offsetX, imageState.offsetY, imageState.scale, imageState.filter)
     }
 
     fun setLeadingFilter(filter: ImageState.Filter?) {
