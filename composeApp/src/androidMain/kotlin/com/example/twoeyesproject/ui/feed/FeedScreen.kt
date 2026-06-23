@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -137,17 +138,23 @@ private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Un
 
         // 좋아요 / 댓글 / 공유 버튼
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-            IconButton(onClick = {
+            val buttonColor = IconButtonColors(
+                contentColor = Color(AppColors.Accent),
+                containerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent
+            )
+            IconButton(colors = buttonColor, onClick = {
                 onClick(FeedScreenTapType.LIKE)
             }) {
                 Icon(Icons.Outlined.FavoriteBorder, contentDescription = "좋아요")
             }
-            IconButton(onClick = {
+            IconButton(colors = buttonColor, onClick = {
                 onClick(FeedScreenTapType.COMMENT)
             }) {
                 Icon(Icons.AutoMirrored.Outlined.Comment, contentDescription = "댓글")
             }
-            IconButton(onClick = {
+            IconButton(colors = buttonColor, onClick = {
                 onClick(FeedScreenTapType.SHARE)
             }) {
                 Icon(Icons.Outlined.Share, contentDescription = "공유")
@@ -158,11 +165,13 @@ private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Un
         Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(
                 text = item.author,
+                color = Color(AppColors.TextPrimary),
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.padding(end = 8.dp)
             )
             Text(
                 text = item.description,
+                color = Color(AppColors.TextPrimary),
                 style = MaterialTheme.typography.bodyMedium,
             )
         }

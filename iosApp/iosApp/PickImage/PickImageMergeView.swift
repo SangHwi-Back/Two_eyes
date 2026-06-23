@@ -137,7 +137,7 @@ struct PickImageMergeView: View {
                     if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
-                            .padding(.vertical)
+                            .scaledToFit()
                     } else {
                         ProgressView().frame(
                             width:  CGFloat(AppConstants.shared.ICON_SIZE_WIDTH),

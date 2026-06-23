@@ -3,6 +3,7 @@ package com.example.twoeyesproject
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.ProviderIdentifier
 import com.example.twoeyesproject.platformspecific.SecureUserData
+import com.example.twoeyesproject.platformspecific.getAppleUserData
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
