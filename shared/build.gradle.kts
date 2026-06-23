@@ -48,6 +48,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
             implementation(libs.jetbrains.kotlinx.serialization.json)
+            implementation(libs.koin.core)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
@@ -72,7 +73,8 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation(libs.kotlinx.coroutines.test) // 추가
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.koin.test)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
