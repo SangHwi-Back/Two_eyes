@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.di
 
+import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.getDatabaseBuilder
 import com.example.twoeyesproject.dependency.getRoomDatabase
 import com.example.twoeyesproject.image.ImageDecoder
@@ -14,8 +15,12 @@ import org.koin.dsl.module
  */
 val sharedAndroidModule = module {
     factory { ImageDecoder() }
+    single { ApiClient() }
     single { getRoomDatabase(getDatabaseBuilder(androidContext())) }
 
-    // UploadViewModel은 AppDatabase가 필요 (Android 전용)
-    viewModel { UploadViewModel(db = get()) }
+    // UploadViewModel은 MergeResultDao가 필요 (Android 전용)
+    viewModel { UploadViewModel(
+        dao = get<com.example.twoeyesproject.dependency.AppDatabase>().getMergeResultDao(),
+        client = get()
+    ) }
 }

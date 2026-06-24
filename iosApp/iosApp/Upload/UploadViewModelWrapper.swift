@@ -16,8 +16,8 @@ class UploadViewModelWrapper {
     
     typealias EntityCollector = MergeCollector<[MergeResultEntity]>
     
-    init(db: AppDatabase) {
-        self.viewModel = UploadViewModel(db: db)
+    init(db: AppDatabase, client: ApiClient) {
+        self.viewModel = UploadViewModel(dao: db.getMergeResultDao(), client: client)
         
         viewModel.mergeEntities.collect(collector: EntityCollector { [weak self] entities in
             withAnimation {

@@ -4,7 +4,10 @@ package com.example.twoeyesproject.dependency
 import com.example.twoeyesproject.AppConstants
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.platformHttpClient
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -14,15 +17,17 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -94,10 +99,11 @@ data class LikeResponse(
 
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
-class ApiClient {
+open class ApiClient {
     // lazy: Preview 환경에서 ApiClient 생성 시 PlatformSecureStorage(KoinComponent) 즉시 초기화를
     // 막기 위해 지연 초기화. 실제 인증 요청(401 응답 시 loadTokens 호출)이 일어날 때만 생성됨.
     private val secureStorage: PlatformSecureStorage by lazy { PlatformSecureStorage() }
+
     private val client = platformHttpClient().config {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
@@ -150,29 +156,47 @@ class ApiClient {
         expectSuccess = true
     }
 
+    private val testClient = HttpClient(mockEngine) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    private var isTest = false
+
+    private val _client: HttpClient
+        get() { return if (isTest) testClient else client }
+
     private val baseUrl = "http://192.168.1.114:3000/api/v1"
+
+    open fun setTestClientStatus(isTest: Boolean? = null) = run {
+        if (isTest == null)
+            this.isTest = this.isTest.not()
+        else
+            this.isTest = isTest
+    }
 
     // JSON 요청 — Codable 방식과 동일한 개념
     @Throws(Exception::class)
     suspend fun googleLogin(idToken: String): AuthResponse =
-        client.post("$baseUrl/auth/google") {
+        _client.post("$baseUrl/auth/google") {
             contentType(ContentType.Application.Json)
             setBody(GoogleLoginRequest(idToken))
         }.body()
 
     @Throws(Exception::class)
     suspend fun appleLogin(identityToken: String, authorizationCode: String?, firstName: String?, lastName: String?): AuthResponse =
-        client.post("$baseUrl/auth/apple") {
+        _client.post("$baseUrl/auth/apple") {
             contentType(ContentType.Application.Json)
             setBody(AppleLoginRequest(identityToken, authorizationCode, AppleNameComponent(firstName, lastName)))
         }.body()
 
     // multipart 요청 — 이미지 파일이 포함될 때
-    suspend fun createFeed(
+    open suspend fun createFeed(
         content: String?,
         tags: List<String>,
         imageBytes: ByteArray
-    ) = client.post("$baseUrl/feed") {
+    ) = _client.post("$baseUrl/feed") {
         contentType(ContentType.Application.Json)
         setBody(MultiPartFormDataContent(
             formData {
@@ -187,11 +211,31 @@ class ApiClient {
     }
 
     suspend fun getFeed(page: Int, count: Int? = null): FeedResponse =
-        client.get("$baseUrl/feed").body()
+        _client.get("$baseUrl/feed").body()
     
     suspend fun postLike(tobe: Boolean, feedId: String): HttpResponse =
         if (tobe)
-            client.post("feed/$feedId/like")
+            _client.post("feed/$feedId/like")
         else
-            client.delete("feed/$feedId/like")
+            _client.delete("feed/$feedId/like")
 }
+
+val ApiClient.mockEngine: MockEngine
+    get() = MockEngine { request ->
+        when (request.url.encodedPath) {
+            "/feed" -> {
+                respond(
+                    content = ByteReadChannel("""{"id": 1, "name": "Alice"}"""),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+            else -> {
+                respond(
+                    content = ByteReadChannel("""{"error": "Not Found"}"""),
+                    status = HttpStatusCode.NotFound,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+        }
+    }

@@ -1,5 +1,6 @@
 package com.example.twoeyesproject.di
 
+import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.getAppDatabase
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.upload.UploadViewModel
@@ -12,7 +13,8 @@ import org.koin.dsl.module
 val sharedIosModule = module {
     factory { ImageDecoder() }
     single { getAppDatabase() }
+    single { ApiClient() }
 
-    // UploadViewModel은 AppDatabase가 필요 (iOS 전용)
-    factory { UploadViewModel(db = get()) }
+    // UploadViewModel은 MergeResultDao가 필요 (iOS 전용)
+    factory { UploadViewModel(dao = get<com.example.twoeyesproject.dependency.AppDatabase>().getMergeResultDao(), client = get()) }
 }

@@ -22,32 +22,35 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.ui.camera.BottomButton
 import com.example.twoeyesproject.upload.UploadViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun UploadCreateFeedView(
-    viewModel: UploadViewModel,
+    viewModel: UploadViewModel = viewModel(),
     entity: MergeResultEntity
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
     val tagFieldState = rememberTextFieldState("")
     val dto: UploadMergedDTO by remember {
@@ -106,7 +109,6 @@ fun UploadCreateFeedView(
                         .width(120.dp)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(8.dp))
-//                        .clickable { onThumbnailSelected(imageSource) }
                 )
             }
         }
@@ -120,7 +122,7 @@ fun UploadCreateFeedView(
                 )
             },
             label = "Next",
-            onClick = { viewModel.uploadEntity(dto) }
+            onClick = { scope.launch { viewModel.uploadEntity(dto) } }
         )
     }
 }

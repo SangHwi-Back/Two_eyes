@@ -1,16 +1,15 @@
 package com.example.twoeyesproject.upload
 
-import androidx.room.InvalidationTracker
 import com.example.twoeyesproject.dependency.ApiClient
-import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.dependency.MergeResultEntity
+import com.example.twoeyesproject.dependency.UploadMergedDTO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.KoinTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -21,7 +20,7 @@ import kotlin.test.assertEquals
  *
  * Koin을 사용하여 의존성 주입 테스트
  */
-class UploadViewModelTest : KoinTest {
+class UploadViewModelTest {
 
     // Mock DAO
     private val mockDao = object : MergeResultDao {
@@ -38,20 +37,17 @@ class UploadViewModelTest : KoinTest {
         override suspend fun delete(item: MergeResultEntity) { entities.remove(item) }
     }
 
-    // Mock Database
-    private val mockDatabase = object : AppDatabase() {
-        override fun getMergeResultDao() = mockDao
-        override fun createInvalidationTracker(): InvalidationTracker {
-            TODO("Not yet implemented")
-        }
+    private val mockAPIClient = ApiClient().apply {
+        setTestClientStatus(isTest = true)
     }
+
+    private val viewModel = UploadViewModel(dao = mockDao, client = mockAPIClient)
 
     @BeforeTest
     fun setup() {
         // Koin 초기화 (테스트용 모듈)
         startKoin {
             modules(module {
-                single<AppDatabase> { mockDatabase }
                 single { ApiClient() }
             })
         }
@@ -65,8 +61,6 @@ class UploadViewModelTest : KoinTest {
     @Test
     fun `UploadViewModel should initialize with empty entities`() = runTest {
         // Arrange
-        val viewModel = UploadViewModel(mockDatabase)
-
         // Act
         val entities = viewModel.mergeEntities.value
 
@@ -75,9 +69,25 @@ class UploadViewModelTest : KoinTest {
     }
 
     @Test
+    fun `createFeed should returns entity id that user intended`() = runTest {
+        // Arrange
+        val entity = UploadMergedDTO(
+            imageIds = listOf(),
+            tags = mutableListOf(),
+            contents = "Test"
+        )
+
+        // Act
+        delay(100)
+        viewModel.uploadEntity(entity)
+
+        // Assert
+        // TODO: Response 확인 필요.
+    }
+
+    @Test
     fun `deleteEntity should remove entity from database`() = runTest {
         // Arrange
-        val viewModel = UploadViewModel(mockDatabase)
         val entity = MergeResultEntity(
             resultId = "test-id",
             leadingImageId = "leading",
@@ -96,7 +106,7 @@ class UploadViewModelTest : KoinTest {
 
         // Assert
         // Flow 업데이트를 기다리기 위해 약간의 지연
-        kotlinx.coroutines.delay(100)
+        delay(100)
         assertEquals(0, mockDao.getAll().size, "Entity should be deleted")
     }
 }

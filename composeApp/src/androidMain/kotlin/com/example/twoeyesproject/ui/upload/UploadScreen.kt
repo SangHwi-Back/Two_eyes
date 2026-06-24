@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +57,7 @@ import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.upload.UploadViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 // size()가 exact 크기를 강제하므로 sizeIn은 불필요
 private val ButtonSizeModifier = Modifier.size(width = 80.dp, height = 42.dp)
@@ -75,12 +77,16 @@ fun UploadScreen(
     onNext: (MergeResultEntity) -> Unit,
 ) {
     val entities by viewModel.mergeEntities.collectAsStateWithLifecycle()
-    // val → var: 전환 가능하도록
     var listType by remember { mutableStateOf(UploadListType.LIST) }
+    val scope = rememberCoroutineScope()
 
     fun onTap(type: UploadListTapType, entity: MergeResultEntity) {
         when (type) {
-            UploadListTapType.DELETE -> viewModel.deleteEntity(entity)
+            UploadListTapType.DELETE -> {
+                scope.launch {
+                    viewModel.deleteEntity(entity)
+                }
+            }
             UploadListTapType.LIST -> onNext(entity)
         }
     }

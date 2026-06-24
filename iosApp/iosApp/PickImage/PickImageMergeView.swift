@@ -34,49 +34,42 @@ struct PickImageMergeView: View {
     }
 
     var body: some View {
-        let thumbnailSize: CGSize = CGSize(
-            width:  CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
-            height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
-        )
         let (leadingZIndex, trailingZIndex): (Double, Double) = (
             wrapper.zOrder.first == .top ? 1000 : 999,
             wrapper.zOrder.last  == .top ? 1000 : 999
         )
+        
         let cornerRadius = CGFloat(constant.CARD_CORNER_RADIUS)
+        
+        let bindLeadingOffset = Binding<PickImageMergeViewModel.ImageState>(
+            get: {
+                wrapper.leadingState
+            }, set: { value, _ in
+                wrapper.setLeadingStateValue(.offset(value.offset))
+            })
+        
+        let bindTrailingOffset = Binding<PickImageMergeViewModel.ImageState>(
+            get: {
+                wrapper.trailingState
+            }, set: { value, _ in
+                wrapper.setTrailingStateValue(.offset(value.offset))
+            })
 
         GeometryReader { proxy in
             VStack(spacing: 0) {
 
-                // ── 제스처 캔버스 ────────────────────────────────────────────
+                // MARK: 제스처 캔버스
                 ZStack {
-                    let bindLeading = Binding<PickImageMergeViewModel.ImageState>(
-                        get: {
-                            wrapper.leadingState
-                        }, set: { value, _ in
-                            wrapper.setStateValue(
-                                true, value: .offset(value.offset))
-                        })
                     PHAssetImage(asset: leadingSource, size: thumbnailSize)
-                        .draggableAndScalable(bindLeading)
+                        .draggableAndScalable(bindLeadingOffset)
                         .scaleEffect(CGFloat(wrapper.leadingState.scale))
-                        .offset(
-                            x: CGFloat(wrapper.leadingState.offsetX),
-                            y: CGFloat(wrapper.leadingState.offsetY))
+                        .offset(wrapper.leadingState.offset)
                         .zIndex(leadingZIndex)
 
-                    let bindTrailing = Binding<PickImageMergeViewModel.ImageState>(
-                        get: {
-                            wrapper.trailingState
-                        }, set: { value, _ in
-                            wrapper.setStateValue(
-                                false, value: .offset(value.offset))
-                        })
                     PHAssetImage(asset: trailingSource, size: thumbnailSize)
-                        .draggableAndScalable(bindTrailing)
+                        .draggableAndScalable(bindTrailingOffset)
                         .scaleEffect(CGFloat(wrapper.trailingState.scale))
-                        .offset(
-                            x: CGFloat(wrapper.trailingState.offsetX),
-                            y: CGFloat(wrapper.trailingState.offsetY))
+                        .offset(wrapper.trailingState.offset)
                         .zIndex(trailingZIndex)
                 }
                 .frame(maxWidth: .infinity)
@@ -99,33 +92,30 @@ struct PickImageMergeView: View {
                     wrapper.setCanvasSize(proxy.canvasSize)
                     
                     let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
-                    wrapper.setStateValue(
-                        true, value: .offset(leadingOffset))
+                    wrapper.setLeadingStateValue(.offset(leadingOffset))
                     
                     let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
-                    wrapper.setStateValue(
-                        false, value: .offset(trailingOffset))
+                    wrapper.setTrailingStateValue(.offset(trailingOffset))
                     
                     isProxyInitialized = true
                 }
 
                 Divider().padding(.vertical, 8)
 
-                // ── 필터 선택 ────────────────────────────────────────────────
+                // MARK: 필터 선택
                 FilterSelectorView(
                     selectedTab:    $selectedImageTab,
                     leadingFilter:  wrapper.leadingState.filter,
                     trailingFilter: wrapper.trailingState.filter,
                     onFilterChange: {
                         let isLeading = selectedImageTab == 0
-                        wrapper.setStateValue(
-                            isLeading, value: .filter($0))
+                        wrapper.setLeadingStateValue(.filter($0))
                     }
                 )
 
                 Divider().padding(.vertical, 8)
 
-                // ── 합성 미리보기 ─────────────────────────────────────────────
+                // MARK: 합성 미리보기
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(AppColors.shared.Surface.color)
@@ -151,7 +141,7 @@ struct PickImageMergeView: View {
 
                 Spacer()
 
-                // ── 확인 버튼 ─────────────────────────────────────────────────
+                // MARK: 확인 버튼
                 HStack {
                     Spacer()
                     GlassIconButton(systemName: "checkmark.circle") {
@@ -174,8 +164,6 @@ struct PickImageMergeView: View {
         }
     }
 }
-
-// MARK: - Filter Selector View
 
 private struct FilterSelectorView: View {
     @Binding var selectedTab: Int
@@ -222,8 +210,6 @@ private struct FilterSelectorView: View {
         }
     }
 }
-
-// MARK: - Filter Chip
 
 private struct FilterChipView: View {
     let label:      String

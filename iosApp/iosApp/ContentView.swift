@@ -42,13 +42,16 @@ struct ContentView: View {
             }
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
                 NavigationStack(path: $uploadPath.path) {
-                    UploadView(database: database)
+                    UploadView(database: database, client: apiClient)
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar { loginToolbarButton }
                         .navigationDestination(for: NavHost.Upload.self) { route in
                             switch route {
                             case .main(let database):
-                                UploadView(database: database)
+                                UploadView(
+                                    database: database,
+                                    client: apiClient
+                                )
                             case .upload(let entity, let vm):
                                 UploadCreateFeedView(entity: entity, vm: vm)
                             }

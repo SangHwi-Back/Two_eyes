@@ -22,8 +22,11 @@ struct UploadView: View {
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
-    init(database: AppDatabase) {
-        _wrapper = State(wrappedValue: UploadViewModelWrapper(db: database))
+    init(database: AppDatabase, client: ApiClient) {
+        _wrapper = State(wrappedValue: UploadViewModelWrapper(
+            db: database,
+            client: client
+        ))
     }
 
     var body: some View {
@@ -68,7 +71,10 @@ struct UploadView: View {
     func onTap(_ tap: UploadViewTapType, entity: MergeResultEntity) {
         switch tap {
         case .delete:
-            wrapper.viewModel.deleteEntity(entity: entity)
+            Task {
+                try? await wrapper.viewModel.deleteEntity(entity: entity)
+            }
+            
         case .list:
             navHost.push(to: .upload(entity, wrapper.viewModel))
         }
@@ -121,5 +127,8 @@ struct UploadGridCard: View {
 }
 
 #Preview {
-    UploadView(database: Database_iosKt.getAppDatabase())
+    UploadView(
+        database: Database_iosKt.getAppDatabase(),
+        client: ApiClient()
+    )
 }

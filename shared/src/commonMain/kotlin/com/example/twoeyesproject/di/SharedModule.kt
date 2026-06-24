@@ -2,9 +2,12 @@ package com.example.twoeyesproject.di
 
 import com.example.twoeyesproject.LoginViewModel
 import com.example.twoeyesproject.dependency.ApiClient
+import com.example.twoeyesproject.dependency.AppDatabase
+import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.image.PickImageViewModel
 import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
+import com.example.twoeyesproject.upload.UploadViewModel
 import org.koin.dsl.module
 
 /**
@@ -20,6 +23,7 @@ val sharedCommonModule = module {
     // commonMain에서는 viewModel() DSL을 사용할 수 없으므로 factory() 사용
     factory { LoginViewModel(context = null) }
     factory { FeedListViewModel(apiClient = get()) }
+    factory { UploadViewModel(dao = get<AppDatabase>().getMergeResultDao(), client = get()) }
     factory { PickImageViewModel() }
     factory { PickImageMergeViewModel() }
 

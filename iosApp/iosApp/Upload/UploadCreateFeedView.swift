@@ -59,7 +59,9 @@ struct UploadCreateFeedView: View {
             .frame(height: dto.imageIds.isEmpty ? 0 : CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
             
             GlassIconTitleButton(systemName: "square.and.arrow.up.on.square", title: "Confirm") {
-                viewModel.uploadEntity(dto: dto)
+                Task {
+                    try? await viewModel.uploadEntity(dto: dto)
+                }
             }
         }}
         .navigationTitle("Upload")

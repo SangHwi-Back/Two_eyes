@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -43,19 +42,17 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.room.Room
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import androidx.room.Room
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
-import org.koin.dsl.module
-import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
@@ -64,10 +61,9 @@ import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
 import com.example.twoeyesproject.ui.upload.UploadCreateFeedView
 import com.example.twoeyesproject.ui.upload.UploadScreen
-import com.example.twoeyesproject.upload.UploadViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplicationPreview
-import org.koin.compose.koinInject
+import org.koin.dsl.module
 
 private const val ROUTE_FEED   = "feed"
 private const val ROUTE_UPLOAD = "upload"
@@ -124,9 +120,6 @@ private fun AppScaffold(navController: NavHostController) {
     LaunchedEffect(Unit) {
         isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
     }
-
-    val database: AppDatabase = koinInject()
-    val apiClient: ApiClient = koinInject()
 
     Scaffold(
         topBar = {
@@ -232,22 +225,19 @@ private fun AppScaffold(navController: NavHostController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(ROUTE_FEED) {
-                FeedScreen(
-                    viewModel = FeedListViewModel(apiClient),
-                    onFeedClick = { /* 상세 화면 추후 구현 */ }
-                )
+                FeedScreen {
+                    // TODO: 상세 화면 추후 구현
+                }
             }
 
             composable(ROUTE_UPLOAD) {
-                UploadScreen(
-                    viewModel = UploadViewModel(database),
-                    onNext = { navController.navigate(it) }
-                )
+                UploadScreen {
+                    navController.navigate(it)
+                }
             }
 
             composable<MergeResultEntity> { backStackEntry ->
                 UploadCreateFeedView(
-                    viewModel = UploadViewModel(database),
                     entity = backStackEntry.toRoute<MergeResultEntity>()
                 )
             }
