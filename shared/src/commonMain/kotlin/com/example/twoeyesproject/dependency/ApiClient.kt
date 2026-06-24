@@ -19,7 +19,6 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -213,11 +212,11 @@ open class ApiClient {
     suspend fun getFeed(page: Int, count: Int? = null): FeedResponse =
         _client.get("$baseUrl/feed").body()
     
-    suspend fun postLike(tobe: Boolean, feedId: String): HttpResponse =
+    suspend fun postLike(tobe: Boolean, feedId: String): LikeResponse =
         if (tobe)
-            _client.post("feed/$feedId/like")
+            _client.post("feed/$feedId/like").body()
         else
-            _client.delete("feed/$feedId/like")
+            _client.delete("feed/$feedId/like").body()
 }
 
 val mockEngine: MockEngine
@@ -225,7 +224,14 @@ val mockEngine: MockEngine
         when (request.url.encodedPath) {
             "/api/v1/feed" -> {
                 respond(
-                    content = ByteReadChannel(FeedMockData.feedList),
+                    content = ByteReadChannel(FeedMockData.FeedList),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+            "/feed/feed-001/like" -> {
+                respond(
+                    content = ByteReadChannel("""{"feedId": "feed-001", "likeCount": 1, "isLiked": true}"""),
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )

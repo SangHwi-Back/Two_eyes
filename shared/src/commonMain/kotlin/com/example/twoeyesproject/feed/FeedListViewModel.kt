@@ -3,14 +3,16 @@ package com.example.twoeyesproject.feed
 import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.FeedResponse
-import io.ktor.http.HttpStatusCode
+import com.example.twoeyesproject.dependency.LikeResponse
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.listOf
 
 class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
     private var _listMockData = MutableStateFlow<List<FeedItemModel>>(mutableListOf())
-    val listData = _listMockData.asStateFlow()
+    val listData: StateFlow<List<FeedItemModel>>
+        get() = _listMockData.asStateFlow()
 
     suspend fun getAllFeeds() {
         try {
@@ -21,19 +23,13 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
         }
     }
 
-    suspend fun updateLike(like: Boolean, feedId: String) {
+    suspend fun updateLike(like: Boolean, feedId: String) : LikeResponse {
         try {
             val response = apiClient.postLike(like, feedId)
-
-            if (response.status != HttpStatusCode.OK) return
-
-            try {
-                _listMockData.value.first { it.feedId == feedId }.isUserLiked = like
-            } catch (e: NoSuchElementException) {
-                print("Error! $e")
-            }
-        } catch (_: Exception) {
-            print("Server not ready yet.")
+            _listMockData.value.first { it.feedId == response.feedId }.isUserLiked = like
+            return response
+        } catch (e: Exception) {
+            throw e
         }
     }
 }
