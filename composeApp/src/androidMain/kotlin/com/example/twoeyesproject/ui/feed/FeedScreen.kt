@@ -34,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +49,7 @@ import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
+import kotlinx.coroutines.launch
 
 enum class FeedScreenTapType {
     LIKE, COMMENT, SHARE, FEED
@@ -60,6 +62,8 @@ fun FeedScreen(
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
 
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         val isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
 
@@ -70,11 +74,13 @@ fun FeedScreen(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
             FeedItemCard(item = item, onClick = {
-                when (it) {
-                    FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
-                    FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
-                    FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
-                    else -> onFeedClick(item)
+                scope.launch {
+                    when (it) {
+                        FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
+                        FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
+                        FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
+                        else -> onFeedClick(item)
+                    }
                 }
             })
             HorizontalDivider()

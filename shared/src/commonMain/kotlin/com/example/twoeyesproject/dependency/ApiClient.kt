@@ -220,12 +220,12 @@ open class ApiClient {
             _client.delete("feed/$feedId/like")
 }
 
-val ApiClient.mockEngine: MockEngine
+val mockEngine: MockEngine
     get() = MockEngine { request ->
         when (request.url.encodedPath) {
-            "/feed" -> {
+            "/api/v1/feed" -> {
                 respond(
-                    content = ByteReadChannel("""{"id": 1, "name": "Alice"}"""),
+                    content = ByteReadChannel(FeedMockData.feedList),
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )

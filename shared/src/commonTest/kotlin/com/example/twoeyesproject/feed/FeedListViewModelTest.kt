@@ -1,6 +1,8 @@
 package com.example.twoeyesproject.feed
 
 import com.example.twoeyesproject.dependency.ApiClient
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,27 +10,23 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 class FeedListViewModelTest {
-    val apiClient = ApiClient()
+    val viewModel = FeedListViewModel(ApiClient().apply {
+        setTestClientStatus(isTest = true)
+    })
 
     @Test
-    fun `ListData should be 3`() {
-        // Arrange
-        val viewModel = FeedListViewModel(apiClient)
-
+    fun `ListData should be 3`() = runTest {
         // Act
-        val items = viewModel.listData.value
+        viewModel.getAllFeeds()
 
         // Assert
-        assertNotNull(items)
-        assertEquals(items.size, 3)
+        assertEquals(3, viewModel.listData.value.size)
     }
 
     @Test
-    fun `First item should have correct author`() {
-        // Arrange
-        val viewModel = FeedListViewModel(apiClient)
-
+    fun `First item should have correct author`() = runTest {
         // Act
+        viewModel.getAllFeeds()
         val items = viewModel.listData.value
 
         // Assert
@@ -39,11 +37,10 @@ class FeedListViewModelTest {
 
     @Test
     fun `All items should not show reply`() {
-        // Arrange
-        val viewModel = FeedListViewModel(apiClient)
-
         // Act
         viewModel.listData.value.forEach { item ->
+
+            // Assert
             assertFalse(item.showReply)
         }
     }

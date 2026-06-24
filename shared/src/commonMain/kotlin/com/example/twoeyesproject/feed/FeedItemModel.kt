@@ -7,7 +7,8 @@ data class FeedItemModel(
     val author: String,
     val description: String,
     var showReply: Boolean,
-    var replyArray: List<FeedItemReplyModel>
+    var replyArray: List<FeedItemReplyModel>,
+    var isUserLiked: Boolean
 )
 
 data class FeedItemReplyModel(
