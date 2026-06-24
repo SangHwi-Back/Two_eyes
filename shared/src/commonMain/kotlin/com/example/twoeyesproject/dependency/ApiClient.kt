@@ -209,8 +209,12 @@ open class ApiClient {
         ))
     }
 
-    suspend fun getFeed(page: Int, count: Int? = null): FeedResponse =
-        _client.get("$baseUrl/feed").body()
+    suspend fun getFeed(page: Int, count: Int? = null): FeedResponse {
+        var url = "$baseUrl/feed?page=$page"
+        if (count != null)
+            url += "&limit=$count"
+        return _client.get(url).body()
+    }
     
     suspend fun postLike(tobe: Boolean, feedId: String): LikeResponse =
         if (tobe)

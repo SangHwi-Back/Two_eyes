@@ -3,7 +3,6 @@ package com.example.twoeyesproject.di
 import com.example.twoeyesproject.LoginViewModel
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
-import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.image.PickImageViewModel
 import com.example.twoeyesproject.image.merge.PickImageMergeViewModel
