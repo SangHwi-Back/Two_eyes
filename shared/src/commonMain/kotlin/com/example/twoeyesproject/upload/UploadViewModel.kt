@@ -6,6 +6,8 @@ import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
+import com.example.twoeyesproject.feed.FeedItemModel
+import com.example.twoeyesproject.feed.toFeedItemModel
 import com.example.twoeyesproject.image.URIByteEncoder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,7 @@ class UploadViewModel(
         // Flow가 Room 변경을 자동 감지하므로 mergeEntities 별도 갱신 불필요
     }
 
-    suspend fun uploadEntity(dto: UploadMergedDTO) {
+    suspend fun uploadEntity(dto: UploadMergedDTO): FeedItemModel {
         var result: ByteArray = byteArrayOf()
         for (id in dto.imageIds) {
             val item = URIByteEncoder(id).uriToByteArray()
@@ -40,6 +42,7 @@ class UploadViewModel(
             }
         }
 
-        client.createFeed(content = dto.contents, tags = dto.tags, imageBytes = result)
+        val response = client.createFeed(content = dto.contents, tags = dto.tags, imageBytes = result)
+        return response.toFeedItemModel()
     }
 }

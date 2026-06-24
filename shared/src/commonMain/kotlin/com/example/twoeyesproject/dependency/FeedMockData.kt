@@ -55,4 +55,20 @@ object FeedMockData {
     }
 }
 """
+
+    const val CreatedFeed = """
+{
+    "id": "feed-new-001",
+    "content": "Test upload content",
+    "tags": ["test", "upload"],
+    "likeCount": 0,
+    "isLiked": false,
+    "user": { "id": "user-test", "name": "test_user", "profileImage": null },
+    "images": [
+        { "id": "img-new-001", "url": "https://picsum.photos/seed/test/600/600", "order": 0 }
+    ],
+    "createdAt": "2025-01-04T00:00:00Z",
+    "updatedAt": "2025-01-04T00:00:00Z"
+}
+"""
 }

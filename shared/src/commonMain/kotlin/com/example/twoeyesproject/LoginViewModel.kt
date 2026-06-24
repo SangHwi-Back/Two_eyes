@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    val context: PlatformUIContext?
+    val context: PlatformUIContext
 ) : ViewModel() {
     val storage    = PlatformSecureStorage()
     val checkWorker = PlatformAuthorizationStatusCheckWorker()

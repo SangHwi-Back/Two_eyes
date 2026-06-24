@@ -1,6 +1,5 @@
 package com.example.twoeyesproject.di
 
-import com.example.twoeyesproject.LoginViewModel
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.feed.FeedListViewModel
@@ -20,7 +19,7 @@ val sharedCommonModule = module {
 
     // ── ViewModels: 화면마다 새 인스턴스 생성 ──
     // commonMain에서는 viewModel() DSL을 사용할 수 없으므로 factory() 사용
-    factory { LoginViewModel(context = null) }
+    // LoginViewModel은 플랫폼 UIContext가 필요하므로 각 플랫폼에서 직접 생성 (DI 제외)
     factory { FeedListViewModel(apiClient = get()) }
     factory { UploadViewModel(dao = get<AppDatabase>().getMergeResultDao(), client = get()) }
     factory { PickImageViewModel() }

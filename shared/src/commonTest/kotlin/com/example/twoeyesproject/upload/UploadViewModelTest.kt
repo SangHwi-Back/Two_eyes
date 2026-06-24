@@ -4,37 +4,31 @@ import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 /**
  * UploadViewModel 유닛테스트
- *
- * Koin을 사용하여 의존성 주입 테스트
  */
 class UploadViewModelTest {
 
     // Mock DAO
     private val mockDao = object : MergeResultDao {
-        private val entities = mutableListOf<MergeResultEntity>()
-
-        override fun getAllAsFlow() = flowOf(entities)
-        override suspend fun getAll(): List<MergeResultEntity> = entities
+        private val entities = MutableStateFlow(mutableListOf<MergeResultEntity>())
+        override fun getAllAsFlow() = entities.asStateFlow()
+        override suspend fun getAll(): List<MergeResultEntity> = entities.value
         override suspend fun save(item: MergeResultEntity): Long {
-            entities.add(item)
+            entities.value.add(item)
             return item.id
         }
-        override suspend fun count(): Int = entities.size
-
-        override suspend fun delete(item: MergeResultEntity) { entities.remove(item) }
+        override suspend fun count(): Int = entities.value.size
+        override suspend fun delete(item: MergeResultEntity) {
+            entities.value.remove(item)
+        }
     }
 
     private val mockAPIClient = ApiClient().apply {
@@ -42,21 +36,6 @@ class UploadViewModelTest {
     }
 
     private val viewModel = UploadViewModel(dao = mockDao, client = mockAPIClient)
-
-    @BeforeTest
-    fun setup() {
-        // Koin 초기화 (테스트용 모듈)
-        startKoin {
-            modules(module {
-                single { ApiClient() }
-            })
-        }
-    }
-
-    @AfterTest
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `UploadViewModel should initialize with empty entities`() = runTest {
@@ -69,20 +48,24 @@ class UploadViewModelTest {
     }
 
     @Test
-    fun `createFeed should returns entity id that user intended`() = runTest {
+    fun `uploadEntity should return FeedItemModel with correct data`() = runTest {
         // Arrange
-        val entity = UploadMergedDTO(
-            imageIds = listOf(),
-            tags = mutableListOf(),
-            contents = "Test"
+        val dto = UploadMergedDTO(
+            imageIds = listOf(),  // 빈 리스트로 URIByteEncoder 우회
+            tags = mutableListOf("test", "upload"),
+            contents = "Test upload content"
         )
 
         // Act
-        delay(100)
-        viewModel.uploadEntity(entity)
+        val result = viewModel.uploadEntity(dto)
 
         // Assert
-        // TODO: Response 확인 필요.
+        assertNotNull(result, "Upload result should not be null")
+        assertEquals("feed-new-001", result.feedId, "Feed ID should match mock response")
+        assertEquals("Test upload content", result.description, "Content should match")
+        assertEquals(1, result.imageUrls.size, "Should have 1 image")
+        assertEquals("test_user", result.author, "Author should match mock user")
+        assertEquals(0, result.likes, "Initial likes should be 0")
     }
 
     @Test
@@ -97,7 +80,6 @@ class UploadViewModelTest {
             isUploaded = false
         )
 
-        // Mock에 엔티티 추가
         mockDao.save(entity)
         assertEquals(1, mockDao.getAll().size)
 
@@ -105,8 +87,6 @@ class UploadViewModelTest {
         viewModel.deleteEntity(entity)
 
         // Assert
-        // Flow 업데이트를 기다리기 위해 약간의 지연
-        delay(100)
         assertEquals(0, mockDao.getAll().size, "Entity should be deleted")
     }
 }

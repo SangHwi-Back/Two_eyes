@@ -96,6 +96,19 @@ data class LikeResponse(
     val feedId: String, val likeCount: Int, val isLiked: Boolean
 )
 
+@Serializable
+data class CreateFeedResponse(
+    val id: String,
+    val content: String?,
+    val tags: List<String>,
+    val likeCount: Int,
+    val isLiked: Boolean,
+    val user: FeedResponse.User,
+    val images: List<FeedResponse.Image>,
+    val createdAt: String,
+    val updatedAt: String
+)
+
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
 open class ApiClient {
@@ -195,7 +208,7 @@ open class ApiClient {
         content: String?,
         tags: List<String>,
         imageBytes: ByteArray
-    ) = _client.post("$baseUrl/feed") {
+    ): CreateFeedResponse = _client.post("$baseUrl/feed") {
         contentType(ContentType.Application.Json)
         setBody(MultiPartFormDataContent(
             formData {
@@ -207,7 +220,7 @@ open class ApiClient {
                 })
             }
         ))
-    }
+    }.body()
 
     suspend fun getFeed(page: Int, count: Int? = null): FeedResponse {
         var url = "$baseUrl/feed?page=$page"
@@ -225,15 +238,22 @@ open class ApiClient {
 
 val mockEngine: MockEngine
     get() = MockEngine { request ->
-        when (request.url.encodedPath) {
-            "/api/v1/feed" -> {
+        when {
+            request.url.encodedPath == "/api/v1/feed" && request.method.value == "GET" -> {
                 respond(
                     content = ByteReadChannel(FeedMockData.FeedList),
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, "application/json")
                 )
             }
-            "/feed/feed-001/like" -> {
+            request.url.encodedPath == "/api/v1/feed" && request.method.value == "POST" -> {
+                respond(
+                    content = ByteReadChannel(FeedMockData.CreatedFeed),
+                    status = HttpStatusCode.Created,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+            request.url.encodedPath == "/feed/feed-001/like" -> {
                 respond(
                     content = ByteReadChannel("""{"feedId": "feed-001", "likeCount": 1, "isLiked": true}"""),
                     status = HttpStatusCode.OK,
