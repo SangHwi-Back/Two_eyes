@@ -2,7 +2,6 @@ package com.example.twoeyesproject.feed
 
 import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.dependency.ApiClient
-import com.example.twoeyesproject.dependency.CreateFeedResponse
 import com.example.twoeyesproject.dependency.FeedResponse
 import com.example.twoeyesproject.dependency.LikeResponse
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,18 +35,6 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
 }
 
 fun FeedResponse.Data.toFeedItemModel() : FeedItemModel =
-    FeedItemModel(
-        feedId = id,
-        imageUrls = images.map { it.url },
-        likes = likeCount,
-        author = user.name.orEmpty(),
-        description = content.orEmpty(),
-        showReply = false,
-        replyArray = listOf(),
-        isUserLiked = isLiked
-    )
-
-fun CreateFeedResponse.toFeedItemModel() : FeedItemModel =
     FeedItemModel(
         feedId = id,
         imageUrls = images.map { it.url },

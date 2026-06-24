@@ -96,19 +96,6 @@ data class LikeResponse(
     val feedId: String, val likeCount: Int, val isLiked: Boolean
 )
 
-@Serializable
-data class CreateFeedResponse(
-    val id: String,
-    val content: String?,
-    val tags: List<String>,
-    val likeCount: Int,
-    val isLiked: Boolean,
-    val user: FeedResponse.User,
-    val images: List<FeedResponse.Image>,
-    val createdAt: String,
-    val updatedAt: String
-)
-
 // ── 클라이언트 ─────────────────────────────────────────────────────
 
 open class ApiClient {
@@ -208,7 +195,7 @@ open class ApiClient {
         content: String?,
         tags: List<String>,
         imageBytes: ByteArray
-    ): CreateFeedResponse = _client.post("$baseUrl/feed") {
+    ): FeedResponse.Data = _client.post("$baseUrl/feed") {
         contentType(ContentType.Application.Json)
         setBody(MultiPartFormDataContent(
             formData {
