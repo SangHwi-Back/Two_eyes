@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.twoeyesproject.dependency.MergeResultDao
 import com.example.twoeyesproject.dependency.MergeResultEntity
-import com.example.twoeyesproject.getPlatform
 import com.example.twoeyesproject.platformspecific.PlatformApplyFilter
 import com.example.twoeyesproject.platformspecific.PlatformImage
 import com.example.twoeyesproject.platformspecific.PlatformPersistImage
@@ -64,22 +63,6 @@ class PickImageMergeViewModel : ViewModel() {
 
     fun setTrailingFilter(filter: ImageState.Filter?) {
         _trailing.value = _trailing.value.copy(filter = filter)
-    }
-
-    fun applyImageFilter(isLeading: Boolean, image: PlatformImage, filter: ImageState.Filter?) : PlatformImage? {
-        if (isLeading)
-            _leading.value = _leading.value.copy(filter = filter)
-        else
-            _trailing.value = _trailing.value.copy(filter = filter)
-
-        if (filter == null)
-            return null
-
-        return if (getPlatform().name.startsWith("Android")) {
-            applyFilter.googleApplyFilter(image, filter)
-        } else {
-            applyFilter.appleApplyFilter(image, filter)
-        }
     }
 
     fun swapOrder() {

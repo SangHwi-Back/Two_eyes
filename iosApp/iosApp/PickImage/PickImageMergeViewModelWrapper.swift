@@ -38,6 +38,9 @@ final class PickImageMergeViewModelWrapper {
 
     // 제스처 캔버스 크기 — onAppear 에서 주입
     private(set) var canvasSize: CGSize = .zero
+    var canvasInt: (width: Int32, height: Int32) {
+        (width: Int32(canvasSize.width), height: Int32(canvasSize.height))
+    }
 
     init(model: PickImageMergeModel) {
         self.imageSourceModel = model
@@ -101,12 +104,19 @@ final class PickImageMergeViewModelWrapper {
     private func fetchImages(assets: [PHAsset]) async throws -> [UIImage] {
         try await imageFetcher.convertToUIImages(
                 assets: assets,
-                targetSizeWidth: Double(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
-                targetSizeHeight: Double(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)
+                targetSizeWidth: Double(thumbnailWidth),
+                targetSizeHeight: Double(thumbnailHeight)
             )
     }
     
-    func setStateValue(_ isLeading: Bool, value: MergeImagePropertyTransferType) {
+    func setLeadingStateValue(_ value: MergeImagePropertyTransferType) {
+        setStateValue(true, value: value)
+    }
+    func setTrailingStateValue(_ value: MergeImagePropertyTransferType) {
+        setStateValue(false, value: value)
+    }
+    
+    private func setStateValue(_ isLeading: Bool, value: MergeImagePropertyTransferType) {
         let base = isLeading ? leadingState : trailingState
         let newValue: PickImageMergeViewModel.ImageState = {
             switch value {
@@ -144,13 +154,11 @@ final class PickImageMergeViewModelWrapper {
 
         // SwiftUI offset (ZStack 중심 기준) → 캔버스 top-left 기준 CGRect 로 변환
         func makeRect(_ state: PickImageMergeViewModel.ImageState) -> CGRect {
-            let w = CGFloat(Float(AppConstants.shared.THUMBNAIL_SIZE_WIDTH)  * state.scale)
-            let h = CGFloat(Float(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT) * state.scale)
-            return CGRect(
-                x: canvasSize.width  / 2 + CGFloat(state.offsetX) - w / 2,
-                y: canvasSize.height / 2 + CGFloat(state.offsetY) - h / 2,
-                width: w, height: h
-            )
+            CGRect(
+                x: CGFloat(state.offsetX),
+                y: CGFloat(state.offsetY),
+                width: thumbnailWidth * CGFloat(state.scale),
+                height: thumbnailHeight * CGFloat(state.scale))
         }
 
         let leadingRect  = makeRect(leadingState)
@@ -174,50 +182,41 @@ final class PickImageMergeViewModelWrapper {
         : applyFilter.appleApplyFilter(
             image: topImage, filter: topFilter)
         
-        mergedImage = renderBlended(
-            canvasSize:  canvasSize,
-            bottomImage: filteredBottom, bottomRect: bottomRect,
-            topImage:    filteredTop,    topRect:    topRect
+        mergedImage = ImageMerger()
+            .merge(model: getImageMergerModel(
+                bottomImage: bottomImage, bottomRect: bottomRect,
+                topImage: topImage, topRect: topRect
+            ))
+    }
+    
+    private func getImageMergerModel(
+        bottomImage: UIImage, bottomRect: CGRect,
+        topImage: UIImage, topRect: CGRect
+    ) -> ImageMergerModel {
+        ImageMergerModel(
+            canvasWidth: Int32(canvasSize.width),
+            canvasHeight: Int32(canvasSize.height),
+            bottomImage: ImageMergerModel.ImageInfo(
+                image: bottomImage,
+                frame: getImageFrame(bottomRect)
+            ),
+            topImage: ImageMergerModel.ImageInfo(
+                image: topImage,
+                frame: getImageFrame(topRect)
+            ),
+            blendAlpha: 0.5
         )
     }
-
-    /// 두 이미지를 캔버스에 합성 — 겹치는 영역은 alpha 0.5 blend
-    private func renderBlended(
-        canvasSize:  CGSize,
-        bottomImage: UIImage, bottomRect: CGRect,
-        topImage:    UIImage, topRect:    CGRect
-    ) -> UIImage {
-        UIGraphicsImageRenderer(size: canvasSize).image { ctx in
-            let cgCtx = ctx.cgContext
-
-            // 아래 이미지 전체 그리기
-            bottomImage.draw(in: bottomRect)
-
-            let intersection = bottomRect.intersection(topRect)
-
-            if intersection.isNull || intersection.isEmpty {
-                // 겹침 없음 — 위 이미지 그대로 그리기
-                topImage.draw(in: topRect)
-                return
-            }
-
-            // 겹치지 않는 영역 정상 그리기
-            cgCtx.saveGState()
-            let clipPath = UIBezierPath(rect: topRect)
-            clipPath.append(UIBezierPath(rect: intersection).reversing())
-            clipPath.usesEvenOddFillRule = true
-            clipPath.addClip()
-            topImage.draw(in: topRect)
-            cgCtx.restoreGState()
-
-            // 겹치는 영역 blend (alpha 0.5)
-            cgCtx.saveGState()
-            cgCtx.clip(to: intersection)
-            topImage.draw(in: topRect, blendMode: .normal, alpha: 0.5)
-            cgCtx.restoreGState()
-        }
+    
+    private func getImageFrame(_ rect: CGRect) -> ImageFrame {
+        ImageFrame(
+            left: Float(rect.origin.x),
+            top: Float(rect.origin.y),
+            right: Float(rect.origin.x + rect.size.width),
+            bottom: Float(rect.origin.y + rect.size.height)
+        )
     }
-
+    
     func mergeDone(dao: MergeResultDao) -> Bool {
         guard let mergedImage else {
             return false

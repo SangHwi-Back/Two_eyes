@@ -31,14 +31,18 @@ class PhotoPickerDelegate(
     ) {
         picker.dismissViewControllerAnimated(true, null)
 
-        val results = didFinishPicking as? List<PHPickerResult> ?: return
-        val identifiers: List<String> = results.mapNotNull { it.assetIdentifier }
-        val fetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(identifiers, options = null)
-        fetchResult.enumerateObjectsUsingBlock { asset, _, _ ->
-            if (asset is PHAsset) {
-                imageSourceDelegate.addImageSource(asset)
+        PHAsset
+            .fetchAssetsWithLocalIdentifiers(
+                didFinishPicking.mapNotNull {
+                    (it as? PHPickerResult)?.assetIdentifier
+                },
+                options = null
+            )
+            .also {
+                it.enumerateObjectsUsingBlock { asset, _, _ ->
+                    if (asset is PHAsset) imageSourceDelegate.addImageSource(asset)
+                }
             }
-        }
     }
 }
 

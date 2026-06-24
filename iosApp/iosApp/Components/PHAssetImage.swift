@@ -18,9 +18,7 @@ struct PHAssetImage: View {
     @State private var error: NSError?
     
     init(asset: PHAsset,
-         size: CGSize = CGSize(
-            width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
-            height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
+         size: CGSize = thumbnailSize,
          image: UIImage? = nil,
          requestID: PHImageRequestID? = nil,
          filter: CIFilter? = nil,
@@ -32,9 +30,7 @@ struct PHAssetImage: View {
     }
     
     init(assetIdentifier: String,
-         size: CGSize = CGSize(
-            width: Int(AppConstants.shared.THUMBNAIL_SIZE_WIDTH),
-            height: Int(AppConstants.shared.THUMBNAIL_SIZE_HEIGHT)),
+         size: CGSize = thumbnailSize,
          image: UIImage? = nil,
          requestID: PHImageRequestID? = nil,
          filter: CIFilter? = nil,

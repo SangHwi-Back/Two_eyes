@@ -1,5 +1,6 @@
-import com.android.build.api.dsl.androidLibrary
-import org.gradle.internal.declarativedsl.parsing.main
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
