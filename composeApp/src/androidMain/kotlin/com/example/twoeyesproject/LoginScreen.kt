@@ -1,6 +1,7 @@
 package com.example.twoeyesproject
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -48,7 +49,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     onLoginSuccess: () -> Unit = {},
 ) {
-    val activity = LocalActivity.current
+    val activity: Activity = LocalActivity.current!!
 
     // ViewModel은 remember로 직접 생성 (lifecycle-viewmodel-compose 미사용 시)
     val viewModel = remember { LoginViewModel(activity) }
