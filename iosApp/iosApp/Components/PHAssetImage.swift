@@ -13,72 +13,74 @@ struct PHAssetImage: View {
     let asset: PHAsset?
     let size: CGSize
 
-    @State private var image: UIImage?
-    @State private var requestID: PHImageRequestID?
-    @State private var error: NSError?
+    @State private var status: PHAssetImageStatus = .none
     
     init(asset: PHAsset,
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
-         requestID: PHImageRequestID? = nil,
          filter: CIFilter? = nil,
     ) {
         self.asset = asset
         self.size = size
-        self.image = image
-        self.requestID = requestID
+        
+        if let image {
+            self.status = .image(image)
+        }
     }
     
     init(assetIdentifier: String,
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
-         requestID: PHImageRequestID? = nil,
          filter: CIFilter? = nil,
     ) {
-        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
-        
-        if let asset = fetchResult.firstObject {
-            // Successfully retrieved the PHAsset
-            self.asset = asset
-        } else {
-            self.asset = nil
-        }
-        
+        self.asset = PHAsset
+            .fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
+            .firstObject
         self.size = size
-        self.image = image
-        self.requestID = requestID
+        
+        if let image {
+            self.status = .image(image)
+        }
     }
-
+    
     var body: some View {
         ZStack {
-            if let image {
-                Image(uiImage: image)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(AppColors.shared.Surface2.color)
+                .stroke(.gray, style: StrokeStyle(lineWidth: 1))
+                .frame(width: size.width, height: size.height)
+            
+            switch status {
+            case .error(let error):
+                Button { fetchImage() } label: {
+                    VStack {
+                        CircleImage("xmark")
+                        ButtonTitle(error.localizedDescription)
+                    }
+                }
+            case .noImage:
+                Button { fetchImage() } label: {
+                    VStack {
+                        CircleImage("questionmark.square.dashed")
+                        ButtonTitle("No Image")
+                    }
+                }
+            case .loading:
+                ProgressView()
+                    .frame(width: 52, height: 52)
+            case .image(let uIImage):
+                Image(uiImage: uIImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: size.width, height: size.height)
-            } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(AppColors.shared.Surface2.color)
-                    .stroke(.gray, style: StrokeStyle(lineWidth: 1))
-                    .frame(width: size.width, height: size.height)
-                
-                if error == nil {
-                    ProgressView()
-                        .frame(width: 52, height: 52)
-                } else {
-                    Circle()
-                        .fill(Color.white)
-                        .stroke(AppColors.shared.Divider.color,
-                                style: StrokeStyle(lineWidth: 1))
-                        .frame(width: 52, height: 52, alignment: .center)
-                    
-                    Image(systemName: "xmark")
-                        .frame(width: 32, height: 32, alignment: .center)
-                        .foregroundStyle(AppColors.shared.Accent.color)
-                }
+            case .none:
+                EmptyView()
             }
         }
         .onAppear {
+            if case .image(_) = status {
+                return
+            }
             fetchImage()
         }
         .onChange(of: asset) {
@@ -91,36 +93,59 @@ struct PHAssetImage: View {
             cancelAndClear()
         }
     }
-
+    
+    @ViewBuilder
+    func CircleImage(_ imageName: String) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .stroke(AppColors.shared.Divider.color,
+                        style: StrokeStyle(lineWidth: 1))
+                .frame(width: 52, height: 52, alignment: .center)
+            Image(systemName: imageName)
+                .scaledToFit()
+                .foregroundStyle(AppColors.shared.Accent.color)
+        }
+    }
+    
+    func ButtonTitle(_ title: String) -> some View {
+        Text(title)
+            .font(.callout)
+            .foregroundStyle(AppColors.shared.TextSecondary.color)
+            .lineLimit(2)
+    }
+    
     private func fetchImage() {
+        status = .loading
+        
         guard let asset else {
-            error = NSError()
+            status = .noImage
             return
         }
         
-        let options = PHImageRequestOptions()
-        options.isSynchronous = false
-        options.deliveryMode = .highQualityFormat
-
-        requestID = PHImageManager.default().requestImage(
-            for: asset,
-            targetSize: PHImageManagerMaximumSize,
-            contentMode: .aspectFill,
-            options: options
-        ) { result, info in
-            if let error = info?[PHImageErrorKey] as? NSError {
-                self.error = error
+        Task {
+            do {
+                if let result = try await PickImageFetcher().loadImageUsingSource(source: asset) {
+                    status = .image(result)
+                }
+                else {
+                    status = .noImage
+                }
+            } catch {
+                status = .error(error)
             }
-            self.image = result
         }
     }
 
     private func cancelAndClear() {
-        if let id = requestID {
-            PHImageManager.default().cancelImageRequest(id)
-            requestID = nil
-        }
-        image = nil
-        error = nil
+        status = .none
+    }
+    
+    enum PHAssetImageStatus {
+        case error(any Error)
+        case loading
+        case image(UIImage)
+        case noImage
+        case none
     }
 }

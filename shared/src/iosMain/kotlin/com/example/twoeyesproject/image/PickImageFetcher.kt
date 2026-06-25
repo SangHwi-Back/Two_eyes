@@ -9,6 +9,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.CoreGraphics.CGFloat
 import platform.CoreGraphics.CGSize
 import platform.CoreGraphics.CGSizeMake
+import platform.Foundation.NSError
 import platform.Foundation.NSPredicate
 import platform.Foundation.NSSortDescriptor
 import platform.Photos.PHAccessLevelReadWrite
@@ -19,12 +20,17 @@ import platform.Photos.PHAuthorizationStatusLimited
 import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHFetchOptions
 import platform.Photos.PHImageContentModeAspectFill
+import platform.Photos.PHImageErrorKey
 import platform.Photos.PHImageManager
+import platform.Photos.PHImageManagerMaximumSize
 import platform.Photos.PHImageRequestOptions
+import platform.Photos.PHImageRequestOptionsDeliveryMode
 import platform.Photos.PHImageRequestOptionsDeliveryModeHighQualityFormat
 import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIImage
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @OptIn(ExperimentalForeignApi::class)
 actual class PickImageFetcher {
@@ -112,4 +118,30 @@ actual class PickImageFetcher {
 
         return images
     }
+
+    actual suspend fun loadImageUsingSource(source: ImageSource): PlatformImage? =
+        suspendCancellableCoroutine { continuation ->
+            PHImageManager.defaultManager().requestImageForAsset(
+                source,
+                targetSize = CGSizeMake(
+                    PHImageManagerMaximumSize.width,
+                    PHImageManagerMaximumSize.height
+                ),
+                contentMode = PHImageContentModeAspectFill,
+                options = PHImageRequestOptions().apply {
+                    synchronous = false
+                    deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat
+                }
+            ) { result, info ->
+                val error = info?.get(PHImageErrorKey) as? NSError
+
+                if (error != null) {
+                    continuation.resumeWithException(Throwable(error.localizedDescription))
+                } else if (result != null) {
+                    continuation.resume(result)
+                } else {
+                    continuation.resumeWithException(Throwable("No Image"))
+                }
+            }
+        }
 }

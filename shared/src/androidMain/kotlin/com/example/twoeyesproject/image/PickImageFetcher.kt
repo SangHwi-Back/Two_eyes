@@ -2,13 +2,21 @@ package com.example.twoeyesproject.image
 
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import com.example.twoeyesproject.platformspecific.ImageSource
+import com.example.twoeyesproject.platformspecific.PlatformImage
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @RequiresApi(Build.VERSION_CODES.O)
 actual class PickImageFetcher: KoinComponent {
@@ -34,4 +42,27 @@ actual class PickImageFetcher: KoinComponent {
 
         return sources.toList()
     }
+
+    actual suspend fun loadImageUsingSource(source: ImageSource): PlatformImage? =
+        suspendCancellableCoroutine { continuation ->
+            var connection: HttpURLConnection? = null
+            var inputStream: InputStream? = null
+            try {
+                val url = URL(source.toString())
+                connection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+
+                inputStream = connection.inputStream
+                // Decode the stream into a usable Bitmap object
+                continuation.resume(BitmapFactory.decodeStream(inputStream))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                continuation.resumeWithException(e)
+            } finally {
+                // Always clean up your streams and connections
+                inputStream?.close()
+                connection?.disconnect()
+            }
+        }
 }
