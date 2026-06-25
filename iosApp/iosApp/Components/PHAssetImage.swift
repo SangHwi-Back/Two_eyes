@@ -12,6 +12,7 @@ import Shared
 struct PHAssetImage: View {
     let asset: PHAsset?
     let size: CGSize
+    let showBackground: Bool
 
     @State private var status: PHAssetImageStatus = .none
     
@@ -19,9 +20,11 @@ struct PHAssetImage: View {
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
          filter: CIFilter? = nil,
+         showBackground: Bool = true,
     ) {
         self.asset = asset
         self.size = size
+        self.showBackground = showBackground
         
         if let image {
             self.status = .image(image)
@@ -32,11 +35,13 @@ struct PHAssetImage: View {
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
          filter: CIFilter? = nil,
+         showBackground: Bool = true,
     ) {
         self.asset = PHAsset
             .fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
             .firstObject
         self.size = size
+        self.showBackground = showBackground
         
         if let image {
             self.status = .image(image)
@@ -45,10 +50,12 @@ struct PHAssetImage: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(AppColors.shared.Surface2.color)
-                .stroke(.gray, style: StrokeStyle(lineWidth: 1))
-                .frame(width: size.width, height: size.height)
+            if showBackground {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(AppColors.shared.Surface2.color)
+                    .stroke(.gray, style: StrokeStyle(lineWidth: 1))
+                    .frame(width: size.width, height: size.height)
+            }
             
             switch status {
             case .error(let error):
@@ -77,7 +84,7 @@ struct PHAssetImage: View {
                 EmptyView()
             }
         }
-        .onAppear {
+        .task {
             if case .image(_) = status {
                 return
             }

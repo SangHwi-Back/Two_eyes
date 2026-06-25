@@ -22,3 +22,15 @@ struct TwoEyesCard<T: View>: View {
         }
     }
 }
+
+struct TwoEyesChip: View {
+    var title: String
+    var body: some View {
+        Text(title)
+            .font(Font.system(size: 13.6, weight: .semibold, design: .rounded))
+            .foregroundStyle(AppColors.shared.TextPrimary.color)
+            .padding(.vertical)
+            .padding(.horizontal, 16)
+            .background(AppColors.shared.Surface2.color, in: Capsule())
+    }
+}

@@ -40,7 +40,18 @@ struct UploadView: View {
                         UploadListSmallCard(entity: entity) { tapType in
                             onTap(tapType, entity: entity)
                         }
+                        .swipeActions(
+                            edge: .trailing,
+                            allowsFullSwipe: false
+                        ) {
+                            Button(role: .destructive) {
+                                onTap(.delete, entity: entity)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
+                    .background(AppColors.shared.Background.color)
                 case .large:
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 8) {
@@ -48,9 +59,15 @@ struct UploadView: View {
                                 UploadGridCard(entity: entity) { tapType in
                                     onTap(tapType, entity: entity)
                                 }
+                                .overlay(alignment: .topTrailing) {
+                                    GlassIconButton(systemName: "trash.circle") {
+                                        onTap(.delete, entity: entity)
+                                    }
+                                }
                             }
                         }
                     }
+                    .background(AppColors.shared.Background.color)
                 }
             }
         }
@@ -71,10 +88,7 @@ struct UploadView: View {
     func onTap(_ tap: UploadViewTapType, entity: MergeResultEntity) {
         switch tap {
         case .delete:
-            Task {
-                try? await wrapper.viewModel.deleteEntity(entity: entity)
-            }
-            
+            wrapper.deleteEntity(entity)
         case .list:
             navHost.push(to: .upload(entity, wrapper.viewModel))
         }
@@ -88,9 +102,13 @@ struct UploadListSmallCard: View {
         TwoEyesCard {
             ScrollView(.horizontal) {
                 HStack {
-                    PHAssetImage(assetIdentifier: entity.leadingImageId, size: thumbnailSize * 0.9)
-                    PHAssetImage(assetIdentifier: entity.trailingImageId, size: thumbnailSize * 0.9)
-                    PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize * 0.9)
+                    ForEach([
+                        entity.resultId,
+                        entity.leadingImageId,
+                        entity.trailingImageId
+                    ], id: \.self) { id in
+                        PHAssetImage(assetIdentifier: id, size: thumbnailSize * 0.9)
+                    }
                 }
                 .padding()
             }
@@ -98,11 +116,6 @@ struct UploadListSmallCard: View {
         .frame(height: thumbnailSize.height + 20)
         .onTapGesture {
             onTap(.list)
-        }
-        .overlay(alignment: .topTrailing) {
-            GlassIconButton(systemName: "trash.circle") {
-                onTap(.delete)
-            }
         }
     }
 }

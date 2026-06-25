@@ -43,4 +43,14 @@ class UploadViewModelWrapper {
                   name: "Test3", date: "", isUploaded: false)
         ]
     }
+    
+    func deleteEntity(_ entity: MergeResultEntity) {
+        Task {
+            do {
+                try await viewModel.deleteEntity(entity: entity)
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
