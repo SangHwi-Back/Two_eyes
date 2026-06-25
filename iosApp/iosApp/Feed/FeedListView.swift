@@ -12,7 +12,7 @@ import Intents
 struct FeedListView: View {
     var viewModel: FeedListViewModel
     
-    @State var isPresenting = false
+    @State var errorStatus = PresentingErrorState()
     @Environment(\.userData) var userData
     
     var listData: [FeedItemModel] {
@@ -30,7 +30,17 @@ struct FeedListView: View {
                     FeedItemView(model: data) { type in
                         switch type {
                         case .like:
-                            viewModel.updateLike(like: false, feedId: data.feedId)
+                            Task {
+                                do {
+                                    try await self.viewModel.updateLike(
+                                        like: false, feedId: data.feedId)
+                                } catch {
+                                    self.errorStatus = .init(
+                                        isPresenting: true,
+                                        error: error
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -42,9 +52,27 @@ struct FeedListView: View {
             initial: true
         ) { oldValue, newValue  in
             if let newValue, newValue != oldValue {
-                viewModel.getAllFeeds()
+                Task {
+                    try? await viewModel.getAllFeeds()
+                }
             }
         }
+        .alert(
+            "Error",
+            isPresented: $errorStatus.isPresenting,
+            presenting: errorStatus.error
+        ) { error in
+            Button("Close", role: .destructive) {
+                self.errorStatus = .init()
+            }
+        } message: { error in
+            Text("작업 중 오류가 발생하였습니다. \(String(describing: error))")
+        }
+    }
+    
+    struct PresentingErrorState {
+        var isPresenting = false
+        var error: (any Error)? = nil
     }
 }
 

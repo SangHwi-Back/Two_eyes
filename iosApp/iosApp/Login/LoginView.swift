@@ -14,6 +14,7 @@ struct LoginView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.userData) var environmentUserData
     @Environment(\.apiClient) var apiClient
+    @Environment(\.rootViewController) var rootViewController
     
     @State private var wrapper: LoginViewModelWrapper
     @State private var isLoading = false
@@ -22,7 +23,12 @@ struct LoginView: View {
         let rootViewController = (
             UIApplication.shared.connectedScenes.first as? UIWindowScene
         )?.windows.first?.rootViewController
-        _wrapper = State(initialValue: LoginViewModelWrapper(viewController: rootViewController))
+        
+        if let rootViewController {
+            _wrapper = State(initialValue: LoginViewModelWrapper(viewController: rootViewController))
+        } else {
+            fatalError()
+        }
     }
     
     var body: some View {

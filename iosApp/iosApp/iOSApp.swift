@@ -11,35 +11,11 @@ struct iOSApp: App {
     let apiClient = ApiClient()
     let database = Database_iosKt.getAppDatabase()
     
-    let viewModel = LoginViewModel(context: (
-        UIApplication.shared.connectedScenes.first as? UIWindowScene
-    )?.windows.first?.rootViewController)
-    
-    @State var userData: TwoEyesUserData? = nil
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.database, database)
-                .environment(\.mergeResultDao, database.getMergeResultDao())
-                .environment(\.apiClient, apiClient)
-                .environment(\.userData, $userData)
-                .task {
-                    let storage = PlatformSecureStorage()
-                    
-                    if let appleData = storage.getAppleUserData() {
-                        self.userData = .apple(appleData)
-                    } else if let googleData = storage.getGoogleUserData() {
-                        self.userData = .google(googleData)
-                    } else {
-                        let result = try? await viewModel.googleCheckState(credential: "")
-                        if let result = result as? LoginStatusCheckResult.Authorized,
-                           let googleData = result.userInfo as? SecureUserData.GoogleUserData
-                        {
-                            self.userData = .google(googleData)
-                        }
-                    }
-                }
+                
         }
     }
 }
@@ -48,8 +24,7 @@ extension EnvironmentValues {
     @Entry var database = Database_iosKt.getAppDatabase()
     @Entry var mergeResultDao = Database_iosKt.getAppDatabase().getMergeResultDao()
     @Entry var apiClient = ApiClient()
-    @Entry var cameraPath = [NavHost.Camera]()
-    @Entry var uploadPath = [NavHost.Upload]()
     @Entry var userData: Binding<TwoEyesUserData?> = .constant(nil)
     @Entry var appConstant = AppConstants()
+    @Entry var rootViewController = ((UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController)!
 }

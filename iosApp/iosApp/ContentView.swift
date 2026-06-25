@@ -9,6 +9,7 @@ struct ContentView: View {
 
     @State var tabSelection: TabSelection = .feed
     @State private var showLogin = false
+    @Environment(\.rootViewController) var rootViewController: UIViewController
 
     @StateObject var cameraPath = NavigationPathObject(path: [NavHost.Camera]())
     @StateObject var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
@@ -58,6 +59,25 @@ struct ContentView: View {
                         }
                 }
                 .environmentObject(uploadPath)
+            }
+        }
+        .task {
+            let storage = PlatformSecureStorage()
+            
+            if let appleData = storage.getAppleUserData() {
+                self.userData.wrappedValue = .apple(appleData)
+            } else if let googleData = storage.getGoogleUserData() {
+                self.userData.wrappedValue = .google(googleData)
+            } else {
+                Task {
+                    let viewModel = LoginViewModel(context: rootViewController)
+                    let result = try? await viewModel.googleCheckState(credential: "")
+                    if let result = result as? LoginStatusCheckResult.Authorized,
+                       let googleData = result.userInfo as? SecureUserData.GoogleUserData
+                    {
+                        self.userData.wrappedValue = .google(googleData)
+                    }
+                }
             }
         }
         // 로그인 바텀 시트 — 화면 절반 높이로 아래에서 올라옴

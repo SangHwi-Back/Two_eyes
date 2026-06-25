@@ -11,14 +11,14 @@ import UIKit
 
 @Observable
 class LoginViewModelWrapper {
-    let viewController: UIViewController?
+    let viewController: UIViewController
     
     private var viewModel: LoginViewModel
     
     var errorStatus: LoginViewErrorStatus?
     var userData: SecureUserData?
     
-    init(viewController: UIViewController?) {
+    init(viewController: UIViewController) {
         self.viewController = viewController
         self.viewModel = LoginViewModel(context: viewController)
         
