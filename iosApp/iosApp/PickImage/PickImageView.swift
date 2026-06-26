@@ -15,6 +15,7 @@ struct PickImageView: View {
     
     @State private var wrapper = PickImageViewModelWrapper()
     @State private var showHighlightAlert = false
+    @State private var showSettingsAlert = false
     
     @Namespace private var namespace
 
@@ -112,6 +113,16 @@ struct PickImageView: View {
         } message: {
             Text("카메라를 열기 전에 이미지를 배치할 슬롯을 먼저 탭해주세요.")
         }
+        .alert("사진 전체 접근 권한 필요", isPresented: $showSettingsAlert) {
+            Button("설정 열기") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("앨범의 모든 사진을 불러오려면 설정에서 사진 접근을 '모든 사진'으로 변경해주세요.")
+        }
     }
     
     private func launchCameraIfHighlighted() {
@@ -128,21 +139,20 @@ struct PickImageView: View {
         switch status {
         case .authorized:
             viewModel.loadAllImages()
-        case .limited:
-            wrapper.photoPickerLauncher.launch()
         case .notDetermined:
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
                 DispatchQueue.main.async {
                     if newStatus == .authorized {
                         viewModel.loadAllImages()
                     } else {
-                        wrapper.photoPickerLauncher.launch()
+                        // 전체 권한 미부여 → 설정 안내 알럿
+                        showSettingsAlert = true
                     }
                 }
             }
         default:
-            // denied / restricted: PHPicker는 권한 없이도 사용 가능
-            wrapper.photoPickerLauncher.launch()
+            // limited / denied / restricted: 전체 접근 권한으로 전환 유도
+            showSettingsAlert = true
         }
     }
     
