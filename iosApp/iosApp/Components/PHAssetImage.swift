@@ -10,7 +10,11 @@ import Photos
 import Shared
 
 struct PHAssetImage: View {
-    let asset: PHAsset?
+    // PHAsset 직접 전달 경로
+    private let preloadedAsset: PHAsset?
+    // assetIdentifier 경로 — init 에서 fetchAssets 를 호출하지 않고 lazy 처리
+    private let assetIdentifier: String?
+
     let size: CGSize
     let showBackground: Bool
 
@@ -19,30 +23,29 @@ struct PHAssetImage: View {
     init(asset: PHAsset,
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
-         filter: CIFilter? = nil,
-         showBackground: Bool = true,
+         showBackground: Bool = true
     ) {
-        self.asset = asset
-        self.size = size
-        self.showBackground = showBackground
-        
+        self.preloadedAsset  = asset
+        self.assetIdentifier = nil
+        self.size            = size
+        self.showBackground  = showBackground
         if let image {
             self.status = .image(image)
         }
     }
     
+    /// assetIdentifier 로 생성할 때는 init 에서 PHAsset.fetchAssets 를 호출하지 않음.
+    /// fetchAssets 는 권한이 미확정이면 시스템 알럿을 트리거하므로,
+    /// 권한 확인 후 fetchImage() 내부에서 비동기로 처리한다.
     init(assetIdentifier: String,
          size: CGSize = thumbnailSize,
          image: UIImage? = nil,
-         filter: CIFilter? = nil,
-         showBackground: Bool = true,
+         showBackground: Bool = true
     ) {
-        self.asset = PHAsset
-            .fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
-            .firstObject
-        self.size = size
-        self.showBackground = showBackground
-        
+        self.preloadedAsset  = nil
+        self.assetIdentifier = assetIdentifier
+        self.size            = size
+        self.showBackground  = showBackground
         if let image {
             self.status = .image(image)
         }
@@ -56,7 +59,7 @@ struct PHAssetImage: View {
                     .stroke(.gray, style: StrokeStyle(lineWidth: 1))
                     .frame(width: size.width, height: size.height)
             }
-            
+
             switch status {
             case .error(let error):
                 Button { fetchImage() } label: {
@@ -90,9 +93,7 @@ struct PHAssetImage: View {
             }
             fetchImage()
         }
-        .onChange(of: asset) {
-            // asset 프로퍼티가 교체되면 onAppear 는 재호출되지 않으므로
-            // 직접 감지해서 이전 요청을 취소하고 새 이미지를 fetch 합니다.
+        .onChange(of: preloadedAsset) {
             cancelAndClear()
             fetchImage()
         }
@@ -100,6 +101,8 @@ struct PHAssetImage: View {
             cancelAndClear()
         }
     }
+    
+    // MARK: - Private helpers
     
     @ViewBuilder
     func CircleImage(_ imageName: String) -> some View {
@@ -125,17 +128,34 @@ struct PHAssetImage: View {
     private func fetchImage() {
         status = .loading
         
-        guard let asset else {
-            status = .noImage
-            return
-        }
-        
         Task {
-            do {
-                if let result = try await PickImageFetcher().loadImageUsingSource(source: asset) {
-                    status = .image(result)
+            // assetIdentifier 경로: 권한 확인 후 fetchAssets 수행
+            let resolvedAsset: PHAsset?
+            if let preloaded = preloadedAsset {
+                resolvedAsset = preloaded
+            } else if let id = assetIdentifier {
+                let authStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+                guard authStatus == .authorized else {
+                    status = .noImage
+                    return
                 }
-                else {
+                resolvedAsset = PHAsset
+                    .fetchAssets(withLocalIdentifiers: [id], options: nil)
+                    .firstObject
+            } else {
+                status = .noImage
+                return
+            }
+            
+            guard let resolvedAsset else {
+                status = .noImage
+                return
+            }
+            
+            do {
+                if let result = try await PickImageFetcher().loadImageUsingSource(source: resolvedAsset) {
+                    status = .image(result)
+                } else {
                     status = .noImage
                 }
             } catch {
