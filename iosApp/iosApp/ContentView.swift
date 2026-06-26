@@ -10,6 +10,7 @@ struct ContentView: View {
     @State var tabSelection: TabSelection = .feed
     @State private var showLogin = false
     @Environment(\.rootViewController) var rootViewController: UIViewController
+    @Environment(\.applyNavigationBarAppearance) var applyNavigationBarAppearance
 
     @StateObject var cameraPath = NavigationPathObject(path: [NavHost.Camera]())
     @StateObject var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
@@ -77,6 +78,8 @@ struct ContentView: View {
             SearchModalView(tabSelection: $tabSelection)
         }
         .task {
+            applyNavigationBarAppearance()
+            
             let storage = PlatformSecureStorage()
             
             if let appleData = storage.getAppleUserData() {
