@@ -34,19 +34,20 @@ struct UploadCreateFeedView: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollViewContents
-            
-            GlassIconTitleButton(
-                systemName: "square.and.arrow.up.on.square",
-                title: "Confirm"
-            ) {
-                actionConfirmButton()
+        ScrollViewContents
+            .navigationTitle("Upload")
+            .navigationBarTitleDisplayMode(.large)
+            .background(AppColors.shared.Background.color)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    GlassIconTitleButton(
+                        systemName: "square.and.arrow.up.on.square",
+                        title: "Confirm"
+                    ) {
+                        actionConfirmButton()
+                    }
+                }
             }
-        }
-        .navigationTitle("Upload")
-        .navigationBarTitleDisplayMode(.large)
-        .background(AppColors.shared.Background.color)
     }
     
     @ViewBuilder
