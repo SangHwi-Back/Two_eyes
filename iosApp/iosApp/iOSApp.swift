@@ -6,16 +6,23 @@ enum TwoEyesUserData {
     case google(SecureUserData.GoogleUserData)
 }
 
+class RefreshTrigger: ObservableObject {
+    @Published var token = UUID()
+    func refresh() { token = UUID() }
+}
+
 @main
 struct iOSApp: App {
     let apiClient = ApiClient()
     let database = Database_iosKt.getAppDatabase()
     
+    @StateObject private var refreshTrigger = RefreshTrigger()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                
+                .id(refreshTrigger.token)
+                .environmentObject(refreshTrigger)
         }
     }
 }
