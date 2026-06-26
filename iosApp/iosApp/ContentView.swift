@@ -41,6 +41,7 @@ struct ContentView: View {
                 }
                 .environmentObject(cameraPath)
             }
+            // MARK: Upload
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
                 NavigationStack(path: $uploadPath.path) {
                     UploadView(database: database, client: apiClient)
@@ -60,6 +61,20 @@ struct ContentView: View {
                 }
                 .environmentObject(uploadPath)
             }
+
+            // MARK: Search
+            if tabSelection == .feed || tabSelection == .search {
+                Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
+                    EmptyView()
+                }
+            }
+        }
+        .toolbarVisibility(tabSelection == .search ? .hidden : .automatic, for: .tabBar)
+        .fullScreenCover(isPresented: Binding(
+            get: { tabSelection == .search },
+            set: { _ in }
+        )) {
+            SearchModalView(tabSelection: $tabSelection)
         }
         .task {
             let storage = PlatformSecureStorage()
@@ -147,7 +162,7 @@ enum NavHost {
 }
 
 enum TabSelection: Hashable {
-    case feed, camera, upload
+    case feed, camera, upload, search
 }
 
 // MARK: - NavigationPathObject
