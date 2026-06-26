@@ -46,7 +46,7 @@ struct UploadView: View {
         Group {
             switch photoAuthStatus {
             case .authorized:
-                contentView
+                ContentView
             case .notDetermined:
                 // 권한 요청 중
                 ProgressView("사진 접근 권한 확인 중…")
@@ -72,9 +72,11 @@ struct UploadView: View {
                 GlassIconButton(systemName: "list.dash") {
                     listType = .small
                 }
+                .tint(listType == .small ? AppColors.shared.Primary.color : nil)
                 GlassIconButton(systemName: "list.dash.header.rectangle") {
                     listType = .large
                 }
+                .tint(listType == .large ? AppColors.shared.Primary.color : nil)
             }
         }
     }
@@ -82,7 +84,7 @@ struct UploadView: View {
     // MARK: - 콘텐츠 뷰 (authorized 상태)
     
     @ViewBuilder
-    private var contentView: some View {
+    private var ContentView: some View {
         if wrapper.entities.isEmpty {
             Text("No Entities!!")
         } else {
@@ -175,8 +177,8 @@ struct UploadListSmallCard: View {
                         PHAssetImage(assetIdentifier: id, size: thumbnailSize * 0.9)
                     }
                 }
-                .padding()
             }
+            .padding()
         }
         .frame(height: thumbnailSize.height + 20)
         .onTapGesture {
