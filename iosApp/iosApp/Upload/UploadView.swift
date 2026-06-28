@@ -25,15 +25,9 @@ struct UploadView: View {
     @EnvironmentObject var navHost: NavigationPathObject<NavHost.Upload>
     
     @State var listType = UploadableListViewType.small
-    
-    // @State로 선언해야 SwiftUI가 부모 재렌더링 시 기존 인스턴스를 보존함
     @State private var wrapper: UploadViewModelWrapper
-    
-    // 사진 라이브러리 전체 접근 권한 상태 — 앱이 기억하도록 View 레벨에서 관리
     @State private var photoAuthStatus: PHAuthorizationStatus =
         PHPhotoLibrary.authorizationStatus(for: .readWrite)
-    
-    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     init(database: AppDatabase, client: ApiClient) {
         _wrapper = State(wrappedValue: UploadViewModelWrapper(
@@ -48,16 +42,13 @@ struct UploadView: View {
             case .authorized:
                 ContentView
             case .notDetermined:
-                // 권한 요청 중
                 ProgressView("사진 접근 권한 확인 중…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             default:
-                // denied / restricted / limited → 설정으로 안내
                 photoAccessDeniedView
             }
         }
         .task {
-            // 이미 결정된 경우 재요청 없음 (iOS 가 선택을 기억)
             guard photoAuthStatus == .notDetermined else { return }
             photoAuthStatus = await withCheckedContinuation { continuation in
                 PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
@@ -67,90 +58,142 @@ struct UploadView: View {
         }
         .navigationTitle("Upload")
         .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                GlassIconButton(systemName: "list.dash") {
-                    listType = .small
-                }
-                .tint(listType == .small ? AppColors.shared.Primary.color : nil)
-                GlassIconButton(systemName: "list.dash.header.rectangle") {
-                    listType = .large
-                }
-                .tint(listType == .large ? AppColors.shared.Primary.color : nil)
+        .toolbar { layoutToggleToolbar }
+    }
+    
+    // MARK: - Toolbar
+    
+    @ToolbarContentBuilder
+    private var layoutToggleToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Picker("레이아웃", selection: $listType) {
+                Image(systemName: "list.bullet")
+                    .tag(UploadableListViewType.small)
+                Image(systemName: "square.grid.2x2")
+                    .tag(UploadableListViewType.large)
             }
+            .pickerStyle(.segmented)
+            .frame(width: 88)
         }
     }
-
-    // MARK: - 콘텐츠 뷰 (authorized 상태)
+    
+    // MARK: - Content
     
     @ViewBuilder
     private var ContentView: some View {
         if wrapper.entities.isEmpty {
-            Text("No Entities!!")
+            emptyStateView
         } else {
             switch listType {
             case .small:
-                List(wrapper.entities, id: \.id) { entity in
-                    UploadListSmallCard(entity: entity) { tapType in
-                        onTap(tapType, entity: entity)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            onTap(.delete, entity: entity)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    .listRowBackground(AppColors.shared.Background.color)
-                }
-                // List 기본 흰색 배경 제거 후 앱 배경색 적용
-                .scrollContentBackground(.hidden)
-                .background(AppColors.shared.Background.color)
+                ListContentView
             case .large:
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(wrapper.entities, id: \.id) { entity in
-                            UploadGridCard(entity: entity) { tapType in
-                                onTap(tapType, entity: entity)
-                            }
-                            .overlay(alignment: .topTrailing) {
-                                GlassIconButton(systemName: "trash.circle") {
-                                    onTap(.delete, entity: entity)
-                                }
-                            }
-                        }
-                    }
-                }
-                .background(AppColors.shared.Background.color)
+                GridContentView
             }
         }
     }
+
+    // MARK: - List
+
+    private var ListContentView: some View {
+        List(wrapper.entities, id: \.id) { entity in
+            UploadListRow(entity: entity) {
+                onTap(.list, entity: entity)
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(role: .destructive) {
+                    onTap(.delete, entity: entity)
+                } label: {
+                    Label("삭제", systemImage: "trash")
+                }
+            }
+            .listRowInsets(.init(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+        }
+        .scrollContentBackground(.hidden)
+        .background(AppColors.shared.Background.color)
+    }
     
-    // MARK: - 권한 거부 / 제한 안내 뷰
+    // MARK: - Grid
     
-    @ViewBuilder
+    private let gridColumns = [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)]
+    
+    private var GridContentView: some View {
+        ScrollView {
+            LazyVGrid(columns: gridColumns, spacing: 4) {
+                ForEach(wrapper.entities, id: \.id) { entity in
+                    UploadGridCell(entity: entity) {
+                        onTap(.list, entity: entity)
+                    } onDelete: {
+                        onTap(.delete, entity: entity)
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+        }
+        .background(AppColors.shared.Background.color)
+    }
+    
+    // MARK: - Empty State
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            Image(systemName: "photo.stack")
+                .font(.system(size: 64, weight: .thin))
+                .foregroundStyle(AppColors.shared.Secondary.color)
+            VStack(spacing: 6) {
+                Text("업로드할 항목이 없습니다")
+                    .font(.headline)
+                    .foregroundStyle(AppColors.shared.TextPrimary.color)
+                Text("카메라 탭에서 두 장의 사진을 합성한 뒤\n여기서 게시물로 업로드할 수 있습니다.")
+                    .font(.subheadline)
+                    .foregroundStyle(AppColors.shared.TextSecondary.color)
+                    .multilineTextAlignment(.center)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.shared.Background.color)
+    }
+    
+    // MARK: - Permission Denied
+    
     private var photoAccessDeniedView: some View {
         VStack(spacing: 16) {
+            Spacer()
+            
             Image(systemName: "photo.badge.exclamationmark")
-                .font(.system(size: 48))
+                .font(.system(size: 56, weight: .thin))
                 .foregroundStyle(AppColors.shared.Secondary.color)
-            Text("사진 전체 접근 권한이 필요합니다")
-                .font(.headline)
-                .foregroundStyle(AppColors.shared.TextPrimary.color)
-            Text("설정 > 개인 정보 보호 > 사진에서\n'\(Bundle.main.displayName)'의 접근을 '모든 사진'으로 변경해주세요.")
-                .font(.subheadline)
-                .foregroundStyle(AppColors.shared.TextSecondary.color)
-                .multilineTextAlignment(.center)
+            
+            VStack(spacing: 6) {
+                Text("사진 접근 권한이 필요합니다")
+                    .font(.headline)
+                    .foregroundStyle(AppColors.shared.TextPrimary.color)
+                Text("설정 > 개인 정보 보호 > 사진에서\n'\(Bundle.main.displayName)'의 접근을\n'모든 사진'으로 변경해주세요.")
+                    .font(.subheadline)
+                    .foregroundStyle(AppColors.shared.TextSecondary.color)
+                    .multilineTextAlignment(.center)
+            }
+            
             Button("설정 열기") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
             .buttonStyle(.glass)
+            .padding(.top, 4)
+            
+            Spacer()
         }
-        .padding()
+        .padding(.horizontal, 32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.shared.Background.color)
     }
+    
+    // MARK: - Actions
     
     func onTap(_ tap: UploadViewTapType, entity: MergeResultEntity) {
         switch tap {
@@ -162,53 +205,99 @@ struct UploadView: View {
     }
 }
 
-struct UploadListSmallCard: View {
+// MARK: - List Row
+
+struct UploadListRow: View {
     let entity: MergeResultEntity
-    let onTap: (UploadViewTapType) -> Void
+    let onTap: () -> Void
+    
+    private let resultSize = CGSize(width: 76, height: 76)
+    private let sourceSize = CGSize(width: 36, height: 52)
+    
     var body: some View {
-        TwoEyesCard {
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach([
-                        entity.resultId,
-                        entity.leadingImageId,
-                        entity.trailingImageId
-                    ], id: \.self) { id in
-                        PHAssetImage(assetIdentifier: id, size: thumbnailSize * 0.9)
+        Button(action: onTap) {
+            HStack {
+                ScrollView(.horizontal) { HStack(spacing: 0) {
+                    // 합성 결과 이미지
+                    PHAssetImage(
+                        assetIdentifier: entity.resultId,
+                        size: resultSize,
+                        showBackground: false
+                    )
+                    
+                    Divider()
+                        .background(AppColors.shared.Divider.color)
+                        .padding(.horizontal, 6)
+                    
+                    // 원본 이미지 2장
+                    ForEach([entity.leadingImageId, entity.trailingImageId], id: \.self) { id in
+                        PHAssetImage(
+                            assetIdentifier: id,
+                            size: sourceSize,
+                            showBackground: false
+                        )
+                        .padding(.trailing, 6)
                     }
-                }
+                } }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppColors.shared.TextSecondary.color.opacity(0.5))
             }
-            .padding()
+            .padding(12)
         }
-        .frame(height: thumbnailSize.height + 20)
-        .onTapGesture {
-            onTap(.list)
-        }
+        .background(AppColors.shared.Surface.color)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .buttonStyle(.plain)
     }
 }
 
-struct UploadGridCard: View {
-    @Namespace var namespace
+// MARK: - Grid Cell
+
+struct UploadGridCell: View {
     let entity: MergeResultEntity
-    let onTap: (UploadViewTapType) -> Void
+    let onTap: () -> Void
+    let onDelete: () -> Void
+    
     var body: some View {
-        PHAssetImage(assetIdentifier: entity.resultId, size: thumbnailSize)
-            .aspectRatio(1.58, contentMode: .fill)
-            .clipped()
-            .onTapGesture {
-                onTap(.list)
-            }
-            .overlay(alignment: .topTrailing) {
-                GlassIconButton(systemName: "trash.circle") {
-                    onTap(.delete)
+        GeometryReader { geo in
+            let side = geo.size.width
+            ZStack(alignment: .topTrailing) {
+                TwoEyesCard {
+                    // 결과 이미지 — 셀 전체를 채움
+                    PHAssetImage(
+                        assetIdentifier: entity.resultId,
+                        size: CGSize(width: side, height: side),
+                        showBackground: false
+                    )
+                    .frame(width: side, height: side)
+                    .clipped()
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: onTap)
                 }
+                
+                // 상단 그라디언트 (삭제 버튼 가독성)
+                LinearGradient(
+                    colors: [.black.opacity(0.4), .clear],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .frame(width: side, height: side)
+                .allowsHitTesting(false)
+                
+                // 삭제 버튼
+                Button(action: onDelete) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                }
+                .padding(8)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .aspectRatio(1, contentMode: .fit)
     }
-}
-
-#Preview {
-    UploadView(
-        database: Database_iosKt.getAppDatabase(),
-        client: ApiClient()
-    )
 }

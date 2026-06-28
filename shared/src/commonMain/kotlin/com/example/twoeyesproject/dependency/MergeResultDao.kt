@@ -44,4 +44,7 @@ interface MergeResultDao {
 
     @Query("SELECT * FROM MergeResultEntity")
     suspend fun getAll(): List<MergeResultEntity>
+
+    @Query("SELECT * FROM MergeResultEntity where id=:id")
+    suspend fun get(id: Long): MergeResultEntity?
 }
