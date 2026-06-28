@@ -274,12 +274,8 @@ struct UploadCreateFeedView: View {
         guard !isUploading else { return }
         isUploading = true
         Task {
-            do {
-                let model = try await viewModel.uploadEntity(dto: dto)
-                database.getMergeResultDao()
-            } catch {
-                
-            }
+            _ = try? await viewModel.uploadEntity(dto: dto)
+            // 에러 발생 시 AppErrorBus 가 앱 루트에서 알럿으로 표시
             self.isUploading = false
         }
     }

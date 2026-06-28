@@ -1,18 +1,17 @@
 package com.example.twoeyesproject.feed
 
-import androidx.lifecycle.ViewModel
 import com.example.twoeyesproject.TwoEyesException
+import com.example.twoeyesproject.TwoEyesViewModel
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.FeedResponse
 import com.example.twoeyesproject.dependency.LikeResponse
 import io.ktor.client.plugins.ResponseException
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.listOf
 
-class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
+class FeedListViewModel(val apiClient: ApiClient) : TwoEyesViewModel() {
     private var _listMockData = MutableStateFlow<List<FeedItemModel>>(mutableListOf())
     val listData: StateFlow<List<FeedItemModel>>
         get() = _listMockData.asStateFlow()
@@ -26,23 +25,24 @@ class FeedListViewModel(val apiClient: ApiClient): ViewModel() {
         }
     }
 
-    @Throws(TwoEyesException::class, CancellationException::class)
-    suspend fun updateLike(like: Boolean, feedId: String): LikeResponse {
+    suspend fun updateLike(like: Boolean, feedId: String): LikeResponse? {
         try {
             val response = apiClient.postLike(like, feedId)
             _listMockData.value.first { it.feedId == response.feedId }.isUserLiked = like
             return response
         } catch (e: ResponseException) {
-            throw TwoEyesException.Http(
+            emitError(TwoEyesException.Http(
                 statusCode = e.response.status.value,
                 message = e.message ?: "HTTP error",
                 cause = e,
-            )
+            ))
+            return null
         } catch (e: Exception) {
-            throw TwoEyesException.Network(
+            emitError(TwoEyesException.Network(
                 message = e.message ?: "Network error",
                 cause = e,
-            )
+            ))
+            return null
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.twoeyesproject
 
 import android.os.Build
+import com.auth0.android.jwt.BuildConfig
 import kotlinx.coroutines.flow.Flow
 
 class AndroidPlatform : Platform {
@@ -10,5 +11,8 @@ class AndroidPlatform : Platform {
 actual class CommonFlow<T> actual constructor(
     private val flow: Flow<T>
 ) : Flow<T> by flow
+
+actual val isDebugBuild: Boolean
+    get() = BuildConfig.DEBUG
 
 actual fun getPlatform(): Platform = AndroidPlatform()

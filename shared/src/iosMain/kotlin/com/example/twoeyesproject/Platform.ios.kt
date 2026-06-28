@@ -5,6 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import platform.Foundation.NSBundle
+import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {
@@ -12,6 +14,10 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
+
+actual val isDebugBuild: Boolean
+    get() = NSBundle.mainBundle.objectForInfoDictionaryKey("AppConfiguration").toString().lowercase() == "debug"
+
 actual class CommonFlow<T> actual constructor(
     private val flow: Flow<T>
 ) : Flow<T> by flow {

@@ -45,7 +45,7 @@ class FeedListViewModelTest {
         val result = viewModel.updateLike(true, item.feedId)
 
         // Assert
-        assertEquals(true, result.isLiked)
+        assertEquals(true, result?.isLiked)
 
         val status = viewModel.listData.value.firstOrNull { it.feedId == item.feedId }
         if (status != null)

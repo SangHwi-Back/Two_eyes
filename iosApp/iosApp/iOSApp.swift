@@ -11,18 +11,50 @@ class RefreshTrigger: ObservableObject {
     func refresh() { token = UUID() }
 }
 
+// AppErrorBus(Kotlin) → SwiftUI 알럿 브릿지
+class ErrorBusObserver: ObservableObject, AppErrorCallback {
+    @Published var currentError: UserFacingError? = nil
+    
+    init() {
+        AppErrorBus.shared.callback = self
+    }
+    
+    func onError(error: UserFacingError) {
+        DispatchQueue.main.async {
+            self.currentError = error
+        }
+    }
+    
+    func clear() {
+        currentError = nil
+        AppErrorBus.shared.clear()
+    }
+}
+
 @main
 struct iOSApp: App {
     let apiClient = ApiClient()
     let database = Database_iosKt.getAppDatabase()
     
     @StateObject private var refreshTrigger = RefreshTrigger()
+    @StateObject private var errorObserver = ErrorBusObserver()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .id(refreshTrigger.token)
                 .environmentObject(refreshTrigger)
+                .alert(
+                    errorObserver.currentError?.title ?? "",
+                    isPresented: Binding(
+                        get: { errorObserver.currentError != nil },
+                        set: { if !$0 { errorObserver.clear() } }
+                    )
+                ) {
+                    Button("확인") { errorObserver.clear() }
+                } message: {
+                    Text(errorObserver.currentError?.message ?? "")
+                }
         }
     }
 }

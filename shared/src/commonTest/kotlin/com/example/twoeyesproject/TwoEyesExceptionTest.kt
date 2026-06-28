@@ -8,16 +8,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertIs
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
- * TwoEyesException 래핑 동작 검증.
+ * TwoEyesException 래핑 및 AppErrorBus 전달 동작 검증.
  *
  * DAO / ApiClient 자체는 원본 예외를 그대로 던진다(기존 유닛 테스트 호환).
- * ViewModel 레이어가 이를 TwoEyesException 으로 변환하는 것만 여기서 검증한다.
+ * ViewModel 레이어가 이를 TwoEyesException 으로 변환 후 AppErrorBus 에 전달하는 것을 검증한다.
  */
 class TwoEyesExceptionTest {
 
@@ -47,29 +48,40 @@ class TwoEyesExceptionTest {
         isUploaded = false,
     )
 
+    @BeforeTest
+    fun setup() {
+        AppErrorBus.clear()
+    }
+
     // ── deleteEntity ──────────────────────────────────────────────────────────
 
     @Test
-    fun `deleteEntity wraps DAO exception as TwoEyesException Database`() = runTest {
-        val result = runCatching { viewModel.deleteEntity(sampleEntity) }
-        assertIs<TwoEyesException.Database>(result.exceptionOrNull())
+    fun `deleteEntity posts Database error to AppErrorBus`() = runTest {
+        viewModel.deleteEntity(sampleEntity)
+        val error = AppErrorBus.error.value
+        assertNotNull(error)
+        assertEquals("데이터 오류", error.title)
     }
 
     @Test
-    fun `TwoEyesException Database preserves original cause`() = runTest {
-        val result = runCatching { viewModel.deleteEntity(sampleEntity) }
-        val ex = result.exceptionOrNull()
-        assertIs<TwoEyesException.Database>(ex)
-        assertIs<IllegalStateException>(ex.cause)
-        assertEquals(dbError.message, ex.cause?.message)
+    fun `AppErrorBus message is non-blank on database error`() = runTest {
+        viewModel.deleteEntity(sampleEntity)
+        val error = AppErrorBus.error.value
+        assertNotNull(error)
+        assertTrue(error.message.isNotBlank())
+    }
+
+    // ── toUserFacingError 변환 ─────────────────────────────────────────────────
+
+    @Test
+    fun `Database exception maps to correct title`() {
+        val ex = TwoEyesException.Database(message = "test", cause = dbError)
+        assertEquals("데이터 오류", ex.toUserFacingError().title)
     }
 
     @Test
-    fun `TwoEyesException Database has non-empty description`() = runTest {
-        val result = runCatching { viewModel.deleteEntity(sampleEntity) }
-        val ex = result.exceptionOrNull()
-        assertIs<TwoEyesException.Database>(ex)
-        assertNotNull(ex.description)
-        assert(ex.description.isNotBlank())
+    fun `Network exception maps to correct title`() {
+        val ex = TwoEyesException.Network(message = "timeout")
+        assertEquals("네트워크 오류", ex.toUserFacingError().title)
     }
 }

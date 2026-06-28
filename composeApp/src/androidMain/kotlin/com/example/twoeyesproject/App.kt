@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -25,6 +26,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -34,6 +36,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.twoeyesproject.AppErrorBus
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -109,6 +113,7 @@ private fun AppPreview() {
 private fun AppScaffold(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val error by AppErrorBus.error.collectAsStateWithLifecycle()
 
     // 피드·업로드 화면에서만 AppBar / BottomBar / FAB 표시
     val showChrome = currentRoute in listOf(ROUTE_FEED, ROUTE_UPLOAD)
@@ -264,6 +269,18 @@ private fun AppScaffold(navController: NavHostController) {
                 )
             }
         }
+    }
+
+    // 에러 알럿 — AppErrorBus 에서 수신
+    error?.let { userError ->
+        AlertDialog(
+            onDismissRequest = { AppErrorBus.clear() },
+            title = { Text(userError.title) },
+            text = { Text(userError.message) },
+            confirmButton = {
+                TextButton(onClick = { AppErrorBus.clear() }) { Text("확인") }
+            }
+        )
     }
 
     // 로그인 바텀 시트 — 화면 절반 높이
