@@ -3,6 +3,7 @@ package com.example.twoeyesproject.di
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.getDatabaseBuilder
 import com.example.twoeyesproject.dependency.getRoomDatabase
+import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.upload.UploadViewModel
 import org.koin.android.ext.koin.androidContext
@@ -18,7 +19,9 @@ val sharedAndroidModule = module {
     single { ApiClient() }
     single { getRoomDatabase(getDatabaseBuilder(androidContext())) }
 
-    // UploadViewModel은 MergeResultDao가 필요 (Android 전용)
+    // Android 에서는 ViewModel lifecycle 을 위해 viewModel {} DSL 사용
+    // sharedCommonModule 의 factory {} 등록을 Android 에서 이걸로 대체
+    viewModel { FeedListViewModel(apiClient = get()) }
     viewModel { UploadViewModel(
         dao = get<com.example.twoeyesproject.dependency.AppDatabase>().getMergeResultDao(),
         client = get()

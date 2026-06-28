@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -73,7 +73,7 @@ enum class UploadListType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadScreen(
-    viewModel: UploadViewModel = viewModel(),
+    viewModel: UploadViewModel = koinViewModel(),
     onNext: (MergeResultEntity) -> Unit,
 ) {
     val entities by viewModel.mergeEntities.collectAsStateWithLifecycle()
@@ -218,7 +218,7 @@ private fun ImageSlot(
 @Composable
 fun UploadScreenPreview() {
     UploadScreen(
-        viewModel = viewModel<UploadViewModel>().apply {
+        viewModel = koinViewModel<UploadViewModel>().apply {
             mergeEntities = dao.getAllAsFlow().stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(0),

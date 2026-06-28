@@ -42,7 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.feed.FeedItemModel
@@ -57,7 +57,7 @@ enum class FeedScreenTapType {
 
 @Composable
 fun FeedScreen(
-    viewModel: FeedListViewModel = viewModel(),
+    viewModel: FeedListViewModel = koinViewModel(),
     onFeedClick: (FeedItemModel) -> Unit,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()

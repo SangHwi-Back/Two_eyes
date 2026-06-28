@@ -21,6 +21,7 @@ class UploadViewModelTest {
         private val entities = MutableStateFlow(mutableListOf<MergeResultEntity>())
         override fun getAllAsFlow() = entities.asStateFlow()
         override suspend fun getAll(): List<MergeResultEntity> = entities.value
+        override suspend fun get(id: Long): MergeResultEntity? = null
         override suspend fun save(item: MergeResultEntity): Long {
             entities.value.add(item)
             return item.id
