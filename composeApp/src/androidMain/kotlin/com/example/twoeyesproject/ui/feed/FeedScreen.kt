@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,25 +77,7 @@ fun FeedScreen(
             viewModel.getAllFeeds()
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(AppColors.Background))
-    ) {
-        items(items) { item ->
-            FeedItemCard(item = item, onClick = {
-                scope.launch {
-                    when (it) {
-                        FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
-                        FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
-                        FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
-                        else -> onFeedClick(item)
-                    }
-                }
-            })
-            HorizontalDivider()
-        }
-    }.also {
+    SideEffect {
         topAppBarDataChange?.invoke(TopAppBarData("", {
             IconButton(
                 onClick = {
@@ -117,6 +100,26 @@ fun FeedScreen(
                 }
             }
         }))
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(AppColors.Background))
+    ) {
+        items(items) { item ->
+            FeedItemCard(item = item, onClick = {
+                scope.launch {
+                    when (it) {
+                        FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
+                        FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
+                        FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
+                        else -> onFeedClick(item)
+                    }
+                }
+            })
+            HorizontalDivider()
+        }
     }
 }
 

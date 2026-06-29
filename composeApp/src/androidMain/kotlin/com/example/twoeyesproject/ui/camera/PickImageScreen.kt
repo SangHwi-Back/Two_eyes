@@ -50,6 +50,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -212,13 +213,25 @@ fun PickImageScreen(
         else ->
             pickImagePermissionLauncher.launch(arrayOf(permissionReadImage, pickImagePermission))
     }
+    SideEffect {
+        topAppBarDataChange?.invoke(TopAppBarData(
+            "",
+            {
+                IconButton(onClick = onBack) {
+                    Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
+                }
+            },
+            false
+        ))
+    }
+
     // ── UI ────────────────────────────────────────────────────────────────────
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(AppColors.Background))  // padding 앞에 와야 전체 영역에 배경이 적용됨
             .padding(8.dp)
             .verticalScroll(rememberScrollState())
-            .background(Color(AppColors.Background))
     ) {
         Row() {
             Button(
@@ -370,16 +383,6 @@ fun PickImageScreen(
                 }
             )
         }
-    }.also {
-        topAppBarDataChange?.invoke(TopAppBarData(
-            "",
-            {
-                IconButton(onClick = onBack) {
-                    Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
-                }
-            },
-            View.GONE
-        ))
     }
 }
 

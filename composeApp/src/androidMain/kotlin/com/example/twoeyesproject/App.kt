@@ -1,7 +1,6 @@
 package com.example.twoeyesproject
 
 import android.net.Uri
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -74,9 +74,23 @@ private const val ROUTE_UPLOAD = "upload"
 private const val ROUTE_CAMERA = "camera"
 private const val ROUTE_MERGE  = "merge/{uri1}/{uri2}"
 
+private val TwoEyesColorScheme = darkColorScheme(
+    background       = Color(AppColors.Background),
+    surface          = Color(AppColors.Surface),
+    surfaceVariant   = Color(AppColors.Surface2),
+    primary          = Color(AppColors.Primary),
+    secondary        = Color(AppColors.Secondary),
+    error            = Color(AppColors.Error),
+    onBackground     = Color(AppColors.TextPrimary),
+    onSurface        = Color(AppColors.TextPrimary),
+    onSurfaceVariant = Color(AppColors.TextSecondary),
+    onPrimary        = Color(AppColors.TextPrimary),
+    outline          = Color(AppColors.Divider),
+)
+
 @Composable
 fun App() {
-    MaterialTheme {
+    MaterialTheme(colorScheme = TwoEyesColorScheme) {
         AppScaffold(rememberNavController())
     }
 }
@@ -102,7 +116,7 @@ private fun AppPreview() {
         androidContext(context)
         modules(previewModule)
     }) {
-        MaterialTheme {
+        MaterialTheme(colorScheme = TwoEyesColorScheme) {
             AppScaffold(rememberNavController())
         }
     }
@@ -110,7 +124,7 @@ private fun AppPreview() {
 data class TopAppBarData(
     val title: String,
     val action: @Composable () -> Unit,
-    val visibility: Int = View.VISIBLE,
+    val visible: Boolean = true,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

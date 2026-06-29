@@ -1,6 +1,5 @@
 package com.example.twoeyesproject
 
-import android.view.View
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,7 +17,7 @@ import com.example.twoeyesproject.design.AppColors
 @Composable
 fun DynamicTopAppBar(data: TopAppBarData ) {
     AnimatedVisibility(
-        visible = data.visibility == View.VISIBLE,
+        visible = data.visible,
         enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
         exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
     ) {

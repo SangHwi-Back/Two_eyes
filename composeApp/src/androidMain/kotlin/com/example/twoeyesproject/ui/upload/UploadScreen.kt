@@ -31,11 +31,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -127,12 +128,14 @@ fun UploadScreen(
                     }
             }
         }
-    }.also {
+    }
+
+    SideEffect {
         topAppBarDataChange?.invoke(TopAppBarData("Upload", {
-            IconButton(onClick = { UploadListType.LIST }) {
+            IconButton(onClick = { listType = UploadListType.LIST }) {
                 Icon(Icons.AutoMirrored.Outlined.ViewList, contentDescription = "리스트 보기")
             }
-            IconButton(onClick = { UploadListType.GRID }) {
+            IconButton(onClick = { listType = UploadListType.GRID }) {
                 Icon(Icons.Outlined.GridView, contentDescription = "그리드 보기")
             }
         }))
