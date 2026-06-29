@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,9 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +51,8 @@ import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.twoeyesproject.AppConstants
+import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.upload.UploadViewModel
@@ -75,6 +76,7 @@ enum class UploadListType {
 fun UploadScreen(
     viewModel: UploadViewModel = koinViewModel(),
     onNext: (MergeResultEntity) -> Unit,
+    topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val entities by viewModel.mergeEntities.collectAsStateWithLifecycle()
     var listType by remember { mutableStateOf(UploadListType.LIST) }
@@ -91,38 +93,49 @@ fun UploadScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Upload") },
-                actions = {
-                    IconButton(onClick = { UploadListType.LIST }) {
-                        Icon(Icons.AutoMirrored.Outlined.ViewList, contentDescription = "리스트 보기")
-                    }
-                    IconButton(onClick = { UploadListType.GRID }) {
-                        Icon(Icons.Outlined.GridView, contentDescription = "그리드 보기")
-                    }
-                }
-            )
-        },
-        modifier = Modifier
-            .background(color = Color(AppColors.Background))
-    ) { innerPadding ->
+    val innerPadding = 8.dp
+
+    Column(modifier = Modifier
+        .background(color = Color(AppColors.Background))
+    ) {
         when (listType) {
-            UploadListType.LIST -> LazyColumn(contentPadding = innerPadding) {
-                items(entities) { entity ->
-                    UploadScreenListCard(entity) { tapType -> onTap(tapType, entity) }
-                }
+            UploadListType.LIST -> {
+                if (entities.isEmpty())
+                    Text(text = "Add Items!", color = Color.White)
+                else
+                    LazyColumn(
+                        contentPadding = PaddingValues(innerPadding),
+                        modifier = Modifier.background(Color(AppColors.Background)),
+                    ) {
+                        items(entities) { entity ->
+                            UploadScreenListCard(entity) { tapType -> onTap(tapType, entity) }
+                        }
+                    }
             }
-            UploadListType.GRID -> LazyVerticalGrid(
-                columns = GridCells.Adaptive(128.dp),
-                contentPadding = innerPadding
-            ) {
-                items(entities) { entity ->
-                    UploadScreenGridCard(entity) { tapType -> onTap(tapType, entity) }
-                }
+            UploadListType.GRID -> {
+                if (entities.isEmpty())
+                    Text(text = "Add Items!", color = Color.White)
+                else
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(AppConstants.THUMBNAIL_SIZE_WIDTH.dp),
+                        contentPadding = PaddingValues(innerPadding),
+                        modifier = Modifier.background(Color(AppColors.Background)),
+                    ) {
+                        items(entities) { entity ->
+                            UploadScreenGridCard(entity) { tapType -> onTap(tapType, entity) }
+                        }
+                    }
             }
         }
+    }.also {
+        topAppBarDataChange?.invoke(TopAppBarData("Upload", {
+            IconButton(onClick = { UploadListType.LIST }) {
+                Icon(Icons.AutoMirrored.Outlined.ViewList, contentDescription = "리스트 보기")
+            }
+            IconButton(onClick = { UploadListType.GRID }) {
+                Icon(Icons.Outlined.GridView, contentDescription = "그리드 보기")
+            }
+        }))
     }
 }
 
@@ -134,6 +147,7 @@ private fun UploadScreenListCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(Color(AppColors.Surface))
             .height(128.dp)
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -174,8 +188,10 @@ private fun UploadScreenGridCard(
     onClick: (UploadListTapType) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .padding(4.dp)
+            .background(Color(AppColors.Surface)),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             modifier = Modifier

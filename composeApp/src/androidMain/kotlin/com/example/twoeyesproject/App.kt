@@ -1,24 +1,24 @@
 package com.example.twoeyesproject
 
 import android.net.Uri
+import android.view.View
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
@@ -27,8 +27,6 @@ import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,15 +34,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.twoeyesproject.AppErrorBus
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -57,6 +55,7 @@ import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
+import com.example.twoeyesproject.di.AppLoginStatus
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
@@ -67,6 +66,7 @@ import com.example.twoeyesproject.ui.upload.UploadCreateFeedView
 import com.example.twoeyesproject.ui.upload.UploadScreen
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplicationPreview
+import org.koin.compose.koinInject
 import org.koin.dsl.module
 
 private const val ROUTE_FEED   = "feed"
@@ -107,65 +107,32 @@ private fun AppPreview() {
         }
     }
 }
+data class TopAppBarData(
+    val title: String,
+    val action: @Composable () -> Unit,
+    val visibility: Int = View.VISIBLE,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppScaffold(navController: NavHostController) {
+    val loginStatus = koinInject<AppLoginStatus>()
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val error by AppErrorBus.error.collectAsStateWithLifecycle()
+    val error             by AppErrorBus.error.collectAsStateWithLifecycle()
+    var topAppBarData     by remember { mutableStateOf(TopAppBarData("", { })) }
 
     // 피드·업로드 화면에서만 AppBar / BottomBar / FAB 표시
+    val currentRoute = navBackStackEntry?.destination?.route
     val showChrome = currentRoute in listOf(ROUTE_FEED, ROUTE_UPLOAD)
-
-    var isLoggedIn      by remember { mutableStateOf(false) }
-    var showLoginSheet  by remember { mutableStateOf(false) }
 
     // 앱 시작 시 저장된 토큰으로 로그인 상태 확인
     LaunchedEffect(Unit) {
-        isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
+        loginStatus.isLoggedIn = PlatformSecureStorage().getGoogleUserData() != null
     }
 
     Scaffold(
-        topBar = {
-            if (showChrome) {
-                TopAppBar(
-                    title = { Text("") },
-                    colors = TopAppBarColors(
-                        containerColor = Color(AppColors.Surface),
-                        titleContentColor = Color(AppColors.TextPrimary),
-                        subtitleContentColor = Color(AppColors.TextSecondary),
-                        scrolledContainerColor = Color(AppColors.Surface2),
-                        navigationIconContentColor = Color(AppColors.Accent),
-                        actionIconContentColor = Color(AppColors.Accent)
-                    ),
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                // 로그인됐을 때는 추후 프로필 화면 구현 시 분기
-                                showLoginSheet = true
-                            }
-                        ) {
-                            Box(contentAlignment = Alignment.TopEnd) {
-                                Icon(
-                                    imageVector = Icons.Filled.AccountCircle,
-                                    contentDescription = if (isLoggedIn) "프로필" else "로그인",
-                                    modifier = Modifier.size(48.dp),
-                                    tint = Color(AppColors.Primary)
-                                )
-                                Icon(
-                                    imageVector = if (isLoggedIn) Icons.Filled.Check
-                                    else Icons.Filled.QuestionMark,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(AppColors.Accent)
-                                )
-                            }
-                        }
-                    }
-                )
-            }
-        },
+        topBar = { DynamicTopAppBar(topAppBarData) },
         bottomBar = {
             if (showChrome) {
                 val navigationBarItemColors = NavigationBarItemColors(
@@ -217,9 +184,22 @@ private fun AppScaffold(navController: NavHostController) {
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
+            val shape = RoundedCornerShape(AppConstants.CARD_CORNER_RADIUS)
             if (showChrome) {
-                FloatingActionButton(onClick = { navController.navigate(ROUTE_CAMERA) }) {
-                    Icon(Icons.Default.Add, contentDescription = "카메라")
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .graphicsLayer { translationY = 60.dp.toPx() }
+                        .size(56.dp)
+                        .background(Color(AppColors.Surface2), shape)
+                        .border(1.5.dp, Color.White, shape)
+                        .clickable { navController.navigate(ROUTE_CAMERA) }
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "카메라",
+                        tint = Color.White
+                    )
                 }
             }
         },
@@ -230,21 +210,21 @@ private fun AppScaffold(navController: NavHostController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(ROUTE_FEED) {
-                FeedScreen {
-                    // TODO: 상세 화면 추후 구현
-                }
+                FeedScreen(
+                    onFeedClick = {},
+                    topAppBarDataChange = { topAppBarData = it }
+                )
             }
 
             composable(ROUTE_UPLOAD) {
-                UploadScreen {
-                    navController.navigate(it)
-                }
+                UploadScreen(
+                    onNext = { navController.navigate(it) },
+                    topAppBarDataChange = { topAppBarData = it }
+                )
             }
 
             composable<MergeResultEntity> { backStackEntry ->
-                UploadCreateFeedView(
-                    entity = backStackEntry.toRoute<MergeResultEntity>()
-                )
+                UploadCreateFeedView(entity = backStackEntry.toRoute<MergeResultEntity>())
             }
 
             composable(ROUTE_CAMERA) {
@@ -254,7 +234,8 @@ private fun AppScaffold(navController: NavHostController) {
                         val encoded1 = Uri.encode(uri1)
                         val encoded2 = Uri.encode(uri2)
                         navController.navigate("merge/$encoded1/$encoded2")
-                    }
+                    },
+                    topAppBarDataChange = { topAppBarData = it }
                 )
             }
 
@@ -284,10 +265,10 @@ private fun AppScaffold(navController: NavHostController) {
     }
 
     // 로그인 바텀 시트 — 화면 절반 높이
-    if (showLoginSheet) {
+    if (loginStatus.showLoginSheet) {
         val screenHeight = LocalWindowInfo.current.containerDpSize.height
         ModalBottomSheet(
-            onDismissRequest = { showLoginSheet = false },
+            onDismissRequest = { loginStatus.showLoginSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         ) {
             LoginScreen(
@@ -295,8 +276,8 @@ private fun AppScaffold(navController: NavHostController) {
                     .fillMaxWidth()
                     .height(screenHeight / 2),
                 onLoginSuccess = {
-                    isLoggedIn = true
-                    showLoginSheet = false
+                    loginStatus.isLoggedIn = true
+                    loginStatus.showLoginSheet = false
                 }
             )
         }

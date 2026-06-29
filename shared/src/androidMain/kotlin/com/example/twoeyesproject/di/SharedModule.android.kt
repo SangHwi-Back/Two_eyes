@@ -18,6 +18,7 @@ val sharedAndroidModule = module {
     factory { ImageDecoder() }
     single { ApiClient() }
     single { getRoomDatabase(getDatabaseBuilder(androidContext())) }
+    single { AppLoginStatus() }
 
     // Android 에서는 ViewModel lifecycle 을 위해 viewModel {} DSL 사용
     // sharedCommonModule 의 factory {} 등록을 Android 에서 이걸로 대체
@@ -27,3 +28,8 @@ val sharedAndroidModule = module {
         client = get()
     ) }
 }
+
+data class AppLoginStatus(
+    var isLoggedIn: Boolean = false,
+    var showLoginSheet: Boolean = false,
+)

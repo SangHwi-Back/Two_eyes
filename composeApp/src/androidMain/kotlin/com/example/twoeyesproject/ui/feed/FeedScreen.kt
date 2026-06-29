@@ -20,6 +20,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.HorizontalDivider
@@ -36,20 +38,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
+import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 enum class FeedScreenTapType {
     LIKE, COMMENT, SHARE, FEED
@@ -59,6 +63,7 @@ enum class FeedScreenTapType {
 fun FeedScreen(
     viewModel: FeedListViewModel = koinViewModel(),
     onFeedClick: (FeedItemModel) -> Unit,
+    topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
 
@@ -71,7 +76,11 @@ fun FeedScreen(
             viewModel.getAllFeeds()
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(AppColors.Background))
+    ) {
         items(items) { item ->
             FeedItemCard(item = item, onClick = {
                 scope.launch {
@@ -85,6 +94,29 @@ fun FeedScreen(
             })
             HorizontalDivider()
         }
+    }.also {
+        topAppBarDataChange?.invoke(TopAppBarData("", {
+            IconButton(
+                onClick = {
+                    // 로그인됐을 때는 추후 프로필 화면 구현 시 분기
+                }
+            ) {
+                Box(contentAlignment = Alignment.TopEnd) {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "로그인",
+                        modifier = Modifier.size(48.dp),
+                        tint = Color(AppColors.Primary)
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.QuestionMark,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(AppColors.Accent)
+                    )
+                }
+            }
+        }))
     }
 }
 

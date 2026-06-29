@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -40,15 +41,14 @@ import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +73,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.image.PickImageViewModel
 import kotlinx.coroutines.Dispatchers
@@ -106,6 +107,7 @@ fun PickImageScreen(
     viewModel: PickImageViewModel = viewModel(),
     onBack: () -> Unit,
     onNext: (uri1: String, uri2: String) -> Unit,
+    topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -211,168 +213,173 @@ fun PickImageScreen(
             pickImagePermissionLauncher.launch(arrayOf(permissionReadImage, pickImagePermission))
     }
     // ── UI ────────────────────────────────────────────────────────────────────
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+            .verticalScroll(rememberScrollState())
+            .background(Color(AppColors.Background))
+    ) {
+        Row() {
+            Button(
+                onClick = onBack,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
+            }
+            Spacer(Modifier.weight(1f))
+        }
+        // ── 이미지 슬롯 (iOS: HStack + aspectRatio(0.9)) ─────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.9f)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ImageSlot(
+                imageViewModel = target.leading,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onClick = {
+                    when (it) {
+                        CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.leading)
+                        CameraScreenTapType.Delete -> viewModel.deleteImage(target.leading)
+                    }
+                }
+            )
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = Color(AppColors.Surface2),
+                modifier = Modifier.padding(horizontal = 6.dp)
+            )
+            ImageSlot(
+                imageViewModel = target.trailing,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onClick = {
+                    when (it) {
+                        CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.trailing)
+                        CameraScreenTapType.Delete -> viewModel.deleteImage(target.trailing)
                     }
                 }
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .background(Color(AppColors.Background))
-        ) {
 
-            // ── 이미지 슬롯 (iOS: HStack + aspectRatio(0.9)) ─────────────────
-            Row(
+        // ── Empty view (iOS: imageSources 없을 때 아이콘 + 텍스트) ──────────────
+        if (imageSources.isEmpty()) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.9f)
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .height(thumbnailHeight),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                ImageSlot(
-                    imageViewModel = target.leading,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onClick = {
-                        when (it) {
-                            CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.leading)
-                            CameraScreenTapType.Delete -> viewModel.deleteImage(target.leading)
-                        }
-                    }
-                )
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Outlined.PhotoLibrary,
                     contentDescription = null,
-                    tint = Color(AppColors.Surface2),
-                    modifier = Modifier.padding(horizontal = 6.dp)
-                )
-                ImageSlot(
-                    imageViewModel = target.trailing,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onClick = {
-                        when (it) {
-                            CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.trailing)
-                            CameraScreenTapType.Delete -> viewModel.deleteImage(target.trailing)
-                        }
-                    }
-                )
-            }
-
-            // ── Empty view (iOS: imageSources 없을 때 아이콘 + 텍스트) ──────────────
-            if (imageSources.isEmpty()) {
-                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(thumbnailHeight),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.PhotoLibrary,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(bottom = 8.dp)
-                    )
-                    Text("Get photos! Using buttons!")
-                }
+                        .size(48.dp)
+                        .padding(bottom = 8.dp)
+                )
+                Text("Get photos! Using buttons!")
             }
+        }
 
-            // ── 썸네일 캐러셀: viewModel.imageSources 수집 (iOS: 비어있으면 height=0) ──
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (imageSources.isEmpty()) 0.dp else thumbnailHeight)
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(imageSources) { imageSource ->
-                    AsyncImage(
-                        model = imageSource.build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { onThumbnailSelected(imageSource) }
-                    )
-                }
-            }
-
-            // ── 하단 버튼 바 (iOS: Camera / Pick / GetAll / Next, Spacer 균등 배분) ──
-            if (showHighlightAlert) {
-                AlertDialog(
-                    onDismissRequest = { showHighlightAlert = false },
-                    title = { Text("슬롯을 먼저 선택하세요") },
-                    text  = { Text("카메라를 열기 전에 이미지를 배치할 슬롯을 먼저 탭해주세요.") },
-                    confirmButton = {
-                        TextButton(onClick = { showHighlightAlert = false }) { Text("확인") }
-                    }
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BottomButton(
-                    icon = { Icon(Icons.Outlined.CameraAlt, contentDescription = null) },
-                    label = "Camera",
-                    onClick = {
-                        val hasCamera = context.checkSelfPermission(Manifest.permission.CAMERA) ==
-                            PackageManager.PERMISSION_GRANTED
-                        if (hasCamera) launchCameraIfHighlighted()
-                        else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                BottomButton(
-                    icon = { Icon(Icons.Outlined.TouchApp, contentDescription = null) },
-                    label = "Pick",
-                    onClick = { pickImageLauncher.launch(PickVisualMediaRequest()) }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                BottomButton(
-                    icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
-                    label = "GetAll",
-                    onClick = { requestAlbumPermission() }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                BottomButton(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                            contentDescription = null,
-                            tint = Color(if (goNextEnabled)
-                                AppColors.Surface
-                            else
-                                AppColors.Surface2
-                            )
-                        )
-                    },
-                    label = "Next",
-                    enabled = goNextEnabled,
-                    onClick = {
-                        onNext(imageSources[0].toString(), imageSources[1].toString())
-                    }
+        // ── 썸네일 캐러셀: viewModel.imageSources 수집 (iOS: 비어있으면 height=0) ──
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (imageSources.isEmpty()) 0.dp else thumbnailHeight)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(imageSources) { imageSource ->
+                AsyncImage(
+                    model = imageSource.build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onThumbnailSelected(imageSource) }
                 )
             }
         }
+
+        // ── 하단 버튼 바 (iOS: Camera / Pick / GetAll / Next, Spacer 균등 배분) ──
+        if (showHighlightAlert) {
+            AlertDialog(
+                onDismissRequest = { showHighlightAlert = false },
+                title = { Text("슬롯을 먼저 선택하세요") },
+                text  = { Text("카메라를 열기 전에 이미지를 배치할 슬롯을 먼저 탭해주세요.") },
+                confirmButton = {
+                    TextButton(onClick = { showHighlightAlert = false }) { Text("확인") }
+                }
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BottomButton(
+                icon = { Icon(Icons.Outlined.CameraAlt, contentDescription = null) },
+                label = "Camera",
+                onClick = {
+                    val hasCamera = context.checkSelfPermission(Manifest.permission.CAMERA) ==
+                            PackageManager.PERMISSION_GRANTED
+                    if (hasCamera) launchCameraIfHighlighted()
+                    else cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            BottomButton(
+                icon = { Icon(Icons.Outlined.TouchApp, contentDescription = null) },
+                label = "Pick",
+                onClick = { pickImageLauncher.launch(PickVisualMediaRequest()) }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            BottomButton(
+                icon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
+                label = "GetAll",
+                onClick = { requestAlbumPermission() }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            BottomButton(
+                icon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                        contentDescription = null,
+                        tint = Color(if (goNextEnabled)
+                            AppColors.Surface
+                        else
+                            AppColors.Surface2
+                        )
+                    )
+                },
+                label = "Next",
+                enabled = goNextEnabled,
+                onClick = {
+                    onNext(imageSources[0].toString(), imageSources[1].toString())
+                }
+            )
+        }
+    }.also {
+        topAppBarDataChange?.invoke(TopAppBarData(
+            "",
+            {
+                IconButton(onClick = onBack) {
+                    Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
+                }
+            },
+            View.GONE
+        ))
     }
 }
 
