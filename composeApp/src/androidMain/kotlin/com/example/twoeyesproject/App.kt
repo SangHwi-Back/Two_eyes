@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -70,6 +71,7 @@ import org.koin.compose.koinInject
 import org.koin.dsl.module
 
 private const val ROUTE_FEED   = "feed"
+private const val ROUTE_SEARCH_FEED = "feed/search"
 private const val ROUTE_UPLOAD = "upload"
 private const val ROUTE_CAMERA = "camera"
 private const val ROUTE_MERGE  = "merge/{uri1}/{uri2}"
@@ -226,8 +228,17 @@ private fun AppScaffold(navController: NavHostController) {
             composable(ROUTE_FEED) {
                 FeedScreen(
                     onFeedClick = {},
+                    onSearchClick = {
+                        navController.navigate("feed/search")
+                    },
                     topAppBarDataChange = { topAppBarData = it }
                 )
+            }
+
+            composable(ROUTE_SEARCH_FEED) {
+                Column {
+                    Text("Searching....")
+                }
             }
 
             composable(ROUTE_UPLOAD) {

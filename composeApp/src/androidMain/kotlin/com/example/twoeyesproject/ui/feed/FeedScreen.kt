@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -64,6 +65,7 @@ enum class FeedScreenTapType {
 fun FeedScreen(
     viewModel: FeedListViewModel = koinViewModel(),
     onFeedClick: (FeedItemModel) -> Unit,
+    onSearchClick: () -> Unit = {},
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
@@ -79,6 +81,12 @@ fun FeedScreen(
 
     SideEffect {
         topAppBarDataChange?.invoke(TopAppBarData("", {
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = "검색",
+                )
+            }
             IconButton(
                 onClick = {
                     // 로그인됐을 때는 추후 프로필 화면 구현 시 분기
