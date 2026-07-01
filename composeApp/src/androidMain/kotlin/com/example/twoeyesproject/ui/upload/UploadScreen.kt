@@ -3,6 +3,7 @@ package com.example.twoeyesproject.ui.upload
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
@@ -61,15 +64,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-// size()가 exact 크기를 강제하므로 sizeIn은 불필요
-private val ButtonSizeModifier = Modifier.size(width = 80.dp, height = 42.dp)
-
 enum class UploadListTapType {
-    DELETE, LIST
+    DELETE,
+    LIST
 }
 
 enum class UploadListType {
-    LIST, GRID
+    LIST,
+    GRID
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,13 +149,15 @@ private fun UploadScreenListCard(
     entity: MergeResultEntity,
     onClick: (UploadListTapType) -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(AppColors.Surface))
-            .height(128.dp)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .height(84.dp)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // 이미지 영역: weight(1f)로 버튼 공간을 남기고 나머지를 차지
         Row(
@@ -162,22 +166,31 @@ private fun UploadScreenListCard(
                 .fillMaxHeight()
                 // clip 먼저 적용 후 border에 shape 지정해야 둥근 테두리가 그려짐
                 .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, Color(AppColors.Primary.toInt()), RoundedCornerShape(8.dp)),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .border(1.dp, Color(AppColors.Primary.toInt()), RoundedCornerShape(8.dp))
+                .horizontalScroll(scrollState)
+                .padding(end = 8.dp),
         ) {
-            ImageSlot(uri = entity.leadingImageId.toUri(),  modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight())
-            ImageSlot(uri = entity.trailingImageId.toUri(), modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight())
-            ImageSlot(uri = entity.resultId.toUri(),        modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight())
+            ImageSlot(uri = entity.leadingImageId.toUri(),
+                modifier = Modifier
+                    .size(76.dp)
+                    .padding(start = 8.dp)
+            )
+            ImageSlot(uri = entity.trailingImageId.toUri(),
+                modifier = Modifier
+                    .size(width = 36.dp, height = 36.dp)
+                    .padding(horizontal = 8.dp)
+            )
+            ImageSlot(uri = entity.resultId.toUri(),
+                modifier = Modifier
+                    .size(width = 36.dp, height = 36.dp)
+                    .padding(end = 8.dp)
+            )
         }
 
         OutlinedButton(
-            modifier = ButtonSizeModifier.padding(start = 8.dp),
+            modifier = Modifier
+                .size(width = 80.dp, height = 42.dp)
+                .padding(horizontal = 8.dp),
             onClick = { onClick(UploadListTapType.DELETE) }
         ) {
             Text("Delete")
@@ -190,16 +203,18 @@ private fun UploadScreenGridCard(
     entity: MergeResultEntity,
     onClick: (UploadListTapType) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .padding(4.dp)
-            .background(Color(AppColors.Surface)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+//    Column(
+//        modifier = Modifier
+//            .padding(4.dp)
+//            .background(Color(AppColors.Surface)),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
+                .padding(4.dp)
+                .background(Color(AppColors.Surface))
                 .clip(RoundedCornerShape(8.dp))
         ) {
             ImageSlot(
@@ -214,7 +229,7 @@ private fun UploadScreenGridCard(
                 Icon(Icons.Outlined.Delete, contentDescription = "삭제")
             }
         }
-    }
+//    }
 }
 
 @Composable

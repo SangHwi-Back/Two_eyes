@@ -236,9 +236,14 @@ private fun AppScaffold(navController: NavHostController) {
             }
 
             composable(ROUTE_SEARCH_FEED) {
-                Column {
-                    Text("Searching....")
-                }
+                FeedSearchScreen(
+                    onBackButtonClick = {
+                        navController.popBackStack()
+                    },
+                    topAppBarDataChange = {
+                        topAppBarData = it
+                    },
+                )
             }
 
             composable(ROUTE_UPLOAD) {
