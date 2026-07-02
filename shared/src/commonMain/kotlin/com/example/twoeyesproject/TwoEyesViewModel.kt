@@ -3,7 +3,7 @@ package com.example.twoeyesproject
 import androidx.lifecycle.ViewModel
 
 abstract class TwoEyesViewModel : ViewModel() {
-    protected fun emitError(e: TwoEyesException) {
+    fun emitError(e: TwoEyesException) {
         AppErrorBus.post(e.toUserFacingError())
     }
 }

@@ -53,7 +53,7 @@ struct FeedListView: View {
         ) { oldValue, newValue  in
             if let newValue, newValue != oldValue {
                 Task {
-                    try? await viewModel.getAllFeeds()
+                    try? await viewModel.getAllFeeds(page: 1)
                 }
             }
         }

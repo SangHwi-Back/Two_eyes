@@ -215,7 +215,19 @@ open class ApiClient {
             url += "&limit=$count"
         return _client.get(url).body()
     }
-    
+
+    suspend fun searchFeeds(query: String, page: Int, count: Int? = null): FeedResponse {
+        var url = "$baseUrl/feed?page=$page&query=$query"
+        if (count != null)
+            url += "&limit=$count"
+        return _client.get(url).body()
+    }
+
+    suspend fun featuredFeeds(): FeedResponse {
+        val url = "$baseUrl/feed/featured"
+        return _client.get(url).body()
+    }
+
     suspend fun postLike(tobe: Boolean, feedId: String): LikeResponse =
         if (tobe)
             _client.post("feed/$feedId/like").body()

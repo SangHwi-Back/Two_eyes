@@ -63,6 +63,14 @@ export class FeedController {
     return this.feedService.getFeeds(page, safeLimit, user.id);
   }
 
+  @Get('featured')
+  getFeaturedFeeds(
+    @CurrentUser() user: User,
+  ) {
+    // TODO: GET RANDOM FEEDS
+    return this.feedService.getFeeds(1, 50, user.id);
+  }
+
   /**
    * GET /feed/:id
    * 특정 피드 상세 조회

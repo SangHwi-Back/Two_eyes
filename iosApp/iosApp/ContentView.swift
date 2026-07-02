@@ -75,7 +75,9 @@ struct ContentView: View {
             get: { tabSelection == .search },
             set: { _ in }
         )) {
-            SearchModalView(tabSelection: $tabSelection)
+            SearchModalView(
+                tabSelection: tabSelection,
+                apiClient: apiClient)
         }
         .task {
             applyNavigationBarAppearance()

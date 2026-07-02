@@ -7,7 +7,6 @@ import SwiftUI
 import Shared
 
 struct SearchModalView: View {
-    @Binding var tabSelection: TabSelection
     @State private var searchText = ""
     @State private var pendingTab: TabSelection? = nil
     @State private var feedPickerOption = FeedPickerOption.MINE
@@ -19,6 +18,18 @@ struct SearchModalView: View {
     }
     
     @Namespace private var namespace
+    
+    @Binding var tabSelection: TabSelection
+    var viewModel: FeedSearchViewModel
+    
+    var isLoading: Bool {
+        (viewModel.isLoading.value as? Bool) ?? false
+    }
+    
+    init(tabSelection: TabSelection, apiClient: ApiClient) {
+        self._tabSelection = Binding.constant(tabSelection)
+        self.viewModel = FeedSearchViewModel(apiClient: apiClient)
+    }
     
     enum FeedPickerOption: Identifiable, CaseIterable {
         case MINE, ALL
@@ -44,6 +55,10 @@ struct SearchModalView: View {
                     TokenListView("Author", "Contents")
                 }
             } else {
+                if items.isEmpty {
+                    ProgressView()
+                        .frame(width: iconWidth, height: iconHeight)
+                }
                 ItemListView(items)
             }
             
@@ -84,12 +99,33 @@ struct SearchModalView: View {
             VStack(spacing: 12) {
                 ForEach(items) { item in
                     TwoEyesCard {
-                        Text("")
+                        HStack {
+                            PHAssetImage(assetIdentifier: item.imageId)
+                            
+                            VStack {
+                                ItemListTitleText("Author : "+item.author)
+                                ItemListContentText("IsLiked : true")
+                                ItemListContentText("Likes : 101")
+                                ItemListContentText("Replies : 82")
+                            }
+                        }
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func ItemListTitleText(_ text: String) -> Text {
+        Text(text)
+            .font(.headline)
+            .foregroundStyle(AppColors.shared.TextPrimary.color)
+    }
+    
+    private func ItemListContentText(_ text: String) -> Text {
+        Text(text)
+            .font(.subheadline)
+            .foregroundStyle(AppColors.shared.TextSecondary.color)
     }
     
     private func SearchField() -> some View {
@@ -111,6 +147,16 @@ struct SearchModalView: View {
                             .textInputAutocapitalization(.never)
                             .padding(.horizontal, 16)
                             .frame(height: 48)
+                            .onKeyPress(.return, action: {
+                                guard searchText.isEmpty == false else {
+                                    return .ignored
+                                }
+                                Task {
+                                    try? await viewModel.searchFeeds(query: searchText, page: 1)
+                                }
+                                return .handled
+                            })
+                            .disabled(isLoading)
                             .glassEffect(in: Capsule())
                             .glassEffectID("search.field", in: namespace)
                     }
@@ -121,8 +167,16 @@ struct SearchModalView: View {
                             withAnimation {
                                 searchButtonTapped.toggle()
                             }
-                            print("")
+                            
+                            guard searchText.isEmpty == false else {
+                                return
+                            }
+                            
+                            Task {
+                                try? await viewModel.searchFeeds(query: searchText, page: 1)
+                            }
                         }
+                        .disabled(isLoading)
                         .animation(.easeInOut, value: searchText.isEmpty)
                         .glassEffect(in: Circle())
                         .glassEffectID("search.button", in: namespace)
@@ -134,9 +188,9 @@ struct SearchModalView: View {
     
     struct Item: Identifiable {
         var id: ObjectIdentifier {
-            ObjectIdentifier(NSString(string: imageUrl))
+            ObjectIdentifier(NSString(string: imageId))
         }
-        let imageUrl: String
+        let imageId: String
         let author: String
         let contents: String
     }

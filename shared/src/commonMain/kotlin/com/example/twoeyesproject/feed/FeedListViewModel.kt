@@ -16,32 +16,30 @@ class FeedListViewModel(val apiClient: ApiClient) : TwoEyesViewModel() {
     val listData: StateFlow<List<FeedItemModel>>
         get() = _listMockData.asStateFlow()
 
-    suspend fun getAllFeeds() {
+    var isLoading = MutableStateFlow(false)
+
+    suspend fun getAllFeeds(page: Int = 1) {
+        isLoading.value = true
         try {
-            val response = apiClient.getFeed(1)
+            val response = apiClient.getFeed(page)
+            isLoading.value = false
             _listMockData.value = response.data.map { it.toFeedItemModel() }
-        } catch (_: Exception) {
-            print("Server not ready yet.")
+        } catch (e: Exception) {
+            isLoading.value = false
+            emitFeedListNetworkException(e)
         }
     }
 
     suspend fun updateLike(like: Boolean, feedId: String): LikeResponse? {
+        isLoading.value = true
         try {
             val response = apiClient.postLike(like, feedId)
+            isLoading.value = false
             _listMockData.value.first { it.feedId == response.feedId }.isUserLiked = like
             return response
-        } catch (e: ResponseException) {
-            emitError(TwoEyesException.Http(
-                statusCode = e.response.status.value,
-                message = e.message ?: "HTTP error",
-                cause = e,
-            ))
-            return null
         } catch (e: Exception) {
-            emitError(TwoEyesException.Network(
-                message = e.message ?: "Network error",
-                cause = e,
-            ))
+            isLoading.value = false
+            emitFeedListNetworkException(e)
             return null
         }
     }

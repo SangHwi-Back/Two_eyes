@@ -57,6 +57,7 @@ import com.example.twoeyesproject.dependency.AppDatabase
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.di.AppLoginStatus
+import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.image.ImageDecoder
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
@@ -246,6 +247,10 @@ private fun AppScaffold(navController: NavHostController) {
                 )
             }
 
+            composable<FeedItemModel> { backStackEntry ->
+                FeedDetail(model = backStackEntry.toRoute<FeedItemModel>())
+            }
+
             composable(ROUTE_UPLOAD) {
                 UploadScreen(
                     onNext = { navController.navigate(it) },
@@ -312,4 +317,9 @@ private fun AppScaffold(navController: NavHostController) {
             )
         }
     }
+}
+
+@Composable
+fun FeedDetail(model: FeedItemModel) {
+    Column {  }
 }
