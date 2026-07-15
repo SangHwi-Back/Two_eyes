@@ -1,18 +1,18 @@
 package com.example.twoeyesproject.feed
 
-import com.example.twoeyesproject.TwoEyesException
 import com.example.twoeyesproject.TwoEyesViewModel
 import com.example.twoeyesproject.dependency.ApiClient
+import com.example.twoeyesproject.dependency.FeedMockData
 import com.example.twoeyesproject.dependency.FeedResponse
 import com.example.twoeyesproject.dependency.LikeResponse
-import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.collections.listOf
 
 class FeedListViewModel(val apiClient: ApiClient) : TwoEyesViewModel() {
-    private var _listMockData = MutableStateFlow<List<FeedItemModel>>(mutableListOf())
+    private var _listMockData = MutableStateFlow<List<FeedItemModel>>(
+        FeedMockData.feedItemList.toMutableList()
+    )
     val listData: StateFlow<List<FeedItemModel>>
         get() = _listMockData.asStateFlow()
 

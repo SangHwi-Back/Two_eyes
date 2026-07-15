@@ -1,6 +1,51 @@
 package com.example.twoeyesproject.dependency
 
+import com.example.twoeyesproject.feed.FeedItemModel
+
 object FeedMockData {
+
+    val feedItemList: List<FeedItemModel> = listOf(
+        FeedItemModel(
+            feedId      = "feed-001",
+            imageUrls   = listOf(
+                "https://picsum.photos/seed/a1/600/600",
+                "https://picsum.photos/seed/a2/600/600",
+                "https://picsum.photos/seed/a3/600/600",
+            ),
+            likes       = 42,
+            author      = "mock_user_1",
+            description = "이미지 3장짜리 게시물입니다. 좌우로 스와이프해보세요.",
+            showReply   = false,
+            replyArray  = emptyList(),
+            isUserLiked = false,
+        ),
+        FeedItemModel(
+            feedId      = "feed-002",
+            imageUrls   = listOf(
+                "https://picsum.photos/seed/b1/600/600",
+            ),
+            likes       = 100,
+            author      = "mock_user_2",
+            description = "이미지 1장짜리 게시물입니다.",
+            showReply   = false,
+            replyArray  = emptyList(),
+            isUserLiked = false,
+        ),
+        FeedItemModel(
+            feedId      = "feed-003",
+            imageUrls   = listOf(
+                "https://picsum.photos/seed/c1/600/600",
+                "https://picsum.photos/seed/c2/600/600",
+            ),
+            likes       = 7,
+            author      = "mock_user_3",
+            description = "이미지 2장짜리 게시물입니다.",
+            showReply   = false,
+            replyArray  = emptyList(),
+            isUserLiked = false,
+        ),
+    )
+
     const val FeedList = """
 {
     "data": [

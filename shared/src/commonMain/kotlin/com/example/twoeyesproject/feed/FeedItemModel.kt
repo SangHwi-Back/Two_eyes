@@ -1,5 +1,8 @@
 package com.example.twoeyesproject.feed
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class FeedItemModel(
     val feedId: String,
     val imageUrls: List<String>,
@@ -10,7 +13,7 @@ data class FeedItemModel(
     var replyArray: List<FeedItemReplyModel>,
     var isUserLiked: Boolean
 )
-
+@Serializable
 data class FeedItemReplyModel(
     val feedId: String,
     val replyId: String,

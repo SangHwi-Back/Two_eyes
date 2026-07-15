@@ -66,6 +66,7 @@ import com.example.twoeyesproject.ui.camera.PickImageScreen
 import com.example.twoeyesproject.ui.feed.FeedScreen
 import com.example.twoeyesproject.ui.upload.UploadCreateFeedView
 import com.example.twoeyesproject.ui.upload.UploadScreen
+import kotlinx.serialization.Serializable
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplicationPreview
 import org.koin.compose.koinInject
@@ -76,6 +77,9 @@ private const val ROUTE_SEARCH_FEED = "feed/search"
 private const val ROUTE_UPLOAD = "upload"
 private const val ROUTE_CAMERA = "camera"
 private const val ROUTE_MERGE  = "merge/{uri1}/{uri2}"
+
+@Serializable
+data class FeedDetailRoute(val feedId: String)
 
 private val TwoEyesColorScheme = darkColorScheme(
     background       = Color(AppColors.Background),
@@ -228,7 +232,9 @@ private fun AppScaffold(navController: NavHostController) {
         ) {
             composable(ROUTE_FEED) {
                 FeedScreen(
-                    onFeedClick = {},
+                    onFeedClick = { item ->
+                        navController.navigate(FeedDetailRoute(feedId = item.feedId))
+                    },
                     onSearchClick = {
                         navController.navigate("feed/search")
                     },
@@ -247,8 +253,9 @@ private fun AppScaffold(navController: NavHostController) {
                 )
             }
 
-            composable<FeedItemModel> { backStackEntry ->
-                FeedDetail(model = backStackEntry.toRoute<FeedItemModel>())
+            composable<FeedDetailRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<FeedDetailRoute>()
+                FeedDetail(feedId = route.feedId)
             }
 
             composable(ROUTE_UPLOAD) {
@@ -320,6 +327,9 @@ private fun AppScaffold(navController: NavHostController) {
 }
 
 @Composable
-fun FeedDetail(model: FeedItemModel) {
-    Column {  }
+fun FeedDetail(feedId: String) {
+    // TODO: feedId로 상세 데이터를 조회하거나 ViewModel에서 가져오기
+    Column {
+        Text("Feed Detail: $feedId")
+    }
 }
