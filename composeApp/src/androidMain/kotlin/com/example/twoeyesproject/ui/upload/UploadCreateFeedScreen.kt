@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
@@ -43,10 +42,11 @@ import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.ui.camera.BottomButton
 import com.example.twoeyesproject.upload.UploadViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun UploadCreateFeedView(
-    viewModel: UploadViewModel = viewModel(),
+    viewModel: UploadViewModel = koinViewModel(),
     entity: MergeResultEntity
 ) {
     val scrollState = rememberScrollState()

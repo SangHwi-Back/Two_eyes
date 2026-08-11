@@ -3,20 +3,9 @@ package com.example.twoeyesproject.ui.upload
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,18 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -63,6 +41,7 @@ import com.example.twoeyesproject.upload.UploadViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 enum class UploadListTapType {
     DELETE,
@@ -98,14 +77,12 @@ fun UploadScreen(
 
     val innerPadding = 8.dp
 
-    Column(modifier = Modifier
-        .background(color = Color(AppColors.Background))
-    ) {
-        when (listType) {
-            UploadListType.LIST -> {
-                if (entities.isEmpty())
-                    Text(text = "Add Items!", color = Color.White)
-                else
+    Column(Modifier.background(color = Color(AppColors.Background))) {
+        if (entities.isEmpty())
+            Text(text = "Add Items!", color = Color.White)
+        else
+            when (listType) {
+                UploadListType.LIST -> {
                     LazyColumn(
                         contentPadding = PaddingValues(innerPadding),
                         modifier = Modifier.background(Color(AppColors.Background)),
@@ -114,11 +91,8 @@ fun UploadScreen(
                             UploadScreenListCard(entity) { tapType -> onTap(tapType, entity) }
                         }
                     }
-            }
-            UploadListType.GRID -> {
-                if (entities.isEmpty())
-                    Text(text = "Add Items!", color = Color.White)
-                else
+                }
+                UploadListType.GRID -> {
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(AppConstants.THUMBNAIL_SIZE_WIDTH.dp),
                         contentPadding = PaddingValues(innerPadding),
@@ -128,8 +102,8 @@ fun UploadScreen(
                             UploadScreenGridCard(entity) { tapType -> onTap(tapType, entity) }
                         }
                     }
+                }
             }
-        }
     }
 
     SideEffect {
@@ -153,47 +127,55 @@ private fun UploadScreenListCard(
 
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(AppColors.Surface))
-            .height(84.dp)
-            .padding(vertical = 4.dp),
+            .fillMaxWidth(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, Color(AppColors.Primary.toInt()), RoundedCornerShape(8.dp))
+            .clickable { onClick(UploadListTapType.LIST) }
+            .horizontalScroll(scrollState)
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // 이미지 영역: weight(1f)로 버튼 공간을 남기고 나머지를 차지
-        Row(
+        ImageSlot(
+            uri = entity.leadingImageId.toUri(),
             modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                // clip 먼저 적용 후 border에 shape 지정해야 둥근 테두리가 그려짐
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, Color(AppColors.Primary.toInt()), RoundedCornerShape(8.dp))
-                .horizontalScroll(scrollState)
-                .padding(end = 8.dp),
-        ) {
-            ImageSlot(uri = entity.leadingImageId.toUri(),
-                modifier = Modifier
-                    .size(76.dp)
-                    .padding(start = 8.dp)
-            )
-            ImageSlot(uri = entity.trailingImageId.toUri(),
-                modifier = Modifier
-                    .size(width = 36.dp, height = 36.dp)
-                    .padding(horizontal = 8.dp)
-            )
-            ImageSlot(uri = entity.resultId.toUri(),
-                modifier = Modifier
-                    .size(width = 36.dp, height = 36.dp)
-                    .padding(end = 8.dp)
-            )
-        }
+                .size(76.dp)
+                .padding(vertical = 8.dp)
+        )
+
+        ImageSlot(
+            uri = entity.trailingImageId.toUri(),
+            modifier = Modifier
+                .size(width = 36.dp, height = 36.dp)
+                .padding(horizontal = 8.dp)
+        )
+
+        ImageSlot(
+            uri = entity.resultId.toUri(),
+            modifier = Modifier
+                .size(width = 36.dp, height = 36.dp)
+        )
+
+        Spacer(Modifier
+            .weight(1f)
+            .defaultMinSize(minWidth = 8.dp)
+        )
 
         OutlinedButton(
             modifier = Modifier
-                .size(width = 80.dp, height = 42.dp)
+                .aspectRatio(1.5f)
                 .padding(horizontal = 8.dp),
-            onClick = { onClick(UploadListTapType.DELETE) }
+            onClick = { onClick(UploadListTapType.DELETE) },
+            colors = ButtonColors(
+                contentColor = Color.Red,
+                containerColor = Color.Red,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent
+            ),
         ) {
-            Text("Delete")
+            Text(
+                color = Color.White,
+                text = "Delete"
+            )
         }
     }
 }
@@ -203,33 +185,26 @@ private fun UploadScreenGridCard(
     entity: MergeResultEntity,
     onClick: (UploadListTapType) -> Unit
 ) {
-//    Column(
-//        modifier = Modifier
-//            .padding(4.dp)
-//            .background(Color(AppColors.Surface)),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .padding(4.dp)
-                .background(Color(AppColors.Surface))
-                .clip(RoundedCornerShape(8.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .padding(4.dp)
+            .background(Color(AppColors.Surface))
+            .clip(RoundedCornerShape(8.dp))
+    ) {
+        ImageSlot(
+            uri = entity.resultId.toUri(),
+            modifier = Modifier.fillMaxSize()
+        )
+        // Delete 아이콘을 이미지 위에 오버레이
+        IconButton(
+            onClick = { onClick(UploadListTapType.DELETE) },
+            modifier = Modifier.align(Alignment.TopEnd)
         ) {
-            ImageSlot(
-                uri = entity.resultId.toUri(),
-                modifier = Modifier.fillMaxSize()
-            )
-            // Delete 아이콘을 이미지 위에 오버레이
-            IconButton(
-                onClick = { onClick(UploadListTapType.DELETE) },
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(Icons.Outlined.Delete, contentDescription = "삭제")
-            }
+            Icon(Icons.Outlined.Delete, contentDescription = "삭제")
         }
-//    }
+    }
 }
 
 @Composable

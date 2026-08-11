@@ -22,7 +22,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.dependency.ApiClient
@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 fun FeedSearchScreen(
     onBackButtonClick: () -> Unit = {},
     topAppBarDataChange: (TopAppBarData) -> Unit,
-    viewModel: FeedSearchViewModel = viewModel()
+    viewModel: FeedSearchViewModel = koinViewModel()
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }

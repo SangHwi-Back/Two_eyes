@@ -57,6 +57,7 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
             }
         }
 
+    @Throws(RuntimeException::class)
     actual fun signInWithApple(delegate: PlatformASAuthorizationControllerDelegate) {
         if (isTest) {
             testSignInWithApple(delegate)
@@ -71,18 +72,21 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
 
         // UIViewController 는 ASAuthorizationControllerPresentationContextProviding 을 직접 구현하지 않으므로
         // 익명 NSObject 구현체를 통해 window 를 제공
-        val window: UIWindow = uiContext?.view?.window
+        val window: UIWindow? = uiContext?.view?.window
             ?: UIApplication.sharedApplication.windows.firstOrNull() as? UIWindow
-            ?: UIWindow()
 
-        val presentationProvider = object : NSObject(), ASAuthorizationControllerPresentationContextProvidingProtocol {
-            override fun presentationAnchorForAuthorizationController(
-                controller: ASAuthorizationController
-            ): UIWindow = window
+        if (window != null) {
+            val presentationProvider = object : NSObject(), ASAuthorizationControllerPresentationContextProvidingProtocol {
+                override fun presentationAnchorForAuthorizationController(
+                    controller: ASAuthorizationController
+                ): UIWindow = window
+            }
+
+            controller.presentationContextProvider = presentationProvider
+            controller.performRequests()
+        } else {
+            throw RuntimeException("Unable to find a window for ASAuthorizationController")
         }
-
-        controller.presentationContextProvider = presentationProvider
-        controller.performRequests()
     }
 
     private fun testSignInWithApple(delegate: PlatformASAuthorizationControllerDelegate) =
