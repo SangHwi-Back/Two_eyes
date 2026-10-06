@@ -17,6 +17,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -166,7 +167,7 @@ open class ApiClient {
     private val _client: HttpClient
         get() { return if (isTest) testClient else client }
 
-    private val baseUrl = "http://192.168.1.114:3000/api/v1"
+    private val baseUrl = "https://mankind-habitat-fender.ngrok-free.dev:3000/api/v1"
 
     open fun setTestClientStatus(isTest: Boolean? = null) = run {
         if (isTest == null)
@@ -197,6 +198,7 @@ open class ApiClient {
         imageBytes: ByteArray
     ): FeedResponse.Data = _client.post("$baseUrl/feed") {
         contentType(ContentType.Application.Json)
+        header("ngrok-skip-browser-warning", "true")
         setBody(MultiPartFormDataContent(
             formData {
                 content?.let { append("content", it) }
