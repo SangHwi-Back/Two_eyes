@@ -132,7 +132,7 @@ fun FeedScreen(
 }
 
 @Composable
-private fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Unit) {
+fun FeedItemCard(item: FeedItemModel, onClick: (FeedScreenTapType) -> Unit) {
     val pagerState = rememberPagerState { item.imageUrls.size }
     var showReply by remember { mutableStateOf(item.showReply) }
 

@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.androidx.room.ktx)
             implementation(libs.insert.koin.koin.android)
             implementation(libs.io.insert.koin.koin.androidx.compose)
+            implementation(libs.decompose.compose)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -44,6 +45,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(projects.shared)
             implementation(libs.coil3.compose)
+            implementation(libs.decompose.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

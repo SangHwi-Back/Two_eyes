@@ -51,6 +51,10 @@ kotlin {
             implementation(libs.ktor.client.mock)
             implementation(libs.jetbrains.kotlinx.serialization.json)
             implementation(libs.koin.core)
+            api(libs.decompose.core)
+            api(libs.essenty.lifecycle)
+            implementation(libs.essenty.state.keeper)
+            implementation(libs.essenty.back.handler)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
