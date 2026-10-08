@@ -6,13 +6,27 @@
 //
 
 import SwiftUI
+import Shared
 
 struct RootView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    private let root: RootComponent
 
-#Preview {
-    RootView()
+    @StateValue
+    private var stack: ChildStack<AnyObject, RootComponentChild>
+
+    init(_ root: RootComponent) {
+        self.root = root
+        _stack = StateValue(root.stack)
+    }
+
+    var body: some View {
+        switch stack.active.instance {
+        case let child as RootComponentChildFeed:
+            FeedContentView(component: child.component)
+        case let child as RootComponentChildFeedDetail:
+            FeedDetailContentView(component: child.component)
+        default:
+            EmptyView()
+        }
+    }
 }

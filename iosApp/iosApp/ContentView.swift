@@ -2,6 +2,15 @@ import SwiftUI
 import Photos
 import Shared
 
+class ComponentHolder: ObservableObject {
+    let component: TwoEyesRootComponent
+    
+    init() {
+        let context = DefaultComponentContext(lifecycle: ApplicationLifecycle())
+        component = TwoEyesRootComponent(componentContext: context)
+    }
+}
+
 struct ContentView: View {
     @Environment(\.database) var database
     @Environment(\.apiClient) var apiClient
@@ -14,6 +23,8 @@ struct ContentView: View {
 
     @StateObject var cameraPath = NavigationPathObject(path: [NavHost.Camera]())
     @StateObject var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
+    
+    @StateObject var holder = ComponentHolder()
 
     var body: some View {
         TabView(selection: $tabSelection) {
@@ -21,9 +32,7 @@ struct ContentView: View {
             // MARK: Feed
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
                 NavigationStack {
-                    FeedListView(apiClient: apiClient)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { loginToolbarButton }
+                    RootView(holder.component)
                 }
             }
 

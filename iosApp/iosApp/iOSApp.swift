@@ -35,10 +35,14 @@ class ErrorBusObserver: ObservableObject, AppErrorCallback {
 struct iOSApp: App {
     let apiClient = ApiClient()
     let database = Database_iosKt.getAppDatabase()
-    
+
     @StateObject private var refreshTrigger = RefreshTrigger()
     @StateObject private var errorObserver = ErrorBusObserver()
-    
+
+    init() {
+        KoinInitializerKt.doInitKoin()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
