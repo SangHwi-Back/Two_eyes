@@ -17,16 +17,3 @@ actual fun getPlatform(): Platform = IOSPlatform()
 
 actual val isDebugBuild: Boolean
     get() = NSBundle.mainBundle.objectForInfoDictionaryKey("AppConfiguration").toString().lowercase() == "debug"
-
-actual class CommonFlow<T> actual constructor(
-    private val flow: Flow<T>
-) : Flow<T> by flow {
-    fun collect(
-        onCollect: (T) -> Unit
-    ): DisposableHandle {
-        val job = CoroutineScope(Dispatchers.Main).launch {
-            flow.collect(onCollect)
-        }
-        return DisposableHandle { job.cancel() }
-    }
-}

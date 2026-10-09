@@ -7,8 +7,5 @@ interface Platform {
 }
 
 expect val isDebugBuild: Boolean
-expect class CommonFlow<T>(flow: Flow<T>)
-
-fun <T> Flow<T>.toCommonFlow() = CommonFlow(this)
 
 expect fun getPlatform(): Platform
