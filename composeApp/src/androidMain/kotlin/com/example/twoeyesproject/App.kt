@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.rememberLifecycleOwner
-import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.arkivanov.decompose.DefaultComponentContext
 import com.example.twoeyesproject.dependency.ApiClient
@@ -38,7 +37,6 @@ private val TwoEyesColorScheme = darkColorScheme(
 fun App(rootComponent: RootComponent) {
     MaterialTheme(colorScheme = TwoEyesColorScheme) {
         AppScaffold(
-            rememberNavController(),
             rootComponent
         )
     }
@@ -65,7 +63,6 @@ private fun AppPreview() {
     }) {
         MaterialTheme(colorScheme = TwoEyesColorScheme) {
             AppScaffold(
-                rememberNavController(),
                 TwoEyesRootComponent(
                     componentContext = DefaultComponentContext(
                         lifecycle = rememberLifecycleOwner().lifecycle

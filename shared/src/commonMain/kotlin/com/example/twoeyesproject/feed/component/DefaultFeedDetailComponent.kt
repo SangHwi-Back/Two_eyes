@@ -33,9 +33,8 @@ class DefaultFeedDetailComponent(
         lifecycle.doOnDestroy { scope.cancel() }
     }
 
-    override fun onBackClick() {
+    override fun onBackClick() =
         onBack()
-    }
 
     override fun onLikeClick() {
         feedItem.value?.let {

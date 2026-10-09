@@ -1,17 +1,22 @@
 package com.example.twoeyesproject.root
 
-import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.example.twoeyesproject.feed.FeedComponent
-import com.example.twoeyesproject.feeddetail.FeedDetailComponent
+import com.example.twoeyesproject.root.feed.FeedTabComponent
+import com.example.twoeyesproject.root.pickimage.PickImageTabComponent
+import com.example.twoeyesproject.root.upload.UploadTabComponent
 import kotlinx.serialization.Serializable
 
 interface RootComponent {
-    val stack : Value<ChildStack<*, Child>>
-    fun onBackClicked()
+    val active : Value<Config>
+    val feedTab: FeedTabComponent
+    val pickImageTab: PickImageTabComponent
+    val uploadTab: UploadTabComponent
+    fun onBackClicked() : Boolean
+    fun onTabButtonClicked(tab: Config)
     sealed interface Child {
-        data class Feed(val component: FeedComponent) : Child
-        data class FeedDetail(val component: FeedDetailComponent) : Child
+        data class Feed(val component: FeedTabComponent) : Child
+        data class PickImage(val component: PickImageTabComponent) : Child
+        data class Upload(val component: UploadTabComponent) : Child
     }
 }
 
@@ -21,5 +26,8 @@ sealed interface Config {
     data object Feed : Config
 
     @Serializable
-    data class FeedDetail(val feedId: String) : Config
+    data object PickImage : Config
+
+    @Serializable
+    data object Upload : Config
 }

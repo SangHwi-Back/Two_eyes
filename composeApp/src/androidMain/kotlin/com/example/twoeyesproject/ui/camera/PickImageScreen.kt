@@ -106,7 +106,7 @@ private fun Modifier.dashedBorder(
 @Composable
 fun PickImageScreen(
     viewModel: PickImageViewModel = viewModel(),
-    onBack: () -> Unit,
+    onBack: () -> Unit = {},
     onNext: (uri1: String, uri2: String) -> Unit,
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
