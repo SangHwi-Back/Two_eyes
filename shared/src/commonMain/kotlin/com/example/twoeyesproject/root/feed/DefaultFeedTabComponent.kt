@@ -31,10 +31,15 @@ class DefaultFeedTabComponent(
                 FeedTabComponent.Child.Feed(DefaultFeedComponent(
                     componentContext = componentContext,
                     onFeedClick = { feedId ->
-                        navigation.push(FeedTabConfig.FeedDetail(feedId))
+                        val target = FeedTabConfig.FeedDetail(feedId)
+                        if (stack.value.items.none { it.configuration == target }) {
+                            navigation.push(target)
+                        }
                     },
                     onSearchClick = {
-                        navigation.push(FeedTabConfig.FeedSearch)
+                        if (stack.value.items.none { it.configuration == FeedTabConfig.FeedSearch }) {
+                            navigation.push(FeedTabConfig.FeedSearch)
+                        }
                     }
                 ))
 

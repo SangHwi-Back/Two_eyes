@@ -1,11 +1,7 @@
 package com.example.twoeyesproject.root.upload
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.stack.ChildStack
-import com.arkivanov.decompose.router.stack.StackNavigation
-import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.example.twoeyesproject.root.TabComponentElement
 import com.example.twoeyesproject.upload.component.DefaultUploadViewComponent
@@ -30,7 +26,10 @@ class DefaultUploadTabComponent(
                     DefaultUploadableListViewComponent(
                         componentContext,
                         onNext = {
-                            navigation.push(UploadTabConfig.UploadView(it))
+                            val target = UploadTabConfig.UploadView(it)
+                            if (stack.value.items.none { it.configuration == target }) {
+                                navigation.push(target)
+                            }
                         }
                     )
                 )

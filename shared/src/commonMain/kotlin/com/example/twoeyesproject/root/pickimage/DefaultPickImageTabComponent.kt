@@ -32,7 +32,10 @@ class DefaultPickImageTabComponent(
                     DefaultDevicePickImageViewComponent(
                         componentContext,
                         onNextClicked = { encoded1, encoded2 ->
-                            navigation.push(PickImageTabConfig.MergeImage(encoded1, encoded2))
+                            val target = PickImageTabConfig.MergeImage(encoded1, encoded2)
+                            if (stack.value.items.none { it.configuration == target }) {
+                                navigation.push(target)
+                            }
                         }
                     )
                 )
