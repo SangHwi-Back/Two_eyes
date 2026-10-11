@@ -14,7 +14,7 @@ struct FeedListView: View {
     
     @State var errorStatus = PresentingErrorState()
     @Environment(\.userData) var userData
-    
+//    @Environment(\.feedTabComponentChild) var stack
     var listData: [FeedItemModel] {
         (viewModel.listData.value as? [FeedItemModel]) ?? []
     }

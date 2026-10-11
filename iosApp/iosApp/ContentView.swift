@@ -31,9 +31,7 @@ struct ContentView: View {
 
             // MARK: Feed
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
-                NavigationStack {
-                    RootView(holder.component)
-                }
+                FeedTabContentView(component: holder.component.feedTab)
             }
 
             // MARK: Camera
