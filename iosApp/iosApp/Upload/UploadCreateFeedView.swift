@@ -10,30 +10,29 @@ import Shared
 import Photos
 
 struct UploadCreateFeedView: View {
-    @Environment(\.apiClient) var apiClient
-    @Environment(\.appConstant) var constant
-    @Environment(\.database) var database
-
-    @State var dto: UploadMergedDTO
     @State var tagTextFieldValue = ""
     @State var tags = [String]()
     @State private var isUploading = false
     @FocusState private var isContentFocused: Bool
+    
+    let component: UploadViewComponent
+    @State var dto: UploadMergedDTO
+    let wrapper: UploadViewModelWrapper
 
-    let entity: MergeResultEntity
-    let viewModel: UploadViewModel
-
-    init(entity: MergeResultEntity, vm: UploadViewModel) {
-        self.entity = entity
-        self.viewModel = vm
+    init(
+        component: UploadViewComponent,
+        wrapper: UploadViewModelWrapper
+    ) {
+        self.component = component
         self.dto = .init(
             imageIds: [
-                entity.resultId,
-                entity.leadingImageId,
-                entity.trailingImageId
+                component.entity.resultId,
+                component.entity.leadingImageId,
+                component.entity.trailingImageId
             ],
             tags: [],
             contents: "")
+        self.wrapper = wrapper
     }
 
     var body: some View {
@@ -274,7 +273,7 @@ struct UploadCreateFeedView: View {
         guard !isUploading else { return }
         isUploading = true
         Task {
-            _ = try? await viewModel.uploadEntity(dto: dto)
+            _ = try? await wrapper.viewModel.uploadEntity(dto: dto)
             // 에러 발생 시 AppErrorBus 가 앱 루트에서 알럿으로 표시
             self.isUploading = false
         }

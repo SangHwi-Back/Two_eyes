@@ -3,11 +3,9 @@ import Shared
 
 struct FeedDetailContentView: View {
     @State private var wrapper: FeedDetailComponentWrapper
-    @Binding private var stack: ChildStack<AnyObject, any FeedTabComponentChild>
 
-    init(component: FeedDetailComponent, stack: Binding<ChildStack<AnyObject, any FeedTabComponentChild>>) {
+    init(component: FeedDetailComponent) {
         _wrapper = State(initialValue: FeedDetailComponentWrapper(component: component))
-        _stack = stack
     }
 
     var body: some View {

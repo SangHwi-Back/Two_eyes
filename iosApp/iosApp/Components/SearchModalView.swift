@@ -26,8 +26,8 @@ struct SearchModalView: View {
         (viewModel.isLoading.value as? Bool) ?? false
     }
     
-    init(tabSelection: TabSelection, apiClient: ApiClient) {
-        self._tabSelection = Binding.constant(tabSelection)
+    init(tabSelection: Binding<TabSelection>, apiClient: ApiClient) {
+        self._tabSelection = tabSelection
         self.viewModel = FeedSearchViewModel(apiClient: apiClient)
     }
     
@@ -132,9 +132,15 @@ struct SearchModalView: View {
         HStack(spacing: 12) {
             // 리퀴드 글래스 버튼 그룹
             HStack(spacing: 0) {
-                SearchNavButton(icon: "text.below.photo") { requestSwitch(to: .feed) }
-                SearchNavButton(icon: "camera")           { requestSwitch(to: .camera) }
-                SearchNavButton(icon: "square.and.arrow.up") { requestSwitch(to: .upload) }
+                SearchNavButton(icon: "text.below.photo") {
+                    requestSwitch(to: .feed)
+                }
+                SearchNavButton(icon: "camera") {
+                    requestSwitch(to: .camera)
+                }
+                SearchNavButton(icon: "square.and.arrow.up") {
+                    requestSwitch(to: .upload)
+                }
             }
             .glassEffect(in: Capsule())
             
@@ -183,6 +189,11 @@ struct SearchModalView: View {
                     }
                 }
             }
+            
+            SearchNavButton(icon: "xmark") {
+                tabSelection = .feed
+            }
+            .glassEffect(in: Circle())
         }
     }
     

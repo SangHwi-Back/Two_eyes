@@ -22,19 +22,11 @@ enum UploadableListViewType { case small, large }
 enum UploadViewTapType { case delete, list }
 
 struct UploadView: View {
-    @EnvironmentObject var navHost: NavigationPathObject<NavHost.Upload>
-    
+    let component: UploadableListViewComponent
+    @State var wrapper: UploadViewModelWrapper
     @State var listType = UploadableListViewType.small
-    @State private var wrapper: UploadViewModelWrapper
     @State private var photoAuthStatus: PHAuthorizationStatus =
         PHPhotoLibrary.authorizationStatus(for: .readWrite)
-    
-    init(database: AppDatabase, client: ApiClient) {
-        _wrapper = State(wrappedValue: UploadViewModelWrapper(
-            db: database,
-            client: client
-        ))
-    }
     
     var body: some View {
         Group {
@@ -200,7 +192,7 @@ struct UploadView: View {
         case .delete:
             wrapper.deleteEntity(entity)
         case .list:
-            navHost.push(to: .upload(entity, wrapper.viewModel))
+            component.onNextClicked(entity: entity)
         }
     }
 }

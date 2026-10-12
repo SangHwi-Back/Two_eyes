@@ -20,13 +20,11 @@ struct FeedTabContentView: View {
         let stackValue = StateValue(component.stack)
         _stack = stackValue
         
-//        let feedChild = component.stack.value.active.instance as? FeedTabComponentChildFeed
-        let items = component.stack.value.items
-        let feedChild = items.compactMap {
+        let feedItems = component.stack.value.items.compactMap {
             $0.instance as? FeedTabComponentChildFeed
-        }.first
+        }
         
-        guard let feedChild else {
+        guard let feedChild = feedItems.first else {
             fatalError("FeedTabComponent의 초기 active child는 항상 Feed여야 합니다.")
         }
         
@@ -66,9 +64,9 @@ struct FeedTabContentView: View {
                 .navigationDestination(for: FeedTabPathElement.self) { element in
                     switch element {
                     case .detail(_, let component):
-                        FeedDetailContentView(component: component, stack: $stack)
+                        FeedDetailContentView(component: component)
                     case .search(_, let component):
-                        FeedSearchContentView(component: component, stack: $stack)
+                        FeedSearchContentView(component: component)
                     }
                 }
         }

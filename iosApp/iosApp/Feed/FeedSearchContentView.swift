@@ -15,11 +15,8 @@ struct FeedSearchContentView: View {
     @State private var searchResults: [String] = []
     @State private var featuredResults: [String] = []
     
-    @Binding private var stack: ChildStack<AnyObject, any FeedTabComponentChild>
-    
-    init(component: FeedSearchComponent, stack: Binding<ChildStack<AnyObject, any FeedTabComponentChild>>) {
+    init(component: FeedSearchComponent) {
         _wrapper = State(initialValue: FeedSearchComponentWrapper(component: component))
-        _stack = stack
     }
     
     var body: some View {

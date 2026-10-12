@@ -12,79 +12,98 @@ class ComponentHolder: ObservableObject {
 }
 
 struct ContentView: View {
-    @Environment(\.database) var database
     @Environment(\.apiClient) var apiClient
     @Environment(\.userData) var userData
-
-    @State var tabSelection: TabSelection = .feed
+    
+    @State private var isSearching = false
     @State private var showLogin = false
     @Environment(\.rootViewController) var rootViewController: UIViewController
     @Environment(\.applyNavigationBarAppearance) var applyNavigationBarAppearance
-
-    @StateObject var cameraPath = NavigationPathObject(path: [NavHost.Camera]())
-    @StateObject var uploadPath = NavigationPathObject(path: [NavHost.Upload]())
     
     @StateObject var holder = ComponentHolder()
-
+    
+    /// Decompose의 Config(Feed/PickImage/Upload)와 iOS 로컬 상태인 Search를 합쳐서
+    /// TabView가 요구하는 단일 Hashable selection으로 노출하는 바인딩.
+    /// Search는 Decompose가 모르는, iOS 전용 풀스크린 모달이라 여기서만 관리한다.
+    private var active: Binding<TabSelection> {
+        Binding {
+            getTabSelection()
+        } set: { newValue in
+            if setSearching(from: newValue) {
+                return
+            }
+            onTabButtonClicked(from: newValue)
+        }
+    }
+    
+    private func getTabSelection() -> TabSelection {
+        if isSearching {
+            return .search
+        }
+        switch holder.component.active.value {
+        case is ConfigPickImage:
+            return .camera
+        case is ConfigUpload:
+            return .upload
+        default:
+            return .feed
+        }
+    }
+    
+    private func setSearching(from tab: TabSelection) -> Bool {
+        isSearching = tab == .search
+        return isSearching
+    }
+    
+    private func onTabButtonClicked(from tab: TabSelection) {
+        switch tab {
+        case .feed:
+            holder.component.onTabButtonClicked(tab: ConfigFeed())
+        case .camera:
+            holder.component.onTabButtonClicked(tab: ConfigPickImage())
+        case .upload:
+            holder.component.onTabButtonClicked(tab: ConfigUpload())
+        case .search:
+            return
+        }
+    }
+    
+    var toolBarVisibility: Visibility {
+        isSearching ? .hidden : .automatic
+    }
+    
     var body: some View {
-        TabView(selection: $tabSelection) {
-
+        TabView(selection: active) {
             // MARK: Feed
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
                 FeedTabContentView(component: holder.component.feedTab)
             }
-
             // MARK: Camera
             Tab("Camera", systemImage: "camera", value: .camera) {
-                NavigationStack(path: $cameraPath.path) {
-                    PickImageView()
-                        .navigationDestination(for: NavHost.Camera.self) { route in
-                            switch route {
-                            case .main:
-                                PickImageView()
-                            case .merge(let leading, let trailing):
-                                PickImageMergeView(model: .init(leading: leading, trailing: trailing))
-                            }
-                        }
-                }
-                .environmentObject(cameraPath)
+                PickImageTabContentView(component: holder.component.pickImageTab)
             }
             // MARK: Upload
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
-                NavigationStack(path: $uploadPath.path) {
-                    UploadView(database: database, client: apiClient)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { loginToolbarButton }
-                        .navigationDestination(for: NavHost.Upload.self) { route in
-                            switch route {
-                            case .main(let database):
-                                UploadView(
-                                    database: database,
-                                    client: apiClient
-                                )
-                            case .upload(let entity, let vm):
-                                UploadCreateFeedView(entity: entity, vm: vm)
-                            }
-                        }
-                }
-                .environmentObject(uploadPath)
+                UploadTabContentView(component: holder.component.uploadTab)
             }
-
             // MARK: Search
-            if tabSelection == .feed || tabSelection == .search {
+            if active.wrappedValue == .feed || isSearching {
                 Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
                     EmptyView()
                 }
             }
         }
-        .toolbarVisibility(tabSelection == .search ? .hidden : .automatic, for: .tabBar)
-        .fullScreenCover(isPresented: Binding(
-            get: { tabSelection == .search },
-            set: { _ in }
-        )) {
+        .toolbarVisibility(toolBarVisibility, for: .tabBar)
+        .fullScreenCover(isPresented: $isSearching) {
             SearchModalView(
-                tabSelection: tabSelection,
-                apiClient: apiClient)
+                tabSelection: Binding<TabSelection>(get: {
+                    getTabSelection()
+                }, set: { newValue in
+                    active.wrappedValue = newValue
+                    isSearching = newValue == .search
+                }),
+                apiClient: apiClient
+            )
         }
         .task {
             applyNavigationBarAppearance()

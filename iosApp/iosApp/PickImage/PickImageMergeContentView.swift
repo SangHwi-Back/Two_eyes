@@ -1,5 +1,5 @@
 //
-//  PickImageMergeView.swift
+//  PickImageMergeContentView.swift
 //  iosApp
 //
 //  Created by SangHwiBack on 4/13/26.
@@ -9,7 +9,8 @@ import SwiftUI
 import Photos
 import Shared
 
-struct PickImageMergeView: View {
+struct PickImageMergeContentView: View {
+    let component: MergeImageViewComponent
     // @Observable 클래스는 @State 로 관리해야 부모 뷰 재생성 시 재초기화되지 않음
     @State private var wrapper: PickImageMergeViewModelWrapper
 
@@ -17,7 +18,6 @@ struct PickImageMergeView: View {
     /// 0 = 왼쪽(leading), 1 = 오른쪽(trailing)
     @State private var selectedImageTab = 0
 
-    @EnvironmentObject var navHost: NavigationPathObject<NavHost.Camera>
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
     
@@ -26,7 +26,11 @@ struct PickImageMergeView: View {
     let leadingSource:  PHAsset
     let trailingSource: PHAsset
 
-    init(model: PickImageMergeModel) {
+    init(component: MergeImageViewComponent) {
+        self.component = component
+        let leading = PHAsset.fetchAssets(withLocalIdentifiers: [component.encoded1], options: nil).firstObject!
+        let trailing = PHAsset.fetchAssets(withLocalIdentifiers: [component.encoded2], options: nil).firstObject!
+        let model = PickImageMergeModel.init(leading: leading, trailing: trailing)
         let wrapper = PickImageMergeViewModelWrapper(model: model)
         self._wrapper = State(initialValue: wrapper)
         self.leadingSource  = model.leading
@@ -108,7 +112,6 @@ struct PickImageMergeView: View {
                     leadingFilter:  wrapper.leadingState.filter,
                     trailingFilter: wrapper.trailingState.filter,
                     onFilterChange: {
-                        let isLeading = selectedImageTab == 0
                         wrapper.setLeadingStateValue(.filter($0))
                     }
                 )
@@ -147,7 +150,7 @@ struct PickImageMergeView: View {
                     GlassIconButton(systemName: "checkmark.circle") {
                         let isSuccess = wrapper.mergeDone(dao: dao)
                         if isSuccess {
-                            navHost.popToRoot()
+                            component.onConfirmClicked()
                         } else {
                             mergeDoneAlert = true
                         }

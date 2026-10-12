@@ -37,6 +37,7 @@ class DefaultUploadTabComponent(
                 UploadTabComponent.Child.UploadView(
                     DefaultUploadViewComponent(
                         componentContext,
+                        entity = config.entity,
                         onBack = {
                             navigation.pop()
                         }
