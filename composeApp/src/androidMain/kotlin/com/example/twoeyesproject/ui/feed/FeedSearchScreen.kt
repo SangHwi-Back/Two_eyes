@@ -1,4 +1,4 @@
-package com.example.twoeyesproject
+package com.example.twoeyesproject.ui.feed
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,21 +22,27 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.rememberLifecycleOwner
 import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.arkivanov.decompose.DefaultComponentContext
+import com.example.twoeyesproject.AppConstants
+import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.dependency.ApiClient
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedSearchViewModel
+import com.example.twoeyesproject.feed.component.DefaultFeedSearchComponent
+import com.example.twoeyesproject.feed.component.FeedSearchComponent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedSearchScreen(
-    onBackButtonClick: () -> Unit = {},
+    component: FeedSearchComponent,
+    viewModel: FeedSearchViewModel = koinViewModel(),
     topAppBarDataChange: (TopAppBarData) -> Unit,
-    viewModel: FeedSearchViewModel = koinViewModel()
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -72,7 +78,7 @@ fun FeedSearchScreen(
                 leadingIcon = {
                     IconButton(onClick = {
                         if (query.isEmpty())
-                            onBackButtonClick()
+                            component.onBackClick()
                         else
                             query = ""
 
@@ -159,8 +165,13 @@ fun FeedSearchResultViewFrom(item: FeedItemModel, onClick: () -> Unit) {
 @Composable
 fun FeedSearchScreenPreview() {
     FeedSearchScreen(
-        onBackButtonClick = {},
-        topAppBarDataChange = {},
-        viewModel = FeedSearchViewModel(ApiClient())
+        component = DefaultFeedSearchComponent(
+            DefaultComponentContext(
+                lifecycle = rememberLifecycleOwner().lifecycle
+            ),
+            onBack = {}
+        ),
+        viewModel = FeedSearchViewModel(ApiClient()),
+        topAppBarDataChange = {}
     )
 }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.example.twoeyesproject.TopAppBarData
-import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.root.upload.UploadTabComponent
 import com.example.twoeyesproject.ui.upload.UploadCreateFeedScreen
 import com.example.twoeyesproject.ui.upload.UploadScreen
@@ -18,21 +17,12 @@ fun UploadTabContent(
     when (val instance = stack.active.instance) {
         is UploadTabComponent.Child.UploadableListView ->
             UploadScreen(
-                onNext = {
-                    instance.component.onNextClicked(it)
-                },
+                instance.component,
                 topAppBarDataChange = topAppBarDataChange
             )
         is UploadTabComponent.Child.UploadView ->
             UploadCreateFeedScreen(
-                entity = MergeResultEntity(
-                    resultId = "",
-                    leadingImageId = "",
-                    trailingImageId = "",
-                    name = null,
-                    date = "",
-                    isUploaded = false,
-                ),
+                instance.component,
                 topAppBarDataChange = topAppBarDataChange
             )
     }

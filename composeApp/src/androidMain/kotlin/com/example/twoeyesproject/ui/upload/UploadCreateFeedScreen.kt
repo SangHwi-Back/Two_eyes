@@ -4,6 +4,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,16 +19,16 @@ import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.TopAppBarBackButton
 import com.example.twoeyesproject.TopAppBarData
-import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.dependency.UploadMergedDTO
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.upload.UploadViewModel
+import com.example.twoeyesproject.upload.component.UploadViewComponent
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun UploadCreateFeedScreen(
+    component: UploadViewComponent,
     viewModel: UploadViewModel = koinViewModel(),
-    entity: MergeResultEntity,
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val scrollState = rememberScrollState()
@@ -35,7 +37,9 @@ fun UploadCreateFeedScreen(
     var dto by remember {
         mutableStateOf(
             UploadMergedDTO(
-                listOf(entity.leadingImageId, entity.trailingImageId, entity.resultId),
+                component.entity.let {
+                    listOf(it.leadingImageId, it.trailingImageId, it.resultId)
+                },
                 mutableListOf(),
                 ""
             )
@@ -67,7 +71,7 @@ fun UploadCreateFeedScreen(
             Text("합성 결과", color = Color.White, modifier = Modifier.fillMaxWidth(0.3f))
 
             AsyncImage(
-                model = entity.resultId,
+                model = component.entity.resultId,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -85,7 +89,7 @@ fun UploadCreateFeedScreen(
                 Row {
                     Spacer(modifier = Modifier.width(20.dp))
                     AsyncImage(
-                        model = entity.leadingImageId,
+                        model = component.entity.leadingImageId,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(200.dp)
@@ -102,7 +106,7 @@ fun UploadCreateFeedScreen(
                 Row {
                     Spacer(modifier = Modifier.width(20.dp))
                     AsyncImage(
-                        model = entity.trailingImageId,
+                        model = component.entity.trailingImageId,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(200.dp)
@@ -111,7 +115,7 @@ fun UploadCreateFeedScreen(
             }
         }
 
-        SectionHeader("내용", Icons.Outlined.Notes, Color(AppColors.TextSecondary))
+        SectionHeader("내용", Icons.AutoMirrored.Outlined.Notes, Color(AppColors.TextSecondary))
         OutlinedTextField(
             value = dto.contents,
             onValueChange = { dto = dto.copy(contents = it) },
@@ -122,7 +126,7 @@ fun UploadCreateFeedScreen(
                 .fillMaxWidth(1f)
         )
 
-        SectionHeader("태그", Icons.Outlined.Label, Color(AppColors.TextSecondary))
+        SectionHeader("태그", Icons.AutoMirrored.Outlined.Label, Color(AppColors.TextSecondary))
         OutlinedTextField(
             value = tagText,
             onValueChange = { tagText = it },

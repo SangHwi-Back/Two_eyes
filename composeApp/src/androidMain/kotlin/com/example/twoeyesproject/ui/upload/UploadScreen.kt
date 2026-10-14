@@ -1,17 +1,13 @@
 package com.example.twoeyesproject.ui.upload
 
 import android.net.Uri
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
@@ -29,15 +25,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.rememberLifecycleOwner
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.arkivanov.decompose.DefaultComponentContext
 import com.example.twoeyesproject.AppConstants
 import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.dependency.MergeResultEntity
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.upload.UploadViewModel
+import com.example.twoeyesproject.upload.component.DefaultUploadableListViewComponent
+import com.example.twoeyesproject.upload.component.UploadableListViewComponent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -56,8 +56,8 @@ enum class UploadListType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadScreen(
+    component: UploadableListViewComponent,
     viewModel: UploadViewModel = koinViewModel(),
-    onNext: (MergeResultEntity) -> Unit,
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val entities by viewModel.mergeEntities.collectAsStateWithLifecycle()
@@ -71,7 +71,9 @@ fun UploadScreen(
                     viewModel.deleteEntity(entity)
                 }
             }
-            UploadListTapType.LIST -> onNext(entity)
+            UploadListTapType.LIST -> {
+                component.onNextClicked(entity)
+            }
         }
     }
 
@@ -227,6 +229,12 @@ private fun ImageSlot(
 @Composable
 fun UploadScreenPreview() {
     UploadScreen(
+        component = DefaultUploadableListViewComponent(
+            componentContext = DefaultComponentContext(
+                lifecycle = rememberLifecycleOwner().lifecycle
+            ),
+            onNext = {}
+        ),
         viewModel = koinViewModel<UploadViewModel>().apply {
             mergeEntities = dao.getAllAsFlow().stateIn(
                 scope = viewModelScope,
@@ -236,6 +244,5 @@ fun UploadScreenPreview() {
                 )
             )
         },
-        onNext = {}
     )
 }

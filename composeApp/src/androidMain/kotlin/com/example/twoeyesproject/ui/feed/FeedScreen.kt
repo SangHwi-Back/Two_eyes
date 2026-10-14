@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.design.AppColors
+import com.example.twoeyesproject.feed.FeedComponent
 import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
@@ -64,8 +65,7 @@ enum class FeedScreenTapType {
 @Composable
 fun FeedScreen(
     viewModel: FeedListViewModel = koinViewModel(),
-    onFeedClick: (FeedItemModel) -> Unit,
-    onSearchClick: () -> Unit = {},
+    component: FeedComponent,
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
@@ -81,16 +81,14 @@ fun FeedScreen(
 
     SideEffect {
         topAppBarDataChange?.invoke(TopAppBarData("", {
-            IconButton(onClick = onSearchClick) {
+            IconButton(onClick = { component.onSearchClick() }) {
                 Icon(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = "검색",
                 )
             }
             IconButton(
-                onClick = {
-                    // 로그인됐을 때는 추후 프로필 화면 구현 시 분기
-                }
+                onClick = { component.onSearchClick() }
             ) {
                 Box(contentAlignment = Alignment.TopEnd) {
                     Icon(
@@ -122,7 +120,9 @@ fun FeedScreen(
                         FeedScreenTapType.LIKE -> viewModel.updateLike(true, "")
                         FeedScreenTapType.COMMENT -> viewModel.updateLike(true, "")
                         FeedScreenTapType.SHARE -> viewModel.updateLike(true, "")
-                        else -> onFeedClick(item)
+                        else -> {
+                            component.onFeedClick(item.feedId)
+                        }
                     }
                 }
             })
