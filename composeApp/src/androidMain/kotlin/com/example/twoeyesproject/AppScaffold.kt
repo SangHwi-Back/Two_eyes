@@ -111,9 +111,21 @@ fun AppScaffold(rootComponent: RootComponent) {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (activeTab) {
-                Config.Feed -> FeedTabContent(rootComponent.feedTab)
-                Config.Upload -> UploadTabContent(rootComponent.uploadTab)
-                Config.PickImage -> PickImageTabContent(rootComponent.pickImageTab)
+                Config.Feed -> FeedTabContent(
+                    rootComponent.feedTab,
+                    topAppBarDataChange = {
+                        topAppBarData = it
+                    })
+                Config.Upload -> UploadTabContent(
+                    rootComponent.uploadTab,
+                    topAppBarDataChange = {
+                        topAppBarData = it
+                    })
+                Config.PickImage -> PickImageTabContent(
+                    rootComponent.pickImageTab,
+                    topAppBarDataChange = {
+                        topAppBarData = it
+                    })
             }
         }
     }

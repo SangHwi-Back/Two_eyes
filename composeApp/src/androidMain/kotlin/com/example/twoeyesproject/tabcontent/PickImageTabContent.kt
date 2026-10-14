@@ -4,13 +4,15 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.root.pickimage.PickImageTabComponent
 import com.example.twoeyesproject.ui.camera.PickImageMergeScreen
 import com.example.twoeyesproject.ui.camera.PickImageScreen
 
 @Composable
 fun PickImageTabContent(
-    component: PickImageTabComponent
+    component: PickImageTabComponent,
+    topAppBarDataChange: (TopAppBarData) -> Unit = {},
 ) {
     val stack by component.stack.subscribeAsState()
     when (val instance = stack.active.instance) {
@@ -21,7 +23,7 @@ fun PickImageTabContent(
                     val encoded2 = Uri.encode(uri2)
                     instance.component.onNext(encoded1, encoded2)
                 },
-                topAppBarDataChange = {  }
+                topAppBarDataChange = topAppBarDataChange
             )
         is PickImageTabComponent.Child.MergeImageView -> {
             PickImageMergeScreen(
