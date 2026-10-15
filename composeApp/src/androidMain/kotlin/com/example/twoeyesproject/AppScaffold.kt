@@ -44,6 +44,7 @@ fun AppScaffold(rootComponent: RootComponent) {
     // 피드·업로드 화면에서만 AppBar / BottomBar / FAB 표시
     // 단, 피드 탭 안에서 Decompose가 FeedDetail로 전환된 상태라면 chrome을 숨긴다.
     val activeTab by rootComponent.active.subscribeAsState()
+    val overlayScreen by rootComponent.overlayScreen.subscribeAsState()
 
     // 앱 시작 시 저장된 토큰으로 로그인 상태 확인
     LaunchedEffect(Unit) {
@@ -112,7 +113,7 @@ fun AppScaffold(rootComponent: RootComponent) {
         Box(modifier = Modifier.padding(innerPadding)) {
             when (activeTab) {
                 Config.Feed -> FeedTabContent(
-                    rootComponent.feedTab,
+                    rootComponent,
                     topAppBarDataChange = {
                         topAppBarData = it
                     })
@@ -127,6 +128,25 @@ fun AppScaffold(rootComponent: RootComponent) {
                         topAppBarData = it
                     })
             }
+
+            when (val overlay = overlayScreen) {
+                is RootComponent.Overlay.None ->
+                    Unit
+                is RootComponent.Overlay.Login -> {
+                    val screenHeight = LocalWindowInfo.current.containerDpSize.height
+                    ModalBottomSheet(
+                        onDismissRequest = { loginStatus.showLoginSheet = false },
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                    ) {
+                        LoginScreen(
+                            component = overlay.component,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(screenHeight / 2),
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -140,24 +160,5 @@ fun AppScaffold(rootComponent: RootComponent) {
                 TextButton(onClick = { AppErrorBus.clear() }) { Text("확인") }
             }
         )
-    }
-
-    // 로그인 바텀 시트 — 화면 절반 높이
-    if (loginStatus.showLoginSheet) {
-        val screenHeight = LocalWindowInfo.current.containerDpSize.height
-        ModalBottomSheet(
-            onDismissRequest = { loginStatus.showLoginSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        ) {
-            LoginScreen(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(screenHeight / 2),
-                onLoginSuccess = {
-                    loginStatus.isLoggedIn = true
-                    loginStatus.showLoginSheet = false
-                }
-            )
-        }
     }
 }

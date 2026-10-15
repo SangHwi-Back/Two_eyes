@@ -55,6 +55,7 @@ import com.example.twoeyesproject.feed.FeedItemModel
 import com.example.twoeyesproject.feed.FeedListViewModel
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
+import com.example.twoeyesproject.root.RootComponent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -66,6 +67,7 @@ enum class FeedScreenTapType {
 fun FeedScreen(
     viewModel: FeedListViewModel = koinViewModel(),
     component: FeedComponent,
+    onTapShowLogin: () -> Unit,
     topAppBarDataChange: ((TopAppBarData) -> Unit)? = null,
 ) {
     val items by viewModel.listData.collectAsStateWithLifecycle()
@@ -88,7 +90,7 @@ fun FeedScreen(
                 )
             }
             IconButton(
-                onClick = { component.onSearchClick() }
+                onClick = { onTapShowLogin() }
             ) {
                 Box(contentAlignment = Alignment.TopEnd) {
                     Icon(

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.example.twoeyesproject.component.LoginComponent
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.SecureUserData
@@ -46,8 +47,8 @@ import com.example.twoeyesproject.platformspecific.putGoogleUserData
 @SuppressLint("NewApi")
 @Composable
 fun LoginScreen(
+    component: LoginComponent,
     modifier: Modifier = Modifier,
-    onLoginSuccess: () -> Unit = {},
 ) {
     val activity: Activity = LocalActivity.current!!
 
@@ -62,9 +63,9 @@ fun LoginScreen(
 
     // 로그인 성공 → 화면 전환
     LaunchedEffect(userData) {
-        if (userData != null) {
+        userData?.let { data ->
             isLoading = false
-            onLoginSuccess()
+            component.onConfirm(data)
         }
     }
 
@@ -72,7 +73,8 @@ fun LoginScreen(
     LaunchedEffect(errorStatus) {
         val status = errorStatus ?: return@LaunchedEffect
         isLoading = false
-        snackBarHostState.showSnackbar("로그인 중 오류가 발생했습니다. ${status.description}")
+        val error = UserFacingError(title = "로그인 오류", message = status.description)
+        AppErrorBus.post(error)
     }
 
     // 앱 시작 시 이미 로그인한 경우 자동으로 계정 선택 시도
@@ -82,7 +84,7 @@ fun LoginScreen(
             (viewModel.googleCheckState(BuildConfig.GIS_CLIENT_ID) as? LoginStatusCheckResult.Authorized)?.let {
                 (it.userInfo as? SecureUserData.GoogleUserData)?.let { googleUserData ->
                     viewModel.storage.putGoogleUserData(googleUserData)
-                    onLoginSuccess()
+                    component.onConfirm(googleUserData)
                 }
             }
         } catch (_: GetCredentialCancellationException) {
