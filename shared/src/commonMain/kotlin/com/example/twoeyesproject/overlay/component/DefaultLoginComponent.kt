@@ -1,4 +1,4 @@
-package com.example.twoeyesproject.component
+package com.example.twoeyesproject.overlay.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.example.twoeyesproject.platformspecific.SecureUserData
@@ -11,7 +11,6 @@ class DefaultLoginComponent(
     override fun onConfirm(userData: SecureUserData) {
         onConfirmed(userData)
     }
-
     override fun onCancel() {
         onCanceled()
     }

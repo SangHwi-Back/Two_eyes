@@ -1,4 +1,4 @@
-package com.example.twoeyesproject.component
+package com.example.twoeyesproject.overlay.component
 
 import com.example.twoeyesproject.platformspecific.SecureUserData
 

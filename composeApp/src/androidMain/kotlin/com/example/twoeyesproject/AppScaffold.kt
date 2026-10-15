@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.di.AppLoginStatus
+import com.example.twoeyesproject.overlay.OverlayComponent
 import com.example.twoeyesproject.platformspecific.PlatformSecureStorage
 import com.example.twoeyesproject.platformspecific.getGoogleUserData
 import com.example.twoeyesproject.root.Config
@@ -44,7 +45,7 @@ fun AppScaffold(rootComponent: RootComponent) {
     // 피드·업로드 화면에서만 AppBar / BottomBar / FAB 표시
     // 단, 피드 탭 안에서 Decompose가 FeedDetail로 전환된 상태라면 chrome을 숨긴다.
     val activeTab by rootComponent.active.subscribeAsState()
-    val overlayScreen by rootComponent.overlayScreen.subscribeAsState()
+    val overlaySlot by rootComponent.overlayComponent.slot.subscribeAsState()
 
     // 앱 시작 시 저장된 토큰으로 로그인 상태 확인
     LaunchedEffect(Unit) {
@@ -129,23 +130,23 @@ fun AppScaffold(rootComponent: RootComponent) {
                     })
             }
 
-            when (val overlay = overlayScreen) {
-                is RootComponent.Overlay.None ->
-                    Unit
-                is RootComponent.Overlay.Login -> {
+            when (val slot = overlaySlot.child?.instance) {
+                is OverlayComponent.OverlaySlot.Login -> {
                     val screenHeight = LocalWindowInfo.current.containerDpSize.height
                     ModalBottomSheet(
-                        onDismissRequest = { loginStatus.showLoginSheet = false },
+                        onDismissRequest = { slot.component.onCancel() },
                         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                     ) {
                         LoginScreen(
-                            component = overlay.component,
+                            component = slot.component,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(screenHeight / 2),
+                            onLoginSuccess = { loginStatus.isLoggedIn = true },
                         )
                     }
                 }
+                null -> Unit
             }
         }
     }

@@ -21,7 +21,7 @@ fun FeedTabContent(
             FeedScreen(
                 component = instance.component,
                 onTapShowLogin = {
-                    rootComponent.showLogin()
+                    rootComponent.overlayComponent.showLogin()
                 },
                 topAppBarDataChange = topAppBarDataChange
             )

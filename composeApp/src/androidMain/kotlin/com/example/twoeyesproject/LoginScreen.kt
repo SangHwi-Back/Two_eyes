@@ -38,7 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import com.example.twoeyesproject.component.LoginComponent
+import com.example.twoeyesproject.overlay.component.LoginComponent
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.platformspecific.LoginStatusCheckResult
 import com.example.twoeyesproject.platformspecific.SecureUserData
@@ -49,6 +49,7 @@ import com.example.twoeyesproject.platformspecific.putGoogleUserData
 fun LoginScreen(
     component: LoginComponent,
     modifier: Modifier = Modifier,
+    onLoginSuccess: () -> Unit = {},
 ) {
     val activity: Activity = LocalActivity.current!!
 
@@ -65,6 +66,7 @@ fun LoginScreen(
     LaunchedEffect(userData) {
         userData?.let { data ->
             isLoading = false
+            onLoginSuccess()
             component.onConfirm(data)
         }
     }
@@ -84,6 +86,7 @@ fun LoginScreen(
             (viewModel.googleCheckState(BuildConfig.GIS_CLIENT_ID) as? LoginStatusCheckResult.Authorized)?.let {
                 (it.userInfo as? SecureUserData.GoogleUserData)?.let { googleUserData ->
                     viewModel.storage.putGoogleUserData(googleUserData)
+                    onLoginSuccess()
                     component.onConfirm(googleUserData)
                 }
             }
