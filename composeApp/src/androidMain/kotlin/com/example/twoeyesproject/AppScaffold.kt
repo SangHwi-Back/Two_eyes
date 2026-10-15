@@ -71,7 +71,7 @@ fun AppScaffold(rootComponent: RootComponent) {
                     colors = navigationBarItemColors,
                     selected = activeTab == Config.Feed,
                     onClick = {
-                        rootComponent.onTabButtonClicked(Config.Feed)
+                        rootComponent.onTabButtonClicked(Config.Feed, true)
                     },
                     icon = { Icon(Icons.Default.Home, contentDescription = "피드") },
                     label = { Text("피드") }
@@ -80,7 +80,7 @@ fun AppScaffold(rootComponent: RootComponent) {
                     colors = navigationBarItemColors,
                     selected = activeTab == Config.Upload,
                     onClick = {
-                        rootComponent.onTabButtonClicked(Config.Upload)
+                        rootComponent.onTabButtonClicked(Config.Upload, true)
                     },
                     icon = { Icon(Icons.Default.Upload, contentDescription = "업로드") },
                     label = { Text("업로드") }
@@ -98,7 +98,7 @@ fun AppScaffold(rootComponent: RootComponent) {
                     .background(Color(AppColors.Surface2), shape)
                     .border(1.5.dp, Color.White, shape)
                     .clickable {
-                        rootComponent.onTabButtonClicked(Config.PickImage)
+                        rootComponent.onTabButtonClicked(Config.PickImage, false)
                     }
             ) {
                 Icon(

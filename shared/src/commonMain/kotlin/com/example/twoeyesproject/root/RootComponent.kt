@@ -12,7 +12,7 @@ interface RootComponent {
     val pickImageTab: PickImageTabComponent
     val uploadTab: UploadTabComponent
     fun onBackClicked() : Boolean
-    fun onTabButtonClicked(tab: Config)
+    fun onTabButtonClicked(tab: Config, goBackWhenSameTab: Boolean)
     sealed interface Child {
         data class Feed(val component: FeedTabComponent) : Child
         data class PickImage(val component: PickImageTabComponent) : Child

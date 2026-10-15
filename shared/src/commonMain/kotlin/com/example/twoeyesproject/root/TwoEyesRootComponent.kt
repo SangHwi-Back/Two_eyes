@@ -39,7 +39,10 @@ class TwoEyesRootComponent(
             Config.Upload -> uploadTab.onBackClicked()
         }
 
-    override fun onTabButtonClicked(tab: Config) {
-        _activeTab.value = tab
+    override fun onTabButtonClicked(tab: Config, goBackWhenSameTab: Boolean) {
+        if (goBackWhenSameTab && tab == _activeTab.value)
+            onBackClicked()
+        else
+            _activeTab.value = tab
     }
 }
