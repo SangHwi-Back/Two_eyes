@@ -10,12 +10,14 @@ import Shared
 struct FeedTabContentView: View {
     private let component: FeedTabComponent
     private let feedComponent: FeedComponent
-    
+    @Binding var showLogin: Bool
+
     @StateValue var stack: ChildStack<AnyObject, any FeedTabComponentChild>
-    
+
     var detail: FeedDetailComponent?
-    
-    init(component: FeedTabComponent) {
+
+    init(component: FeedTabComponent, showLogin: Binding<Bool>) {
+        self._showLogin = showLogin
         self.component = component
         let stackValue = StateValue(component.stack)
         _stack = stackValue
@@ -61,6 +63,7 @@ struct FeedTabContentView: View {
     var body: some View {
         NavigationStack(path: pathBinding) {
             FeedContentView(component: feedComponent)
+                .toolbar { LoginToolbarItem(showLogin: $showLogin) }
                 .navigationDestination(for: FeedTabPathElement.self) { element in
                     switch element {
                     case .detail(_, let component):

@@ -10,10 +10,12 @@ import Shared
 struct PickImageTabContentView: View {
     let component: PickImageTabComponent
     let pickImageComponent: DevicePickImageViewComponent
-    
+    @Binding var showLogin: Bool
+
     @StateValue var stack: ChildStack<AnyObject, any PickImageTabComponentChild>
-    
-    init(component: PickImageTabComponent) {
+
+    init(component: PickImageTabComponent, showLogin: Binding<Bool>) {
+        self._showLogin = showLogin
         self.component = component
         let stackValue = StateValue(component.stack)
         _stack = stackValue
@@ -55,6 +57,7 @@ struct PickImageTabContentView: View {
     var body: some View {
         NavigationStack(path: pathBinding) {
             PickDeviceImageContentView(component: pickImageComponent)
+                .toolbar { LoginToolbarItem(showLogin: $showLogin) }
                 .navigationDestination(for: PickImageTabPathElement.self) { element in
                     switch element {
                     case .merge(_, let component):

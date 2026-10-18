@@ -75,15 +75,18 @@ struct ContentView: View {
         TabView(selection: active) {
             // MARK: Feed
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
-                FeedTabContentView(component: holder.component.feedTab)
+                FeedTabContentView(component: holder.component.feedTab,
+                                   showLogin: $showLogin)
             }
             // MARK: Camera
             Tab("Camera", systemImage: "camera", value: .camera) {
-                PickImageTabContentView(component: holder.component.pickImageTab)
+                PickImageTabContentView(component: holder.component.pickImageTab,
+                                        showLogin: $showLogin)
             }
             // MARK: Upload
             Tab("Upload", systemImage: "square.and.arrow.up", value: .upload) {
-                UploadTabContentView(component: holder.component.uploadTab)
+                UploadTabContentView(component: holder.component.uploadTab,
+                                     showLogin: $showLogin)
             }
             // MARK: Search
             if active.wrappedValue == .feed || isSearching {
@@ -92,6 +95,7 @@ struct ContentView: View {
                 }
             }
         }
+        .toolbar(.hidden)
         .fullScreenCover(isPresented: $isSearching) {
             SearchModalView(
                 tabSelection: Binding<TabSelection>(get: {
@@ -125,26 +129,25 @@ struct ContentView: View {
             }
         }
         .loginOverlay(overlayView: $holder.overlayView)
-        .toolbar {
-            loginToolbarButton
-        }
     }
     
-    // MARK: - 로그인/프로필 툴바 버튼
-    // 미로그인: person.circle (아웃라인) → 탭 시 LoginView 표시
-    // 로그인 됨: person.circle.fill (채움)  → 추후 프로필 화면으로 연결
-    @ToolbarContentBuilder
-    private var loginToolbarButton: some ToolbarContent {
+}
+
+struct LoginToolbarItem: ToolbarContent {
+    @Environment(\.userData) var userData
+    var showLogin: Binding<Bool>
+
+    var body: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                showLogin = true
+                showLogin.wrappedValue = true
             } label: {
                 let isLoggedIn = userData.wrappedValue != nil
                 let systemName = "person.fill.\(isLoggedIn ? "checkmark" : "questionmark")"
                 let foregroundColor: Int64 = isLoggedIn
-                ? AppColors.shared.Primary
-                : AppColors.shared.Secondary
-                
+                    ? AppColors.shared.Primary
+                    : AppColors.shared.Secondary
+
                 Image(systemName: systemName)
                     .imageScale(.large)
                     .foregroundStyle(foregroundColor.color)

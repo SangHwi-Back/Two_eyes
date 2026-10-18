@@ -26,7 +26,7 @@ struct UploadView: View {
     @State var wrapper: UploadViewModelWrapper
     @State var listType = UploadableListViewType.small
     @State private var photoAuthStatus: PHAuthorizationStatus =
-        PHPhotoLibrary.authorizationStatus(for: .readWrite)
+    PHPhotoLibrary.authorizationStatus(for: .readWrite)
     
     var body: some View {
         Group {
@@ -50,22 +50,28 @@ struct UploadView: View {
         }
         .navigationTitle("Upload")
         .navigationBarTitleDisplayMode(.large)
-        .toolbar { layoutToggleToolbar }
+        .toolbar {
+            layoutToggleToolbar
+        }
     }
     
     // MARK: - Toolbar
     
     @ToolbarContentBuilder
     private var layoutToggleToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Picker("레이아웃", selection: $listType) {
-                Image(systemName: "list.bullet")
-                    .tag(UploadableListViewType.small)
-                Image(systemName: "square.grid.2x2")
-                    .tag(UploadableListViewType.large)
+        ToolbarItemGroup(placement: .topBarLeading) {
+            Button {
+                listType = .small
+            } label: {
+                Image(systemName: "list.bullet.circle\(listType == .small ? ".fill" : "")")
+                    .fontWeight(listType == .small ? .bold : .regular)
             }
-            .pickerStyle(.segmented)
-            .frame(width: 88)
+            Button {
+                listType = .large
+            } label: {
+                Image(systemName: "square.grid.2x2\(listType == .large ? ".fill" : "")")
+                    .fontWeight(listType == .large ? .bold : .regular)
+            }
         }
     }
     
@@ -84,9 +90,9 @@ struct UploadView: View {
             }
         }
     }
-
+    
     // MARK: - List
-
+    
     private var ListContentView: some View {
         List(wrapper.entities, id: \.id) { entity in
             UploadListRow(entity: entity) {

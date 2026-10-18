@@ -19,15 +19,17 @@ struct RootView: View {
         _active = StateValue(root.active)
     }
 
+    @State private var showLogin = false
+
     var body: some View {
         TabView {
             switch active {
             case let child as RootComponentChildFeed:
-                FeedTabContentView(component: child.component)
+                FeedTabContentView(component: child.component, showLogin: $showLogin)
             case let child as RootComponentChildPickImage:
-                PickImageTabContentView(component: child.component)
+                PickImageTabContentView(component: child.component, showLogin: $showLogin)
             case let child as RootComponentChildUpload:
-                UploadTabContentView(component: child.component)
+                UploadTabContentView(component: child.component, showLogin: $showLogin)
             default:
                 EmptyView()
             }

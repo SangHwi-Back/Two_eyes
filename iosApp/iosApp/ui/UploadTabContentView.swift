@@ -10,13 +10,16 @@ import Shared
 struct UploadTabContentView: View {
     @Environment(\.database) var database
     @Environment(\.apiClient) var apiClient
-    
+
     let component: UploadTabComponent
     let uploadableListComponent: UploadableListViewComponent
     
+    @Binding var showLogin: Bool
+
     @StateValue var stack: ChildStack<AnyObject, any UploadTabComponentChild>
-    
-    init(component: UploadTabComponent) {
+
+    init(component: UploadTabComponent, showLogin: Binding<Bool>) {
+        self._showLogin = showLogin
         self.component = component
         let stackValue = StateValue(component.stack)
         _stack = stackValue
@@ -61,7 +64,11 @@ struct UploadTabContentView: View {
                 wrapper: UploadViewModelWrapper(
                 db: database,
                 client: apiClient
-            )).navigationDestination(for: UploadTabPathElement.self) { element in
+            ))
+            .toolbar {
+                LoginToolbarItem(showLogin: $showLogin)
+            }
+            .navigationDestination(for: UploadTabPathElement.self) { element in
                     switch element {
                     case .upload(_, let component):
                         UploadCreateFeedView(
