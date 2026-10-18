@@ -128,7 +128,7 @@ struct ContentView: View {
                 }
             }
         }
-        .loginOverlay(overlayView: $holder.overlayView)
+        .loginOverlay(overlayView: $holder.overlayView, showLogin: $showLogin)
     }
     
 }

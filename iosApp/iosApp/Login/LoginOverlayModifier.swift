@@ -9,19 +9,19 @@ import SwiftUI
 
 /// ViewModifier that manages login overlay visibility based on the component type
 struct LoginOverlayModifier: ViewModifier {
-    @State private var isShowingLogin = false
+    @Binding private var showLogin: Bool
     
     @Binding var overlayView: OverlayView
     
-    init(overlayView: Binding<OverlayView>) {
+    init(overlayView: Binding<OverlayView>, showLogin: Binding<Bool>) {
         self._overlayView = overlayView
         // Initialize the state based on current component state
-        self._isShowingLogin = State(initialValue: overlayView.wrappedValue == .login)
+        self._showLogin = showLogin
     }
     
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $isShowingLogin) {
+            .sheet(isPresented: _showLogin) {
                 LoginView()
                     .presentationDetents([.fraction(0.5)])
                     .presentationDragIndicator(.visible)
@@ -30,9 +30,9 @@ struct LoginOverlayModifier: ViewModifier {
                 // Update the visibility when component state changes
                 switch overlayView {
                 case .login:
-                    isShowingLogin = true
+                    showLogin = true
                 default:
-                    isShowingLogin = false
+                    showLogin = false
                 }
             }
     }
@@ -40,7 +40,7 @@ struct LoginOverlayModifier: ViewModifier {
 
 extension View {
     /// Adds login overlay functionality to a view
-    func loginOverlay(overlayView: Binding<OverlayView>) -> some View {
-        self.modifier(LoginOverlayModifier(overlayView: overlayView))
+    func loginOverlay(overlayView: Binding<OverlayView>, showLogin: Binding<Bool>) -> some View {
+        self.modifier(LoginOverlayModifier(overlayView: overlayView, showLogin: showLogin))
     }
 }
