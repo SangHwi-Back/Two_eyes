@@ -2,15 +2,6 @@ import SwiftUI
 import Photos
 import Shared
 
-class ComponentHolder: ObservableObject {
-    let component: TwoEyesRootComponent
-    
-    init() {
-        let context = DefaultComponentContext(lifecycle: ApplicationLifecycle())
-        component = TwoEyesRootComponent(componentContext: context)
-    }
-}
-
 struct ContentView: View {
     @Environment(\.apiClient) var apiClient
     @Environment(\.userData) var userData
@@ -20,7 +11,8 @@ struct ContentView: View {
     @Environment(\.rootViewController) var rootViewController: UIViewController
     @Environment(\.applyNavigationBarAppearance) var applyNavigationBarAppearance
     
-    @StateObject var holder = ComponentHolder()
+    // Making the @StateObject a computed property or accessing it differently
+    @StateObject private var holder = ComponentHolder()
     
     /// Decompose의 Config(Feed/PickImage/Upload)와 iOS 로컬 상태인 Search를 합쳐서
     /// TabView가 요구하는 단일 Hashable selection으로 노출하는 바인딩.
@@ -58,14 +50,21 @@ struct ContentView: View {
     private func onTabButtonClicked(from tab: TabSelection) {
         switch tab {
         case .feed:
-            holder.component.onTabButtonClicked(tab: ConfigFeed())
+            holder.component.onTabButtonClicked(
+                tab: ConfigFeed(), goBackWhenSameTab: true)
         case .camera:
-            holder.component.onTabButtonClicked(tab: ConfigPickImage())
+            holder.component.onTabButtonClicked(
+                tab: ConfigPickImage(), goBackWhenSameTab: false)
         case .upload:
-            holder.component.onTabButtonClicked(tab: ConfigUpload())
+            holder.component.onTabButtonClicked(
+                tab: ConfigUpload(), goBackWhenSameTab: true)
         case .search:
             return
         }
+    }
+    
+    private var overlayComponent: OverlayComponent {
+        holder.component.overlayComponent
     }
     
     var toolBarVisibility: Visibility {
@@ -93,7 +92,6 @@ struct ContentView: View {
                 }
             }
         }
-        .toolbarVisibility(toolBarVisibility, for: .tabBar)
         .fullScreenCover(isPresented: $isSearching) {
             SearchModalView(
                 tabSelection: Binding<TabSelection>(get: {
@@ -126,11 +124,9 @@ struct ContentView: View {
                 }
             }
         }
-        // 로그인 바텀 시트 — 화면 절반 높이로 아래에서 올라옴
-        .sheet(isPresented: $showLogin) {
-            LoginView()
-                .presentationDetents([.fraction(0.5)])
-                .presentationDragIndicator(.visible)
+        .loginOverlay(overlayView: $holder.overlayView)
+        .toolbar {
+            loginToolbarButton
         }
     }
     
@@ -194,6 +190,11 @@ enum NavHost {
 
 enum TabSelection: Hashable {
     case feed, camera, upload, search
+}
+
+enum OverlayView: Hashable, Identifiable {
+    var id: Self { self }
+    case none, login
 }
 
 // MARK: - NavigationPathObject

@@ -25,14 +25,5 @@ struct FeedContentView: View {
             }
         }
         .background(AppColors.shared.Background.color)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    wrapper.onSearchClick()
-                } label: {
-                    Image(systemName: "magnifyingglass.circle")
-                }
-            }
-        }
     }
 }
