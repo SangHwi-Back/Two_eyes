@@ -12,67 +12,14 @@ struct ContentView: View {
     @Environment(\.applyNavigationBarAppearance) var applyNavigationBarAppearance
     
     // Making the @StateObject a computed property or accessing it differently
-    @StateObject private var holder = ComponentHolder()
-    
-    /// Decompose의 Config(Feed/PickImage/Upload)와 iOS 로컬 상태인 Search를 합쳐서
-    /// TabView가 요구하는 단일 Hashable selection으로 노출하는 바인딩.
-    /// Search는 Decompose가 모르는, iOS 전용 풀스크린 모달이라 여기서만 관리한다.
-    private var active: Binding<TabSelection> {
-        Binding {
-            getTabSelection()
-        } set: { newValue in
-            if setSearching(from: newValue) {
-                return
-            }
-            onTabButtonClicked(from: newValue)
-        }
-    }
-    
-    private func getTabSelection() -> TabSelection {
-        if isSearching {
-            return .search
-        }
-        switch holder.component.active.value {
-        case is ConfigPickImage:
-            return .camera
-        case is ConfigUpload:
-            return .upload
-        default:
-            return .feed
-        }
-    }
-    
-    private func setSearching(from tab: TabSelection) -> Bool {
-        isSearching = tab == .search
-        return isSearching
-    }
-    
-    private func onTabButtonClicked(from tab: TabSelection) {
-        switch tab {
-        case .feed:
-            holder.component.onTabButtonClicked(
-                tab: ConfigFeed(), goBackWhenSameTab: true)
-        case .camera:
-            holder.component.onTabButtonClicked(
-                tab: ConfigPickImage(), goBackWhenSameTab: false)
-        case .upload:
-            holder.component.onTabButtonClicked(
-                tab: ConfigUpload(), goBackWhenSameTab: true)
-        case .search:
-            return
-        }
-    }
+    @StateObject private var holder = ComponentHolder(tab: .feed)
     
     private var overlayComponent: OverlayComponent {
         holder.component.overlayComponent
     }
     
-    var toolBarVisibility: Visibility {
-        isSearching ? .hidden : .automatic
-    }
-    
     var body: some View {
-        TabView(selection: active) {
+        TabView(selection: $holder.currentTab) {
             // MARK: Feed
             Tab("Feed", systemImage: "text.below.photo", value: .feed) {
                 FeedTabContentView(component: holder.component.feedTab,
@@ -89,23 +36,23 @@ struct ContentView: View {
                                      showLogin: $showLogin)
             }
             // MARK: Search
-            if active.wrappedValue == .feed || isSearching {
+            if holder.currentTab == .feed {
                 Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
                     EmptyView()
                 }
             }
         }
-        .toolbar(.hidden)
         .fullScreenCover(isPresented: $isSearching) {
             SearchModalView(
-                tabSelection: Binding<TabSelection>(get: {
-                    getTabSelection()
-                }, set: { newValue in
-                    active.wrappedValue = newValue
-                    isSearching = newValue == .search
-                }),
+                tabSelection: $holder.currentTab,
                 apiClient: apiClient
             )
+        }
+        .onChange(of: holder.currentTab) { _, newValue in
+            isSearching = newValue == .search
+            if newValue != .search {
+                onTabButtonClicked(from: newValue)
+            }
         }
         .task {
             applyNavigationBarAppearance()
@@ -131,6 +78,21 @@ struct ContentView: View {
         .loginOverlay(overlayView: $holder.overlayView, showLogin: $showLogin)
     }
     
+    private func onTabButtonClicked(from tab: TabSelection) {
+        switch tab {
+        case .feed:
+            holder.component.onTabButtonClicked(
+                tab: ConfigFeed(), goBackWhenSameTab: true)
+        case .camera:
+            holder.component.onTabButtonClicked(
+                tab: ConfigPickImage(), goBackWhenSameTab: false)
+        case .upload:
+            holder.component.onTabButtonClicked(
+                tab: ConfigUpload(), goBackWhenSameTab: true)
+        case .search:
+            return
+        }
+    }
 }
 
 struct LoginToolbarItem: ToolbarContent {

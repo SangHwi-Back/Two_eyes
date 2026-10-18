@@ -10,21 +10,23 @@ import Shared
 
 class ComponentHolder: ObservableObject {
     let component: TwoEyesRootComponent
+    
+    @Published var currentTab: TabSelection
     @Published var overlayView: OverlayView = .none
+    
     private var cancellables: Set<AnyCancellable> = []
     
-    init() {
+    init(tab: TabSelection) {
         let context = DefaultComponentContext(lifecycle: ApplicationLifecycle())
         component = TwoEyesRootComponent(componentContext: context)
+        currentTab = tab
         
         objectWillChange.sink { [weak self] _ in
-            let overlay = self?.component.overlayComponent.slot.value.child?.instance
-            switch overlay {
-            case is OverlayComponentOverlaySlotLogin:
-                self?.overlayView = .login
-            default:
-                self?.overlayView = .none
-            }
+            guard let self else { return }
+            let overlay = self.component.overlayComponent.slot.value.child?.instance
+            let newView: OverlayView = (overlay is OverlayComponentOverlaySlotLogin) ? .login : .none
+            guard self.overlayView != newView else { return }  // ← 같으면 할당 안 함
+            self.overlayView = newView
         }
         .store(in: &cancellables)
     }
