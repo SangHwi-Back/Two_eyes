@@ -26,47 +26,49 @@ struct PickDeviceImageContentView: View {
             width: CGFloat(constant.THUMBNAIL_SIZE_WIDTH),
             height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT)
         )
-        ScrollView { VStack {
-            HStack {
-                wrapper.leading.getImageView {
-                    handleImageViewTap($0, isLeading: true)
-                }
-                Image(systemName: "plus")
-                    .foregroundStyle(AppColors.shared.Divider.color)
-                wrapper.trailing.getImageView {
-                    handleImageViewTap($0, isLeading: false)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-            .aspectRatio(1.05, contentMode: .fill)
-            
-            if wrapper.imageSources.isEmpty {
-                VStack {
-                    Image(systemName: "ellipsis.bubble")
-                        .resizable()
-                        .foregroundStyle(AppColors.shared.Accent.color)
-                        .aspectRatio(contentMode: .fit)
-                        .padding(.vertical)
-                    Text("Get photos! Using buttons!")
-                        .foregroundStyle(AppColors.shared.TextSecondary.color)
-                }
-                .frame(height: thumbnailSize.height)
-            }
-            
-            ScrollView(.horizontal) {
-                LazyHStack(spacing: 8) {
-                    ForEach(wrapper.imageSources, id: \.self) { asset in
-                        PHAssetImage(asset: asset)
-                            .clipShape(RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS)))
-                            .padding(.trailing)
-                            .onTapGesture { viewModel.setImageFromSource(imageSource: asset) }
+        VStack {
+            ScrollView {
+                HStack {
+                    wrapper.leading.getImageView {
+                        handleImageViewTap($0, isLeading: true)
+                    }
+                    Image(systemName: "plus")
+                        .foregroundStyle(AppColors.shared.Divider.color)
+                    wrapper.trailing.getImageView {
+                        handleImageViewTap($0, isLeading: false)
                     }
                 }
+                .padding(.horizontal)
+                .padding(.bottom)
+                .aspectRatio(CGFloat(constant.THUMBNAIL_ASPECT_RATIO), contentMode: .fill)
+                
+                if wrapper.imageSources.isEmpty {
+                    VStack {
+                        Image(systemName: "ellipsis.bubble")
+                            .resizable()
+                            .foregroundStyle(AppColors.shared.Accent.color)
+                            .aspectRatio(contentMode: .fit)
+                            .padding(.vertical)
+                        Text("Get photos! Using buttons!")
+                            .foregroundStyle(AppColors.shared.TextSecondary.color)
+                    }
+                    .frame(height: thumbnailSize.height)
+                }
+                
+                ScrollView(.horizontal) {
+                    LazyHStack(spacing: 8) {
+                        ForEach(wrapper.imageSources, id: \.self) { asset in
+                            PHAssetImage(asset: asset)
+                                .clipShape(RoundedRectangle(cornerRadius: CGFloat(constant.CARD_CORNER_RADIUS)))
+                                .padding(.trailing)
+                                .onTapGesture { viewModel.setImageFromSource(imageSource: asset) }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, wrapper.imageSources.isEmpty ? 8 : 12)
+                .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             }
-            .padding(.horizontal)
-            .padding(.bottom, wrapper.imageSources.isEmpty ? 8 : 12)
-            .frame(height: wrapper.imageSources.isEmpty ? 0 : thumbnailSize.height)
             
             HStack {
                 Spacer()
@@ -99,7 +101,7 @@ struct PickDeviceImageContentView: View {
                 }
             }
             .padding(.horizontal)
-        }}
+        }
         .background(AppColors.shared.Background.color)
         .alert("슬롯을 먼저 선택하세요", isPresented: $showHighlightAlert) {
             Button("확인", role: .cancel) {}

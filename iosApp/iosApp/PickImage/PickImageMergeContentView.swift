@@ -13,19 +13,19 @@ struct PickImageMergeContentView: View {
     let component: MergeImageViewComponent
     // @Observable 클래스는 @State 로 관리해야 부모 뷰 재생성 시 재초기화되지 않음
     @State private var wrapper: PickImageMergeViewModelWrapper
-
+    
     @State private var mergeDoneAlert = false
     /// 0 = 왼쪽(leading), 1 = 오른쪽(trailing)
     @State private var selectedImageTab = 0
-
+    
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
     
     @State var isProxyInitialized = false
-
+    
     let leadingSource:  PHAsset
     let trailingSource: PHAsset
-
+    
     init(component: MergeImageViewComponent) {
         self.component = component
         let leading = PHAsset.fetchAssets(withLocalIdentifiers: [component.encoded1], options: nil).firstObject!
@@ -36,7 +36,7 @@ struct PickImageMergeContentView: View {
         self.leadingSource  = model.leading
         self.trailingSource = model.trailing
     }
-
+    
     var body: some View {
         let (leadingZIndex, trailingZIndex): (Double, Double) = (
             wrapper.zOrder.first == .top ? 1000 : 999,
@@ -58,54 +58,49 @@ struct PickImageMergeContentView: View {
             }, set: { value, _ in
                 wrapper.setTrailingStateValue(.offset(value.offset))
             })
-
-        GeometryReader { proxy in
-            VStack(spacing: 0) {
-
+        
+        ZStack {
+            AppColors.shared.Background.color.ignoresSafeArea()
+            VStack {
                 // MARK: 제스처 캔버스
-                ZStack {
-                    PHAssetImage(asset: leadingSource, size: thumbnailSize)
-                        .draggableAndScalable(bindLeadingOffset)
-                        .scaleEffect(CGFloat(wrapper.leadingState.scale))
-                        .offset(wrapper.leadingState.offset)
-                        .zIndex(leadingZIndex)
-
-                    PHAssetImage(asset: trailingSource, size: thumbnailSize)
-                        .draggableAndScalable(bindTrailingOffset)
-                        .scaleEffect(CGFloat(wrapper.trailingState.scale))
-                        .offset(wrapper.trailingState.offset)
-                        .zIndex(trailingZIndex)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 300)
-                .zIndex(998)
-                // overlay 로 배치: .offset() 으로 ZStack 프레임 밖에 놓으면 히트 테스트가
-                // 프레임 바깥 터치를 처리하지 않아 버튼이 반응하지 않는 문제를 방지.
-                .overlay(alignment: .topTrailing) {
-                    GlassIconButton(systemName: "arrow.left.arrow.right") {
-                        wrapper.viewModel.swapOrder()
+                GeometryReader { proxy in
+                    ZStack {
+                        PHAssetImage(asset: leadingSource, size: thumbnailSize)
+                            .draggableAndScalable(bindLeadingOffset)
+                            .scaleEffect(CGFloat(wrapper.leadingState.scale))
+                            .offset(wrapper.leadingState.offset)
+                            .zIndex(leadingZIndex)
+                        
+                        PHAssetImage(asset: trailingSource, size: thumbnailSize)
+                            .draggableAndScalable(bindTrailingOffset)
+                            .scaleEffect(CGFloat(wrapper.trailingState.scale))
+                            .offset(wrapper.trailingState.offset)
+                            .zIndex(trailingZIndex)
                     }
-                    .padding(8)
-                }
-                .onAppear {
-                    guard isProxyInitialized == false else {
-                        return
+                    // overlay 로 배치: .offset() 으로 ZStack 프레임 밖에 놓으면 히트 테스트가
+                    // 프레임 바깥 터치를 처리하지 않아 버튼이 반응하지 않는 문제를 방지.
+                    .onAppear {
+                        guard isProxyInitialized == false else {
+                            return
+                        }
+                        
+                        let centerOffsetXDetached = Float(proxy.size.width) / 4
+                        wrapper.setCanvasSize(proxy.canvasSize)
+                        
+                        let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
+                        wrapper.setLeadingStateValue(.offset(leadingOffset))
+                        
+                        let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
+                        wrapper.setTrailingStateValue(.offset(trailingOffset))
+                        
+                        isProxyInitialized = true
                     }
-                    
-                    let centerOffsetXDetached = Float(proxy.size.width) / 4
-                    wrapper.setCanvasSize(proxy.canvasSize)
-                    
-                    let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
-                    wrapper.setLeadingStateValue(.offset(leadingOffset))
-                    
-                    let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
-                    wrapper.setTrailingStateValue(.offset(trailingOffset))
-                    
-                    isProxyInitialized = true
                 }
-
+                .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
+                .padding(.horizontal)
+                
                 Divider().padding(.vertical, 8)
-
+                
                 // MARK: 필터 선택
                 FilterSelectorView(
                     selectedTab:    $selectedImageTab,
@@ -115,9 +110,9 @@ struct PickImageMergeContentView: View {
                         wrapper.setLeadingStateValue(.filter($0))
                     }
                 )
-
+                
                 Divider().padding(.vertical, 8)
-
+                
                 // MARK: 합성 미리보기
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -126,7 +121,7 @@ struct PickImageMergeContentView: View {
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
                         )
-
+                    
                     if let image = $wrapper.mergedImage.wrappedValue {
                         Image(uiImage: image)
                             .resizable()
@@ -139,31 +134,48 @@ struct PickImageMergeContentView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: proxy.size.width * 0.65)
+                .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
                 .padding(.horizontal)
-
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppColors.shared.Background.color, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar { swapButton }
+        .safeAreaInset(edge: .bottom) {
+            // MARK: 확인 버튼
+            HStack(alignment: .bottom) {
                 Spacer()
-
-                // MARK: 확인 버튼
-                HStack {
-                    Spacer()
-                    GlassIconButton(systemName: "checkmark.circle") {
-                        let isSuccess = wrapper.mergeDone(dao: dao)
-                        if isSuccess {
-                            component.onConfirmClicked()
-                        } else {
-                            mergeDoneAlert = true
-                        }
+                
+                Text("Upload")
+                    .font(.footnote)
+                    .foregroundStyle(AppColors.shared.TextPrimary.color)
+                
+                GlassIconButton(systemName: "checkmark.circle") {
+                    let isSuccess = wrapper.mergeDone(dao: dao)
+                    if isSuccess {
+                        component.onConfirmClicked()
+                    } else {
+                        mergeDoneAlert = true
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 8)
             }
+            .padding(.horizontal)
         }
         .alert("경고!", isPresented: $mergeDoneAlert) {
             Button("확인", role: .confirm) {}
         } message: {
             Text("이미지 결과에 이상이 발생하였습니다.")
+        }
+    }
+    
+    @ToolbarContentBuilder
+    var swapButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            GlassIconButton(systemName: "arrow.left.arrow.right") {
+                wrapper.viewModel.swapOrder()
+            }
         }
     }
 }
@@ -173,11 +185,11 @@ private struct FilterSelectorView: View {
     let leadingFilter:  PickImageMergeViewModel.ImageStateFilter?
     let trailingFilter: PickImageMergeViewModel.ImageStateFilter?
     let onFilterChange: (PickImageMergeViewModel.ImageStateFilter?) -> Void
-
+    
     private var currentFilter: PickImageMergeViewModel.ImageStateFilter? {
         selectedTab == 0 ? leadingFilter : trailingFilter
     }
-
+    
     var body: some View {
         VStack(spacing: 8) {
             // 이미지 선택 탭
@@ -187,7 +199,8 @@ private struct FilterSelectorView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-
+            .padding(.top)
+            
             // 필터 칩 목록
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -210,7 +223,11 @@ private struct FilterSelectorView: View {
                 }
                 .padding(.horizontal)
             }
+            .padding(.bottom)
         }
+        .background(AppColors.shared.Surface2.color)
+        .clipShape(RoundedRectangle(cornerRadius: CGFloat(AppConstants.shared.CARD_CORNER_RADIUS)))
+        .padding(.horizontal)
     }
 }
 
@@ -218,7 +235,7 @@ private struct FilterChipView: View {
     let label:      String
     let isSelected: Bool
     let action:     () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             Text(label)
@@ -242,7 +259,7 @@ private extension PickImageMergeViewModel.ImageStateFilter {
     static let allFilters: [PickImageMergeViewModel.ImageStateFilter] = [
         .inverted, .monochrome, .contrast, .saturation, .vignette
     ]
-
+    
     var filterLabel: String {
         switch self {
         case .inverted:   return "반전"
@@ -279,16 +296,16 @@ private extension PHAssetImage {
     func draggableAndScalable(_ state: Binding<PickImageMergeViewModel.ImageState>) -> some View {
         self.modifier(DraggableScalableModifier(imageState: state))
     }
-
+    
     struct DraggableScalableModifier: ViewModifier {
         /// 제스처 시작 시점의 상태를 캡처 — onChanged 마다 base + delta 로 계산
         @State private var baseState: PickImageMergeViewModel.ImageState?
-
+        
         @Binding var imageState: PickImageMergeViewModel.ImageState
         
         @GestureState private var dragOffset: CGSize = .zero
         @GestureState private var magnifying: CGFloat = 1
-
+        
         func body(content: Content) -> some View {
             content.simultaneousGesture(
                 DragGesture()
