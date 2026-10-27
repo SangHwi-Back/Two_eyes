@@ -18,6 +18,7 @@ struct PickImageMergeContentView: View {
     /// 0 = 왼쪽(leading), 1 = 오른쪽(trailing)
     @State private var selectedImageTab = 0
     
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.mergeResultDao) var dao
     @Environment(\.appConstant) var constant
     
@@ -58,13 +59,27 @@ struct PickImageMergeContentView: View {
             }, set: { value, _ in
                 wrapper.setTrailingStateValue(.offset(value.offset))
             })
-        
-        ZStack {
-            AppColors.shared.Background.color.ignoresSafeArea()
-            VStack {
-                // MARK: 제스처 캔버스
-                GeometryReader { proxy in
+        // MARK: 제스처 캔버스
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                // MARK: 커스텀 네비게이션 바
+                HStack(alignment: .center) {
+                    GlassIconButton(systemName: "chevron.left") {
+                        dismiss()
+                    }
+                    Spacer()
+                    GlassIconButton(systemName: "arrow.left.arrow.right") {
+                        wrapper.viewModel.swapOrder()
+                    }
+                    .padding(.vertical, 4)
+                }
+                .padding(.horizontal)
+                ScrollView(.vertical) {
                     ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(AppColors.shared.Surface.color)
+                            .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
+                        
                         PHAssetImage(asset: leadingSource, size: thumbnailSize)
                             .draggableAndScalable(bindLeadingOffset)
                             .scaleEffect(CGFloat(wrapper.leadingState.scale))
@@ -77,105 +92,92 @@ struct PickImageMergeContentView: View {
                             .offset(wrapper.trailingState.offset)
                             .zIndex(trailingZIndex)
                     }
-                    // overlay 로 배치: .offset() 으로 ZStack 프레임 밖에 놓으면 히트 테스트가
-                    // 프레임 바깥 터치를 처리하지 않아 버튼이 반응하지 않는 문제를 방지.
-                    .onAppear {
-                        guard isProxyInitialized == false else {
-                            return
-                        }
-                        
-                        let centerOffsetXDetached = Float(proxy.size.width) / 4
-                        wrapper.setCanvasSize(proxy.canvasSize)
-                        
-                        let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
-                        wrapper.setLeadingStateValue(.offset(leadingOffset))
-                        
-                        let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
-                        wrapper.setTrailingStateValue(.offset(trailingOffset))
-                        
-                        isProxyInitialized = true
-                    }
-                }
-                .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
-                .padding(.horizontal)
-                
-                Divider().padding(.vertical, 8)
-                
-                // MARK: 필터 선택
-                FilterSelectorView(
-                    selectedTab:    $selectedImageTab,
-                    leadingFilter:  wrapper.leadingState.filter,
-                    trailingFilter: wrapper.trailingState.filter,
-                    onFilterChange: {
-                        wrapper.setLeadingStateValue(.filter($0))
-                    }
-                )
-                
-                Divider().padding(.vertical, 8)
-                
-                // MARK: 합성 미리보기
-                ZStack(alignment: .center) {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(AppColors.shared.Surface.color)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
-                        )
+                    .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5)
+                    .padding(.top)
+                    .padding(.horizontal)
                     
-                    if let image = $wrapper.mergedImage.wrappedValue {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                    } else {
-                        ProgressView().frame(
-                            width:  CGFloat(AppConstants.shared.ICON_SIZE_WIDTH),
-                            height: CGFloat(AppConstants.shared.ICON_SIZE_HEIGHT)
-                        )
+                    Divider().padding(.vertical, 8)
+                    
+                    // MARK: 필터 선택
+                    FilterSelectorView(
+                        selectedTab:    $selectedImageTab,
+                        leadingFilter:  wrapper.leadingState.filter,
+                        trailingFilter: wrapper.trailingState.filter,
+                        onFilterChange: {
+                            wrapper.setLeadingStateValue(.filter($0))
+                        }
+                    )
+                    
+                    Divider().padding(.vertical, 8)
+                    
+                    // MARK: 합성 미리보기
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(AppColors.shared.Surface.color)
+                            .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
+                        
+                        if let image = $wrapper.mergedImage.wrappedValue {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            ProgressView()
+                        }
                     }
+                    .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5)
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT))
+                
+                HStack(alignment: .bottom) {
+                    Spacer()
+                    
+                    Text("Upload")
+                        .font(.footnote)
+                        .foregroundStyle(AppColors.shared.TextPrimary.color)
+                    
+                    GlassIconButton(systemName: "checkmark.circle") {
+                        let isSuccess = wrapper.mergeDone(dao: dao)
+                        if isSuccess {
+                            component.onConfirmClicked()
+                        } else {
+                            mergeDoneAlert = true
+                        }
+                    }
+                    .padding(.top, 4)
+                }
                 .padding(.horizontal)
             }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(AppColors.shared.Background.color, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
-        .toolbar { swapButton }
-        .safeAreaInset(edge: .bottom) {
-            // MARK: 확인 버튼
-            HStack(alignment: .bottom) {
-                Spacer()
-                
-                Text("Upload")
-                    .font(.footnote)
-                    .foregroundStyle(AppColors.shared.TextPrimary.color)
-                
-                GlassIconButton(systemName: "checkmark.circle") {
-                    let isSuccess = wrapper.mergeDone(dao: dao)
-                    if isSuccess {
-                        component.onConfirmClicked()
-                    } else {
-                        mergeDoneAlert = true
-                    }
+            .frame(width: proxy.size.width)
+            // overlay 로 배치: .offset() 으로 ZStack 프레임 밖에 놓으면 히트 테스트가
+            // 프레임 바깥 터치를 처리하지 않아 버튼이 반응하지 않는 문제를 방지.
+            .onAppear {
+                guard isProxyInitialized == false else {
+                    return
                 }
+                
+                let centerOffsetXDetached = Float(proxy.size.width) / 4
+                wrapper.setCanvasSize(CGSize(
+                    width: proxy.size.width,
+                    height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5))
+                
+                let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
+                wrapper.setLeadingStateValue(.offset(leadingOffset))
+                
+                let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
+                wrapper.setTrailingStateValue(.offset(trailingOffset))
+                
+                isProxyInitialized = true
             }
-            .padding(.horizontal)
+            
         }
+        .frame(maxWidth: .infinity)
+        .toolbar(.hidden, for: .navigationBar, .tabBar)
+        .background(AppColors.shared.Background.color.ignoresSafeArea())
         .alert("경고!", isPresented: $mergeDoneAlert) {
             Button("확인", role: .confirm) {}
         } message: {
             Text("이미지 결과에 이상이 발생하였습니다.")
-        }
-    }
-    
-    @ToolbarContentBuilder
-    var swapButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            GlassIconButton(systemName: "arrow.left.arrow.right") {
-                wrapper.viewModel.swapOrder()
-            }
         }
     }
 }

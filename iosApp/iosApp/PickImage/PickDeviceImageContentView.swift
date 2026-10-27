@@ -185,26 +185,27 @@ extension PickImageViewModel.ImageViewModel {
         ? AppColors.shared.Accent.color
         : AppColors.shared.Secondary.color
         let strokeStyle = StrokeStyle(lineWidth: 1, dash: [6, 10])
-        let rectangle = RoundedRectangle(cornerRadius: 8)
+        let radius = CGFloat(AppConstants.shared.CARD_CORNER_RADIUS)
+        let rectangle = RoundedRectangle(cornerRadius: radius)
             .stroke(strokeColor, style: strokeStyle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         
         if let imageSource {
             rectangle.overlay {
                 ZStack(alignment: Alignment.topTrailing) {
-                    PHAssetImage(asset: imageSource, size: CGSize(width: 120, height: 190))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    PHAssetImage(asset: imageSource, size: thumbnailSize)
+                        .clipShape(RoundedRectangle(cornerRadius: radius))
                         .onTapGesture { onTapGesture(.highlihgt) }
-                    Image(systemName: "trash")
-                        .frame(width: 42, height: 42)
-                        .glassEffect(in: .rect(cornerRadius: 21))
-                        .offset(.zero)
-                        .onTapGesture { onTapGesture(.delete) }
+                    GlassIconButton(systemName: "trash") {
+                        onTapGesture(.delete)
+                    }
+                    .frame(width: iconWidth, height: iconHeight)
+                    .offset(.zero)
                 }
             }
         } else {
             rectangle
-                .contentShape(RoundedRectangle(cornerRadius: 8))
+                .contentShape(RoundedRectangle(cornerRadius: radius))
                 .onTapGesture { onTapGesture(.highlihgt) }
         }
     }

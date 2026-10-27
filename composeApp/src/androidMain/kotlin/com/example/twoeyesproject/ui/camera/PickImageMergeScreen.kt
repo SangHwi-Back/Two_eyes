@@ -11,26 +11,28 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -71,7 +74,7 @@ import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
-private val CanvasHeight = 300.dp
+private val CanvasHeight = (AppConstants.THUMBNAIL_SIZE_HEIGHT * 1.5).dp
 
 // ── Filter enum 표시 이름 ────────────────────────────────────────────────────
 private val PickImageMergeViewModel.ImageState.Filter.label: String
@@ -104,8 +107,6 @@ fun PickImageMergeScreen(
     var leadingBitmap: Bitmap  by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
         AppConstants.THUMBNAIL_SIZE_HEIGHT)) }
-    // 필터 중복 적용 방지용 원본 — lateinit var 는 리컴포지션 시 미초기화 상태로 재선언되므로
-    // remember 로 보호해야 함
     var originalLeadingBitmap: Bitmap? by remember { mutableStateOf(null) }
     var trailingBitmap: Bitmap  by remember { mutableStateOf(createBitmap(
         AppConstants.THUMBNAIL_SIZE_WIDTH,
@@ -135,164 +136,175 @@ fun PickImageMergeScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // ── 제스처 캔버스 ─────────────────────────────────────────────────────
-        BoxWithConstraints(
+        // ── 상단 바: swap 버튼 ─────────────────────────────────────────────────
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(CanvasHeight)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.End
         ) {
-            val density        = LocalDensity.current
-            val canvasWidthPx  = with(density) { maxWidth.roundToPx() }
-            val canvasHeightPx = with(density) { CanvasHeight.roundToPx() }
-
-            // 초기 위치: 캔버스 좌우 절반 중앙
-            LaunchedEffect(maxWidth) {
-                if (!initialized) {
-                    val cw = with(density) { maxWidth.toPx() }
-                    val tw = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.toPx() }
-                    leadingOffsetX  = cw / 4f - tw / 2f
-                    trailingOffsetX = 3f * cw / 4f - tw / 2f
-                    initialized = true
-                    viewModel.updateLeading( leadingOffsetX,  leadingOffsetY,  leadingScale, null)
-                    viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, null)
-                }
-            }
-
-            // 위치·필터·비트맵이 바뀔 때마다 합성 이미지 재생성
-            LaunchedEffect(
-                leadingOffsetX, leadingOffsetY, leadingScale,
-                trailingOffsetX, trailingOffsetY, trailingScale,
-                zOrder, leadingBitmap, trailingBitmap,
-                leading.filter, trailing.filter
-            ) {
-                previewBitmap = withContext(Dispatchers.Default) {
-                    // ViewModel StateFlow 를 직접 읽어야 함: collected state(leading/trailing)는
-                    // LaunchedEffect가 실행되는 시점에 한 프레임 지연이 있어 이전 좌표를 반환할 수 있음.
-                    // leading.filter는 키로만 사용해 필터 변경 시 재실행을 트리거.
-                    val srcLeading  = originalLeadingBitmap  ?: leadingBitmap
-                    val srcTrailing = originalTrailingBitmap ?: trailingBitmap
-
-                    renderMerged(
-                        canvasWidthPx     = canvasWidthPx,
-                        canvasHeightPx    = canvasHeightPx,
-                        // THUMBNAIL_SIZE_* 는 dp 단위 — offsetX/Y 와 canvasPx 모두 px 이므로
-                        // 동일하게 px 로 변환해야 올바른 크기로 그려짐
-                        thumbnailWidthPx  = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.roundToPx() },
-                        thumbnailHeightPx = with(density) { AppConstants.THUMBNAIL_SIZE_HEIGHT.dp.roundToPx() },
-                        leadingBitmap     = srcLeading,
-                        leadingState      = viewModel.leading.value,
-                        trailingBitmap    = srcTrailing,
-                        trailingState     = viewModel.trailing.value,
-                        zOrder            = zOrder,
-                        applyFilter       = viewModel.applyFilter,
-                    ).asImageBitmap()
-                }
-            }
-
-            // z순서대로 이미지 렌더
-            zOrder.forEach { order ->
-                when (order) {
-                    PickImageMergeViewModel.ImageOrder.BOTTOM -> TransformableImage(
-                        bitmap  = leadingBitmap.asImageBitmap(),
-                        offsetX = leadingOffsetX,
-                        offsetY = leadingOffsetY,
-                        scale   = leadingScale,
-                        onDrag  = { dx, dy ->
-                            leadingOffsetX += dx; leadingOffsetY += dy
-                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, leading.filter)
-                        },
-                        onScale = { f ->
-                            leadingScale *= f
-                            viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, trailing.filter)
-                        }
-                    )
-
-                    PickImageMergeViewModel.ImageOrder.TOP -> TransformableImage(
-                        bitmap  = trailingBitmap.asImageBitmap(),
-                        offsetX = trailingOffsetX,
-                        offsetY = trailingOffsetY,
-                        scale   = trailingScale,
-                        onDrag  = { dx, dy ->
-                            trailingOffsetX += dx; trailingOffsetY += dy
-                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, leading.filter)
-                        },
-                        onScale = { f ->
-                            trailingScale *= f
-                            viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, trailing.filter)
-                        }
-                    )
-                }
-            }
-
-            // Swap 버튼
-            IconButton(
-                onClick  = { viewModel.swapOrder() },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-            ) {
+            IconButton(onClick = { viewModel.swapOrder() }) {
                 Icon(
                     imageVector        = Icons.Default.SwapHoriz,
                     contentDescription = "순서 교환",
-                    tint               = Color(AppColors.Surface2)
+                    tint               = Color(AppColors.Primary),
+                    modifier           = Modifier.size(28.dp)
                 )
             }
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-        // ── 필터 선택 ────────────────────────────────────────────────────────
-        FilterSelector(
-            leadingFilter  = leading.filter,
-            trailingFilter = trailing.filter,
-            onLeadingFilterChange  = { viewModel.setLeadingFilter(it) },
-            onTrailingFilterChange = { viewModel.setTrailingFilter(it) },
-        )
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-        // ── 합성 미리보기 ─────────────────────────────────────────────────────
-        Box(
+        // ── 스크롤 영역 ───────────────────────────────────────────────────────
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .aspectRatio(16f / 10f)
-                .border(
-                    width = 1.dp,
-                    color = Color(AppColors.Surface),
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            contentAlignment = Alignment.Center
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
         ) {
-            val preview = previewBitmap
-            if (preview != null) {
-                Image(
-                    bitmap             = preview,
-                    contentDescription = "합성 미리보기",
-                    contentScale       = ContentScale.Fit,
-                    modifier           = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
-                )
-            } else {
-                CircularProgressIndicator()
+
+            // ── 제스처 캔버스 ─────────────────────────────────────────────────
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(CanvasHeight)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color(AppColors.Surface2),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                val density        = LocalDensity.current
+                val canvasWidthPx  = with(density) { maxWidth.roundToPx() }
+                val canvasHeightPx = with(density) { CanvasHeight.roundToPx() }
+
+                LaunchedEffect(maxWidth) {
+                    if (!initialized) {
+                        val cw = with(density) { maxWidth.toPx() }
+                        val tw = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.toPx() }
+                        leadingOffsetX  = cw / 4f - tw / 2f
+                        trailingOffsetX = 3f * cw / 4f - tw / 2f
+                        initialized = true
+                        viewModel.updateLeading( leadingOffsetX,  leadingOffsetY,  leadingScale, null)
+                        viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, null)
+                    }
+                }
+
+                LaunchedEffect(
+                    leadingOffsetX, leadingOffsetY, leadingScale,
+                    trailingOffsetX, trailingOffsetY, trailingScale,
+                    zOrder, leadingBitmap, trailingBitmap,
+                    leading.filter, trailing.filter
+                ) {
+                    previewBitmap = withContext(Dispatchers.Default) {
+                        val srcLeading  = originalLeadingBitmap  ?: leadingBitmap
+                        val srcTrailing = originalTrailingBitmap ?: trailingBitmap
+                        renderMerged(
+                            canvasWidthPx     = canvasWidthPx,
+                            canvasHeightPx    = canvasHeightPx,
+                            thumbnailWidthPx  = with(density) { AppConstants.THUMBNAIL_SIZE_WIDTH.dp.roundToPx() },
+                            thumbnailHeightPx = with(density) { AppConstants.THUMBNAIL_SIZE_HEIGHT.dp.roundToPx() },
+                            leadingBitmap     = srcLeading,
+                            leadingState      = viewModel.leading.value,
+                            trailingBitmap    = srcTrailing,
+                            trailingState     = viewModel.trailing.value,
+                            zOrder            = zOrder,
+                            applyFilter       = viewModel.applyFilter,
+                        ).asImageBitmap()
+                    }
+                }
+
+                zOrder.forEach { order ->
+                    when (order) {
+                        PickImageMergeViewModel.ImageOrder.BOTTOM -> TransformableImage(
+                            bitmap  = leadingBitmap.asImageBitmap(),
+                            offsetX = leadingOffsetX,
+                            offsetY = leadingOffsetY,
+                            scale   = leadingScale,
+                            onDrag  = { dx, dy ->
+                                leadingOffsetX += dx; leadingOffsetY += dy
+                                viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, leading.filter)
+                            },
+                            onScale = { f ->
+                                leadingScale *= f
+                                viewModel.updateLeading(leadingOffsetX, leadingOffsetY, leadingScale, trailing.filter)
+                            }
+                        )
+                        PickImageMergeViewModel.ImageOrder.TOP -> TransformableImage(
+                            bitmap  = trailingBitmap.asImageBitmap(),
+                            offsetX = trailingOffsetX,
+                            offsetY = trailingOffsetY,
+                            scale   = trailingScale,
+                            onDrag  = { dx, dy ->
+                                trailingOffsetX += dx; trailingOffsetY += dy
+                                viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, leading.filter)
+                            },
+                            onScale = { f ->
+                                trailingScale *= f
+                                viewModel.updateTrailing(trailingOffsetX, trailingOffsetY, trailingScale, trailing.filter)
+                            }
+                        )
+                    }
+                }
             }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // ── 필터 선택 ────────────────────────────────────────────────────
+            FilterSelector(
+                leadingFilter          = leading.filter,
+                trailingFilter         = trailing.filter,
+                onLeadingFilterChange  = { viewModel.setLeadingFilter(it) },
+                onTrailingFilterChange = { viewModel.setTrailingFilter(it) },
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // ── 합성 미리보기 ─────────────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(CanvasHeight)
+                    .border(
+                        width = 1.dp,
+                        color = Color(AppColors.Surface2),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                val preview = previewBitmap
+                if (preview != null) {
+                    Image(
+                        bitmap             = preview,
+                        contentDescription = "합성 미리보기",
+                        contentScale       = ContentScale.Fit,
+                        modifier           = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    )
+                } else {
+                    CircularProgressIndicator()
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        // ── 하단 버튼 ─────────────────────────────────────────────────────────
+        // ── 하단 버튼: Upload ─────────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment     = Alignment.Bottom
         ) {
-            OutlinedButton(
-                onClick  = onCancel,
-                modifier = Modifier.weight(1f)
-            ) { Text("취소") }
-            Button(
+            Text(
+                text     = "Upload",
+                style    = MaterialTheme.typography.labelSmall,
+                color    = Color(AppColors.TextPrimary),
+                modifier = Modifier.padding(end = 8.dp, bottom = 4.dp)
+            )
+            FilledIconButton(
                 onClick = {
                     if (previewBitmap != null)
                         viewModel.saveMergedImage(
@@ -303,9 +315,13 @@ fun PickImageMergeScreen(
                             name            = "Testing"
                         )
                     onConfirm()
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("확인") }
+                }
+            ) {
+                Icon(
+                    imageVector        = Icons.Default.Check,
+                    contentDescription = "업로드"
+                )
+            }
         }
     }
 }
@@ -324,7 +340,6 @@ private fun FilterSelector(
     val onFilterChange = if (selectedTab == 0) onLeadingFilterChange else onTrailingFilterChange
 
     Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-        // 이미지 선택 탭
         SecondaryTabRow(
             selectedTabIndex = selectedTab,
             modifier = Modifier.height(36.dp)
@@ -343,7 +358,6 @@ private fun FilterSelector(
 
         Spacer(Modifier.height(8.dp))
 
-        // 필터 칩 목록
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             item {
                 FilterChip(
@@ -383,7 +397,6 @@ private fun renderMerged(
         bottom = oy + thumbnailHeightPx.toFloat() * s
     )
 
-    // 필터 적용 (null 이면 원본 그대로)
     val filteredLeading  = if (leadingState.filter == null) leadingBitmap else applyFilter.googleApplyFilter(
         leadingBitmap, leadingState.filter)
     val filteredTrailing = if (trailingState.filter == null) trailingBitmap else applyFilter.googleApplyFilter(
