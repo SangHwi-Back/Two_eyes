@@ -10,7 +10,6 @@ import platform.AuthenticationServices.ASAuthorizationScopeFullName
 import platform.UIKit.UIApplication
 import platform.UIKit.UIWindow
 import platform.darwin.NSObject
-import swiftPMImport.TwoEyesProject.shared.GIDSignIn
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -28,32 +27,23 @@ actual class PlatformSignInWorker actual constructor(val uiContext: PlatformUICo
                 return@suspendCancellableCoroutine
             }
 
-            if (uiContext != null) {
-                GIDSignIn
-                    .sharedInstance
-                    .signInWithPresentingViewController(uiContext) { result, error ->
+            val bridge = GoogleSignInBridgeRegistry.bridge
+            when {
+                uiContext == null ->
+                    continuation.resumeWithException(IllegalStateException("UIViewController Not Found"))
+                bridge == null ->
+                    continuation.resumeWithException(IllegalStateException("GoogleSignInBridge is not registered"))
+                else -> bridge.signIn(uiContext, object : GoogleSignInCallback {
+                    override fun onResult(user: SecureUserData.GoogleUserData?, errorMessage: String?) {
                         when {
-                            error != null ->
-                                continuation.resumeWithException(IllegalStateException(error.toString()))
-                            result?.user == null ->
+                            errorMessage != null ->
+                                continuation.resumeWithException(IllegalStateException(errorMessage))
+                            user == null ->
                                 continuation.resumeWithException(IllegalStateException("Google Sign-in failed"))
-                            else -> {
-                                val user = result.user
-                                val googleUserData = SecureUserData.GoogleUserData(
-                                    photoUrl = user.profile?.imageURLWithDimension(180u)?.absoluteString,
-                                    name = user.profile?.name ?: "",
-                                    givenName = user.profile?.givenName,
-                                    familyName = user.profile?.familyName,
-                                    email = user.profile?.email ?: "",
-                                    idToken = user.idToken?.tokenString,
-                                )
-
-                                continuation.resume(googleUserData)
-                            }
+                            else -> continuation.resume(user)
                         }
                     }
-            } else {
-                continuation.resumeWithException(IllegalStateException("UIViewController Not Found"))
+                })
             }
         }
 

@@ -1,5 +1,6 @@
 import SwiftUI
 import Shared
+import GoogleSignIn
 
 enum TwoEyesUserData {
     case apple(SecureUserData.AppleUserData)
@@ -40,12 +41,14 @@ struct iOSApp: App {
     @StateObject private var errorObserver = ErrorBusObserver()
 
     init() {
+        GoogleSignInBridgeRegistry.shared.bridge = GoogleSignInBridgeImpl()
         KoinInitializerKt.doInitKoin()
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
                 .id(refreshTrigger.token)
                 .environmentObject(refreshTrigger)
                 .alert(

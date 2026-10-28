@@ -32,14 +32,6 @@ kotlin {
         }
     }
 
-    swiftPMDependencies {
-        swiftPackage(
-            url = url("https://github.com/google/GoogleSignIn-iOS.git"),
-            version = from("7.1.0"),
-            products = listOf(product("GoogleSignIn")),
-        )
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
