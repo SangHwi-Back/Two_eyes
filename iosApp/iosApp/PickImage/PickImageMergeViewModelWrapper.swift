@@ -22,8 +22,23 @@ final class PickImageMergeViewModelWrapper {
     var leadingState: PickImageMergeViewModel.ImageState {
         viewModel.leading.value as! PickImageMergeViewModel.ImageState
     }
+    var leadingSize: CGSize {
+        CGSize(
+            width: Int(Float(leadingImage?.size.width ?? thumbnailWidth) * leadingState.scale),
+            height: Int(Float(leadingImage?.size.height ?? thumbnailHeight) * leadingState.scale)
+        )
+    }
     var trailingState: PickImageMergeViewModel.ImageState {
         viewModel.trailing.value as! PickImageMergeViewModel.ImageState
+    }
+    var trailingSize: CGSize {
+        CGSize(
+            width: Int(Float(trailingImage?.size.width ?? thumbnailWidth) * trailingState.scale),
+            height: Int(Float(trailingImage?.size.height ?? thumbnailHeight) * trailingState.scale)
+        )
+    }
+    var isLeadingBottom: Bool {
+        zOrder.first == .bottom
     }
     
     // 합성에 사용할 원본 이미지 (PHImageManager 로 로드)
@@ -149,71 +164,64 @@ final class PickImageMergeViewModelWrapper {
     }
     
     private func tryRender() {
-        guard canvasSize.width > 0,
-              let leadingImage, let originalLeadingImage, let trailingImage, let originalTrailingImage else { return }
-
-        // SwiftUI offset (ZStack 중심 기준) → 캔버스 top-left 기준 CGRect 로 변환
-        func makeRect(_ state: PickImageMergeViewModel.ImageState) -> CGRect {
-            CGRect(
-                x: CGFloat(state.offsetX),
-                y: CGFloat(state.offsetY),
-                width: thumbnailWidth * CGFloat(state.scale),
-                height: thumbnailHeight * CGFloat(state.scale))
+        guard canvasSize.width > 0, let renderingModel = getRenderingModel() else {
+            return
         }
-
-        let leadingRect  = makeRect(leadingState)
-        let trailingRect = makeRect(trailingState)
-
-        let isLeadingBottom = zOrder.first == .bottom
-        let (bottomImage, bottomRect, bottomFilter) = isLeadingBottom
-            ? (leadingImage,  leadingRect,  leadingState.filter)
-            : (trailingImage, trailingRect, trailingState.filter)
-        let (topImage, topRect, topFilter) = isLeadingBottom
-            ? (trailingImage, trailingRect, trailingState.filter)
-            : (leadingImage,  leadingRect,  leadingState.filter)
-
-        // 필터 적용 후 합성
-        let filteredBottom = (bottomFilter == nil)
-        ? (isLeadingBottom ? originalLeadingImage : originalTrailingImage)
-        : applyFilter.appleApplyFilter(
-            image: bottomImage, filter: bottomFilter)
-        let filteredTop    = (topFilter == nil)
-        ? (isLeadingBottom ? originalTrailingImage : originalLeadingImage)
-        : applyFilter.appleApplyFilter(
-            image: topImage, filter: topFilter)
         
-        mergedImage = ImageMerger()
-            .merge(model: getImageMergerModel(
-                bottomImage: bottomImage, bottomRect: bottomRect,
-                topImage: topImage, topRect: topRect
-            ))
+        mergedImage = ImageMerger().merge(canvasSize: canvasSize, model: renderingModel)
     }
     
-    private func getImageMergerModel(
-        bottomImage: UIImage, bottomRect: CGRect,
-        topImage: UIImage, topRect: CGRect
-    ) -> ImageMergerModel {
-        ImageMergerModel(
-            canvasWidth: Int32(canvasSize.width),
-            canvasHeight: Int32(canvasSize.height),
-            bottomImage: ImageMergerModel.ImageInfo(
-                image: bottomImage,
-                frame: getImageFrame(bottomRect)
-            ),
-            topImage: ImageMergerModel.ImageInfo(
-                image: topImage,
-                frame: getImageFrame(topRect)
-            ),
-            blendAlpha: 0.5
+    private func getRenderingModel() -> RenderingImageModel? {
+        guard
+            let bottomImage = getBottomFilteredImage(),
+            let topImage = getTopFilteredImage()
+        else {
+            return nil
+        }
+        
+        return RenderingImageModel(
+            bottomRect: getBottomImageRect(),
+            topRect: getTopImageRect(),
+            bottomImage: bottomImage,
+            topImage: topImage
         )
     }
     
-    private func getImageFrame(_ rect: CGRect) -> ImageFrame {
-        ImageFrame(
-            left: Float(rect.origin.x),
-            top: Float(rect.origin.y),
-            right: Float(rect.origin.x + rect.size.width),
-            bottom: Float(rect.origin.y + rect.size.height)
+    private func getBottomFilteredImage() -> UIImage? {
+        getFilteredImage(isLeading: isLeadingBottom)
+    }
+    
+    private func getTopFilteredImage() -> UIImage? {
+        getFilteredImage(isLeading: !isLeadingBottom)
+    }
+    
+    private func getFilteredImage(isLeading: Bool) -> UIImage? {
+        if isLeading {
+            guard let leadingImage else {
+                return originalLeadingImage
+            }
+            return applyFilter.appleApplyFilter(image: leadingImage, filter: leadingState.filter)
+        }
+        else {
+            guard let trailingImage else {
+                return originalTrailingImage
+            }
+            return applyFilter.appleApplyFilter(image: trailingImage, filter: trailingState.filter)
+        }
+    }
+    
+    private func getBottomImageRect() -> CGRect {
+        createImageRect(isLeading: isLeadingBottom)
+    }
+    
+    private func getTopImageRect() -> CGRect {
+        createImageRect(isLeading: !isLeadingBottom)
+    }
+    
+    private func createImageRect(isLeading: Bool) -> CGRect {
+        CGRect(
+            origin: isLeading ? leadingState.getCGPoint : trailingState.getCGPoint,
+            size: isLeading ? leadingSize : trailingSize
         )
     }
     
@@ -248,6 +256,13 @@ class MergeCollector<T>: Kotlinx_coroutines_coreFlowCollector {
     }
 }
 
+struct RenderingImageModel {
+    let bottomRect: CGRect
+    let topRect: CGRect
+    let bottomImage: UIImage
+    let topImage: UIImage
+}
+
 enum CollectorError: Error {
     case invalidValue
 }
@@ -256,4 +271,50 @@ enum MergeImagePropertyTransferType {
     case filter(PickImageMergeViewModel.ImageStateFilter?)
     case offset(CGSize)
     case scale(Float)
+}
+
+private extension PickImageMergeViewModel.ImageState {
+    var getCGPoint: CGPoint {
+        CGPoint(x: CGFloat(offsetX), y: CGFloat(offsetY))
+    }
+}
+private extension ImageMerger {
+    func merge(canvasSize: CGSize, model: RenderingImageModel) -> UIImage? {
+        merge(model: getImageMergerModel(
+            canvasSize: canvasSize,
+            bottomImage: model.bottomImage,
+            bottomRect: model.bottomRect,
+            topImage: model.topImage,
+            topRect: model.topRect
+        ))
+    }
+    
+    func getImageMergerModel(
+        canvasSize: CGSize,
+        bottomImage: UIImage, bottomRect: CGRect,
+        topImage: UIImage, topRect: CGRect
+    ) -> ImageMergerModel {
+        ImageMergerModel(
+            canvasWidth: Int32(canvasSize.width),
+            canvasHeight: Int32(canvasSize.height),
+            bottomImage: ImageMergerModel.ImageInfo(
+                image: bottomImage,
+                frame: getImageFrame(bottomRect)
+            ),
+            topImage: ImageMergerModel.ImageInfo(
+                image: topImage,
+                frame: getImageFrame(topRect)
+            ),
+            blendAlpha: 0.5
+        )
+    }
+    
+    func getImageFrame(_ rect: CGRect) -> ImageFrame {
+        ImageFrame(
+            left: Float(rect.origin.x),
+            top: Float(rect.origin.y),
+            right: Float(rect.origin.x + rect.size.width),
+            bottom: Float(rect.origin.y + rect.size.height)
+        )
+    }
 }

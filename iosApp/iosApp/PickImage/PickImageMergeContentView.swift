@@ -26,6 +26,7 @@ struct PickImageMergeContentView: View {
     
     let leadingSource:  PHAsset
     let trailingSource: PHAsset
+    let horizontalPadding: CGFloat = 16
     
     init(component: MergeImageViewComponent) {
         self.component = component
@@ -73,20 +74,20 @@ struct PickImageMergeContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, horizontalPadding)
                 ScrollView(.vertical) {
                     ZStack {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(AppColors.shared.Surface.color)
                             .stroke(AppColors.shared.Surface2.color, lineWidth: 1)
                         
-                        PHAssetImage(asset: leadingSource, size: thumbnailSize)
+                        PHAssetImage(asset: leadingSource, size: wrapper.leadingSize)
                             .draggableAndScalable(bindLeadingOffset)
                             .scaleEffect(CGFloat(wrapper.leadingState.scale))
                             .offset(wrapper.leadingState.offset)
                             .zIndex(leadingZIndex)
                         
-                        PHAssetImage(asset: trailingSource, size: thumbnailSize)
+                        PHAssetImage(asset: trailingSource, size: wrapper.trailingSize)
                             .draggableAndScalable(bindTrailingOffset)
                             .scaleEffect(CGFloat(wrapper.trailingState.scale))
                             .offset(wrapper.trailingState.offset)
@@ -94,7 +95,7 @@ struct PickImageMergeContentView: View {
                     }
                     .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5)
                     .padding(.top)
-                    .padding(.horizontal)
+                    .padding(.horizontal, horizontalPadding)
                     
                     Divider().padding(.vertical, 8)
                     
@@ -125,7 +126,7 @@ struct PickImageMergeContentView: View {
                         }
                     }
                     .frame(height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5)
-                    .padding(.horizontal)
+                    .padding(.horizontal, horizontalPadding)
                     .padding(.bottom)
                 }
                 
@@ -156,15 +157,16 @@ struct PickImageMergeContentView: View {
                     return
                 }
                 
-                let centerOffsetXDetached = Float(proxy.size.width) / 4
+                let canvasWidth = proxy.size.width - Double(horizontalPadding * 2)
+                let centerOffsetXDetached = canvasWidth / 8
                 wrapper.setCanvasSize(CGSize(
-                    width: proxy.size.width,
+                    width: canvasWidth,
                     height: CGFloat(constant.THUMBNAIL_SIZE_HEIGHT) * 1.5))
                 
-                let leadingOffset = CGSize(width: Int(-centerOffsetXDetached), height: 0)
+                let leadingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
                 wrapper.setLeadingStateValue(.offset(leadingOffset))
                 
-                let trailingOffset = CGSize(width: Int(centerOffsetXDetached), height: 0)
+                let trailingOffset = CGSize(width: Int(centerOffsetXDetached * 3), height: 0)
                 wrapper.setTrailingStateValue(.offset(trailingOffset))
                 
                 isProxyInitialized = true

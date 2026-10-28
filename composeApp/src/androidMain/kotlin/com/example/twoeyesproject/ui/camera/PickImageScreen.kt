@@ -7,13 +7,26 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,9 +35,27 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.RestoreFromTrash
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +74,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.example.twoeyesproject.AppConstants
 import com.example.twoeyesproject.TopAppBarData
 import com.example.twoeyesproject.design.AppColors
 import com.example.twoeyesproject.image.PickImageViewModel
@@ -201,25 +231,29 @@ fun PickImageScreen(
             .fillMaxSize()
             .background(Color(AppColors.Background))  // padding 앞에 와야 전체 영역에 배경이 적용됨
             .padding(8.dp)
-    ) {
-      // iOS: VStack { ScrollView { 슬롯 / Empty / 썸네일 }, 하단 버튼 바(고정) }
-      Column(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-      ) {
+    ) {
+        Row() {
+            Button(
+                onClick = onBack,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Icon(imageVector = Icons.Outlined.Close, contentDescription = "닫기")
+            }
+            Spacer(Modifier.weight(1f))
+        }
         // ── 이미지 슬롯 (iOS: HStack + aspectRatio(0.9)) ─────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(AppConstants.THUMBNAIL_ASPECT_RATIO)
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                .aspectRatio(0.9f)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ImageSlot(
                 imageViewModel = target.leading,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 onClick = {
                     when (it) {
                         CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.leading)
@@ -235,7 +269,7 @@ fun PickImageScreen(
             )
             ImageSlot(
                 imageViewModel = target.trailing,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 onClick = {
                     when (it) {
                         CameraScreenTapType.Highlight -> viewModel.highlightImageView(target.trailing)
@@ -287,9 +321,8 @@ fun PickImageScreen(
                 )
             }
         }
-      }
 
-        // ── 하단 버튼 바 (iOS: ScrollView 밖에 고정. Camera / Pick / GetAll / Next) ──
+        // ── 하단 버튼 바 (iOS: Camera / Pick / GetAll / Next, Spacer 균등 배분) ──
         if (showHighlightAlert) {
             AlertDialog(
                 onDismissRequest = { showHighlightAlert = false },
@@ -406,7 +439,6 @@ private fun ImageSlot(
 
     Box(
         modifier = modifier
-            .fillMaxHeight()
             .dashedBorder(color = strokeColor, cornerRadius = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick(CameraScreenTapType.Highlight) },
@@ -424,10 +456,7 @@ private fun ImageSlot(
             IconButton(
                 onClick = { onClick(CameraScreenTapType.Delete) },
                 modifier = Modifier
-                    .size(
-                        AppConstants.ICON_SIZE_WIDTH.dp,
-                        AppConstants.ICON_SIZE_HEIGHT.dp
-                    )
+                    .size(42.dp)
                     .align(Alignment.TopEnd)
             ) {
                 Icon(imageVector = Icons.Outlined.RestoreFromTrash, contentDescription = "사진 지우기")
