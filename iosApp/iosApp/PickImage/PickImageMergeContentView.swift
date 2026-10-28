@@ -52,6 +52,7 @@ struct PickImageMergeContentView: View {
                 wrapper.leadingState
             }, set: { value, _ in
                 wrapper.setLeadingStateValue(.offset(value.offset))
+                wrapper.setLeadingStateValue(.scale(value.scale))
             })
         
         let bindTrailingOffset = Binding<PickImageMergeViewModel.ImageState>(
@@ -59,6 +60,7 @@ struct PickImageMergeContentView: View {
                 wrapper.trailingState
             }, set: { value, _ in
                 wrapper.setTrailingStateValue(.offset(value.offset))
+                wrapper.setTrailingStateValue(.scale(value.scale))
             })
         // MARK: 제스처 캔버스
         GeometryReader { proxy in
@@ -83,13 +85,11 @@ struct PickImageMergeContentView: View {
                         
                         PHAssetImage(asset: leadingSource, size: wrapper.leadingSize)
                             .draggableAndScalable(bindLeadingOffset)
-                            .scaleEffect(CGFloat(wrapper.leadingState.scale))
                             .offset(wrapper.leadingState.offset)
                             .zIndex(leadingZIndex)
                         
                         PHAssetImage(asset: trailingSource, size: wrapper.trailingSize)
                             .draggableAndScalable(bindTrailingOffset)
-                            .scaleEffect(CGFloat(wrapper.trailingState.scale))
                             .offset(wrapper.trailingState.offset)
                             .zIndex(trailingZIndex)
                     }
@@ -302,54 +302,46 @@ private extension PHAssetImage {
     }
     
     struct DraggableScalableModifier: ViewModifier {
-        /// 제스처 시작 시점의 상태를 캡처 — onChanged 마다 base + delta 로 계산
-        @State private var baseState: PickImageMergeViewModel.ImageState?
-        
         @Binding var imageState: PickImageMergeViewModel.ImageState
         
-        @GestureState private var dragOffset: CGSize = .zero
-        @GestureState private var magnifying: CGFloat = 1
+        /// 제스처 시작 시점의 값 — translation / magnification 은 시작점 기준 누적값이므로
+        /// 매 이벤트마다 "시작값 + 변화량" 으로 계산해야 중복 누적되지 않는다.
+        @State private var dragBase: CGSize?
+        @State private var magnifyBase: Float?
         
         func body(content: Content) -> some View {
-            content.simultaneousGesture(
-                DragGesture()
-                    .updating($dragOffset, body: { value, state, transaction in
-                        state = value.translation
-                        imageState = .init(
-                            offsetX: imageState.offsetX + Float(value.translation.width),
-                            offsetY: imageState.offsetY + Float(value.translation.height),
-                            scale:   imageState.scale,
-                            filter:  imageState.filter   // filter 보존
-                        )
-                    })
-                    .onEnded { value in
-                        imageState = .init(
-                            offsetX: imageState.offsetX + Float(value.translation.width),
-                            offsetY: imageState.offsetY + Float(value.translation.height),
-                            scale:   imageState.scale,
-                            filter:  imageState.filter   // filter 보존
-                        )
-                    }
-            )
-            .simultaneousGesture(
-                MagnifyGesture()
-                    .updating($magnifying, body: { value, state, transaction in
-                        state = value.magnification
-                        imageState = .init(
-                            offsetX: imageState.offsetX,
-                            offsetY: imageState.offsetY,
-                            scale:   imageState.scale * Float(value.magnification),
-                            filter:  imageState.filter   // filter 보존
-                        )
-                    })
-                    .onEnded { value in
-                        imageState = .init(
-                            offsetX: imageState.offsetX,
-                            offsetY: imageState.offsetY,
-                            scale:   imageState.scale * Float(value.magnification),
-                            filter:  imageState.filter   // filter 보존
-                        )
-                    }
+            content
+                .simultaneousGesture(
+                    // 뷰 자체가 .offset 으로 움직이므로 local 좌표를 쓰면 translation 이 흔들린다.
+                    DragGesture(coordinateSpace: .global)
+                        .onChanged { value in
+                            let base = dragBase ?? CGSize(
+                                width: CGFloat(imageState.offsetX),
+                                height: CGFloat(imageState.offsetY))
+                            dragBase = base
+                            update(offsetX: base.width + value.translation.width,
+                                   offsetY: base.height + value.translation.height)
+                        }
+                        .onEnded { _ in dragBase = nil }
+                )
+                .simultaneousGesture(
+                    MagnifyGesture()
+                        .onChanged { value in
+                            let base = magnifyBase ?? imageState.scale
+                            magnifyBase = base
+                            update(scale: base * Float(value.magnification))
+                        }
+                        .onEnded { _ in magnifyBase = nil }
+                )
+        }
+        
+        /// 변경하지 않는 값(filter 포함)은 현재 상태를 그대로 보존한다.
+        private func update(offsetX: CGFloat? = nil, offsetY: CGFloat? = nil, scale: Float? = nil) {
+            imageState = .init(
+                offsetX: offsetX.map(Float.init) ?? imageState.offsetX,
+                offsetY: offsetY.map(Float.init) ?? imageState.offsetY,
+                scale:   scale ?? imageState.scale,
+                filter:  imageState.filter
             )
         }
     }

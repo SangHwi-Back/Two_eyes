@@ -218,10 +218,18 @@ final class PickImageMergeViewModelWrapper {
         createImageRect(isLeading: !isLeadingBottom)
     }
     
+    /// 제스처 캔버스(ZStack)는 이미지를 중앙에 배치한 뒤 `.offset` 으로 이동시키므로
+    /// ImageState 의 offset 은 "캔버스 중앙 기준 이동량" 이다.
+    /// 합성기(ImageMerger)는 좌상단 원점 좌표를 받으므로 여기서 변환해 두 화면의 위치를 일치시킨다.
     private func createImageRect(isLeading: Bool) -> CGRect {
-        CGRect(
-            origin: isLeading ? leadingState.getCGPoint : trailingState.getCGPoint,
-            size: isLeading ? leadingSize : trailingSize
+        let state = isLeading ? leadingState : trailingState
+        let size = isLeading ? leadingSize : trailingSize
+        return CGRect(
+            origin: CGPoint(
+                x: canvasSize.width / 2 + CGFloat(state.offsetX) - size.width / 2,
+                y: canvasSize.height / 2 + CGFloat(state.offsetY) - size.height / 2
+            ),
+            size: size
         )
     }
     
